@@ -25,7 +25,6 @@ class HomeScreen extends StatefulWidget {
 FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 VideoPlayerController? videoPlayerController;
 Future<void>? videoPlayerFuture;
-Future<void>? videoPlayerFuturecdd;
 ChewieController? chewieController;
 File? zipFileData;
 RxBool zipBool = false.obs;
