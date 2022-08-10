@@ -27,7 +27,6 @@ VideoPlayerController? videoPlayerController;
 Future<void>? videoPlayerFuture;
 ChewieController? chewieController;
 
-
 File? zipFileData;
 RxBool zipBool = false.obs;
 RxBool isMessage = false.obs;
