@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1017005369043",
+    "project_id": "fans2-348720",
+    "storage_bucket": "fans2-348720.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1017005369043:android:e080094d9d9dabf31fd626",
+        "android_client_info": {
+          "package_name": "com.fans2.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1017005369043-l6sqlpvrcg3hc0mheh4urck8esquccs1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fans2.android",
+            "certificate_hash": "12bdcdd33f2c165f8b659d10b46f6a00756b7bc7"
+          }
+        },
+        {
+          "client_id": "1017005369043-eusn8dhq94niknt39jhap0raomceifh5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBA0fMIEF9FYri8QHAkOFnPJTNQkCtF6AY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1017005369043-eusn8dhq94niknt39jhap0raomceifh5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
