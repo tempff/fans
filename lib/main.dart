@@ -56,8 +56,6 @@ class MyApp extends StatelessWidget {
             // ,
             // themeMode: themeProvider.themeMode,
             // darkTheme: MyTheme.darkTheme,
-
-
             builder: (context, widget) => ResponsiveWrapper.builder(
               BouncingScrollWrapper.builder(context, widget!),
               maxWidth: MediaQuery.of(context).size.width,
