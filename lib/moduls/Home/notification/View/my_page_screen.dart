@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fans/moduls/Home/notification/View/edit_page_screen.dart';
 import 'package:fans/utility/theme_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:velocity_x/velocity_x.dart';
-
+import 'package:dio/dio.dart' as dio;
 import 'package:fans/utility/utility_export.dart';
 import '../../home/home_screen.dart';
 
@@ -69,7 +70,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                             borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 topRight: Radius.circular(10)),
-                            child: Image(
+                            child: /*Image(
                               height: getScreenHeight(context) * 0.23,
                               width: getScreenWidth(context),
                               fit: BoxFit.cover,
@@ -77,24 +78,28 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   ? FileImage(File(bgImage.value))
                                       as ImageProvider
                                   : bgPlaceholder,
-                            ),
+                            ),*/
 
-                            /*CachedNetworkImage(
-                                imageUrl: "",
-                                imageBuilder: (context, imageProvider) => Container(
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.cover,
-                                        colorFilter: ColorFilter.mode(
-                                            Colors.red, BlendMode.colorBurn)),
+                                CachedNetworkImage(
+                              width: getScreenWidth(context),
+                              height: getScreenHeight(context) * 0.22,
+                              imageUrl: kNotificationController
+                                      .myPageModel.value.data?.user?.cover ??
+                                  '',
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: imageProvider,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(),
-                                errorWidget: (context, url, error) =>
-                                    Image(image: bgPlaceholder),
-                              ),*/
+                              ),
+                              placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                                  Image(image: bgPlaceholder),
+                            ),
                           ),
                         ),
                         Positioned(
@@ -119,6 +124,8 @@ class _MyPageScreenState extends State<MyPageScreen>
                             ),
                           ),
                         ),
+
+                        ///ProfilePic
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
@@ -134,25 +141,6 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   ]),
                               child: Stack(
                                 children: [
-                                  /*kNotificationController.getUserProfileModel.value.data != null && selectedImage.value.isEmpty
-                                        ? ClipRRect(
-                                            borderRadius: BorderRadius.circular(100),
-                                            child: Stack(
-                                              children: [
-                                                CachedNetworkImage(
-                                                  height: 125,
-                                                  width: 125,
-                                                  fit: BoxFit.cover,
-                                                  imageUrl:
-                                                      kAuthenticationController.getUserProfileModel.value.data!.profileImg.toString(),
-                                                  placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                                                  errorWidget: (context, url, error) =>
-                                                      Image(image: profilePlaceholder, fit: BoxFit.cover),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        :*/
                                   Container(
                                     decoration: BoxDecoration(
                                         border: Border.all(
@@ -163,37 +151,70 @@ class _MyPageScreenState extends State<MyPageScreen>
                                       borderRadius: BorderRadius.circular(100),
                                       child: Stack(
                                         children: [
-                                          Image(
+                                          CachedNetworkImage(
                                             height: 125,
                                             width: 125,
                                             fit: BoxFit.cover,
-                                            image: profileImage.value.isNotEmpty
-                                                ? FileImage(File(
-                                                        profileImage.value))
-                                                    as ImageProvider
-                                                : profilePlaceholder,
+                                            imageUrl: kNotificationController
+                                                    .myPageModel
+                                                    .value
+                                                    .data
+                                                    ?.user
+                                                    ?.avatar ??
+                                                '',
+                                            placeholder: (context, url) =>
+                                                Image(
+                                                    image: profilePlaceholder,
+                                                    fit: BoxFit.cover),
+                                            errorWidget:
+                                                (context, url, error) => Image(
+                                                    image: profilePlaceholder,
+                                                    fit: BoxFit.cover),
                                           ),
                                           Align(
                                             alignment: Alignment.bottomCenter,
-                                            child: InkWell(
-                                              highlightColor: colorWhite,
-                                              splashColor: colorWhite,
-                                              onTap: () async {
-                                                picImageFromGallery(
-                                                    isProfile: true);
-                                              },
-                                              child: Container(
-                                                width: 125,
-                                                height: 40,
-                                                decoration: BoxDecoration(
-                                                    color: colorBlack
-                                                        .withOpacity(0.3)),
-                                                child: const Icon(
-                                                    CupertinoIcons.camera_fill,
-                                                    size: 20,
-                                                    color: colorWhite),
-                                              ),
-                                            ),
+                                            child: StreamBuilder<Object>(
+                                                stream: profileImage.stream,
+                                                builder: (context, snapshot) {
+                                                  return InkWell(
+                                                    highlightColor: colorWhite,
+                                                    splashColor: colorWhite,
+                                                    onTap: () async {
+                                                      picImageFromGallery(
+                                                          isProfile: true);
+                                                      if (profileImage
+                                                          .value.isNotEmpty) {
+                                                        dio.FormData formData =
+                                                            dio.FormData
+                                                                .fromMap({
+                                                          "avatar": await dio
+                                                                  .MultipartFile
+                                                              .fromFile(
+                                                                  profileImage
+                                                                      .value),
+                                                        });
+                                                        kNotificationController
+                                                            .uploadProfileApiCall(
+                                                                formData, () {
+                                                          kNotificationController.myPageApiCall({}, () {});
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      width: 125,
+                                                      height: 38,
+                                                      decoration: BoxDecoration(
+                                                          color: colorBlack
+                                                              .withOpacity(
+                                                                  0.3)),
+                                                      child: const Icon(
+                                                          CupertinoIcons
+                                                              .camera_fill,
+                                                          size: 20,
+                                                          color: colorWhite),
+                                                    ),
+                                                  );
+                                                }),
                                           ),
                                         ],
                                       ),
@@ -210,7 +231,10 @@ class _MyPageScreenState extends State<MyPageScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(kNotificationController.myPageModel.value.name ?? '',
+                      Text(
+                          kNotificationController
+                                  .myPageModel.value.data?.user?.username ??
+                              '',
                           style: greyInter22W800.copyWith(fontSize: 20)),
                       10.widthBox,
                       const Icon(
@@ -227,11 +251,13 @@ class _MyPageScreenState extends State<MyPageScreen>
                     ],
                   ),
 
-                  kNotificationController
-                              .myPageModel.value.profession?.isNotEmpty ==
+                  kNotificationController.myPageModel.value.data?.user
+                              ?.profession?.isNotEmpty ==
                           true
                       ? Text(
-                          kNotificationController.myPageModel.value.profession!,
+                          kNotificationController
+                                  .myPageModel.value.data?.user?.profession ??
+                              '',
                           style: blackInter14W500,
                         ).paddingOnly(top: 5.0, bottom: 5.0)
                       : const SizedBox.shrink(),
@@ -259,7 +285,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                               ],
                             ),
                             tapOnButton: () {
-                              Get.to(() =>  EditPageScreen());
+                              Get.to(() => EditPageScreen());
                             },
                           ),
                         ),
@@ -419,13 +445,15 @@ class _MyPageScreenState extends State<MyPageScreen>
                               icon: CupertinoIcons.heart, title: 'Likes'),
                           commonAboutMeRow(
                               icon: Icons.pin_drop_outlined,
-                              title: '${kNotificationController.myPageModel.value.address}, ${kNotificationController.myPageModel.value.city}'),
+                              title:
+                                  '${kNotificationController.myPageModel.value.data?.user?.address ?? ''} ${kNotificationController.myPageModel.value.data?.user?.city ?? ''}'),
                           commonAboutMeRow(
                               icon: Icons.person_outline,
                               title: 'Member since mar 13, 2021'),
                           10.heightBox,
                           Text(
-                            kNotificationController.myPageModel.value.story ??
+                            kNotificationController
+                                    .myPageModel.value.data?.user?.story ??
                                 '',
                             style: greyInter14W400,
                           ),
@@ -478,10 +506,10 @@ class _MyPageScreenState extends State<MyPageScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         controller: tabController,
                         children: <Widget>[
-                          homeViewData(false, context,'All Post'),
-                          homeViewData(false, context,'Images'),
-                          homeViewData(false, context,'Videos'),
-                          homeViewData(false, context,'Music'),
+                          homeViewData(false, context, 'All Post'),
+                          homeViewData(false, context, 'Images'),
+                          homeViewData(false, context, 'Videos'),
+                          homeViewData(false, context, 'Music'),
                         ],
                       ),
                     ),

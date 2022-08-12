@@ -45,7 +45,7 @@ class Api {
     bool? isHideLoader = true,
     bool isProgressShow = true,
     bool isPassHeader = true,
-    getX.FormData? formValues,
+    FormData? formValues,
   }) async {
     if (await checkInternet()) {
       if (isProgressShow) {

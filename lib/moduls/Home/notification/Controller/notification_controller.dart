@@ -7,9 +7,11 @@ import 'package:fans/moduls/Home/notification/Model/my_subscriptions_model.dart'
 import 'package:fans/moduls/Home/notification/Model/notification_delete_model.dart';
 import 'package:fans/moduls/Home/notification/Model/notification_model.dart';
 import 'package:fans/moduls/Home/notification/Model/restiction_model.dart';
+import 'package:fans/moduls/Home/notification/Model/upload_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../../../../API/api_call.dart';
 import '../../../../API/api_config.dart';
@@ -260,8 +262,7 @@ class NotificationController extends GetxController {
         url: ApiConfig.myPage,
         success: (dio.Response<dynamic> response) {
           try {
-            myPageModel.value =
-                MyPageModel.fromJson(json.decode(response.data));
+            myPageModel.value = MyPageModel.fromJson(response.data);
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }
@@ -270,7 +271,7 @@ class NotificationController extends GetxController {
           showLog(response.toString());
         },
         params: {},
-        methodType: MethodType.post,
+        methodType: MethodType.get,
         isProgressShow: true,
         isPassHeader: true);
   }
@@ -301,14 +302,17 @@ class NotificationController extends GetxController {
 
   ///Cover Image Api Call
 
-  Rx<DeleteCoverImageModel> deleteCoverImagesModel = DeleteCoverImageModel().obs;
+  Rx<DeleteCoverImageModel> deleteCoverImagesModel =
+      DeleteCoverImageModel().obs;
 
-  deleteCoverImagesApiCall(Map<String, dynamic> params, Function callback) async {
+  deleteCoverImagesApiCall(
+      Map<String, dynamic> params, Function callback) async {
     Api().call(
         url: ApiConfig.deleteCover,
         success: (dio.Response<dynamic> response) {
           try {
-            restrictionsModel.value = RestrictionsModel.fromJson(json.decode(response.data));
+            restrictionsModel.value =
+                RestrictionsModel.fromJson(json.decode(response.data));
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }
@@ -320,5 +324,28 @@ class NotificationController extends GetxController {
         methodType: MethodType.post,
         isProgressShow: true,
         isPassHeader: true);
+  }
+
+  ///Upload Profile Pic
+  Rx<UploadProfileModel> uploadProfileModel = UploadProfileModel().obs;
+
+  uploadProfileApiCall(dio.FormData formData, Function callback) {
+    Api().call(
+        url: ApiConfig.uploadProfile,
+        success: (dio.Response<dynamic> response) {
+          try {
+            uploadProfileModel.value = UploadProfileModel.fromJson(json.decode(response.data));
+            callback();
+          } catch (e) {
+            showLog(response.toString());
+          }
+        },
+        error: (dio.Response<dynamic> response) {
+          showLog(response.toString());
+        },
+        methodType: MethodType.post,
+        params: {},
+        isProgressShow: true,
+        formValues: formData);
   }
 }

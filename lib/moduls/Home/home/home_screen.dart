@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:fans/moduls/Home/home/goto_post_screen.dart';
 import 'package:fans/moduls/Home/notification/View/my_page_screen.dart';
@@ -38,14 +39,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    kHomeController.myPostApiCall({}, () {
+    /* kHomeController.myPostApiCall({}, () {
       kHomeController.myPostModel.refresh();
+    });*/
+    kHomeController.homePageApiCall({}, () {
+      /*     for (int i = 0; i < (kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0); i++) {
+        videoPlayerController = VideoPlayerController.network(
+            kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl ?? '');
+        */ /*print(kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl);*/ /*
+      }*/
     });
-    kHomeController.homePageApiCall({}, () {});
 
-    videoPlayerController = VideoPlayerController.network(
-        "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4");
-    videoPlayerFuture = videoPlayerController!.initialize();
+    //
+    videoPlayerController =
+        VideoPlayerController.network('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4');
+    videoPlayerFuture = videoPlayerController?.initialize();
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController!,
       autoPlay: true,
@@ -53,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     videoPlayerController?.setLooping(true); // videoPlayerController?.play();
   }
-
 
   /* @override
   void dispose() {
@@ -88,8 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-void actionPopUpItemSelected(String value, String? name, BuildContext context,
-    int? id, String? description, String? image) {
+void actionPopUpItemSelected(
+    String value, String? name, BuildContext context, int? id, String? description, String? image) {
   kHomeController.scaffoldkey.currentState?.hideCurrentSnackBar();
   String message;
   if (value == 'GoToPost') {
@@ -114,9 +121,7 @@ void pinYourProfile(int? id) {
     'id': id,
   };
   kHomeController.pinPostApiCall(params, () {
-    Fluttertoast.showToast(
-        msg: kHomeController.pinPostModel.value.status ?? '',
-        toastLength: Toast.LENGTH_LONG);
+    Fluttertoast.showToast(msg: kHomeController.pinPostModel.value.status ?? '', toastLength: Toast.LENGTH_LONG);
   });
 }
 
@@ -200,8 +205,7 @@ Future<void> editPost(
                       background: MaterialStateProperty.all(deepPurpleColor),
                       text: 'Save',
                       height: 45.0,
-                      textStyle: FontStyleUtility.blackInter16W500
-                          .copyWith(color: colorWhite)),
+                      textStyle: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite)),
                 ],
               ),
             ],
@@ -243,8 +247,7 @@ Future deletePost(BuildContext context) {
               SizedBox(
                 width: 160,
                 child: materialButton(
-                    background: MaterialStateProperty.all(
-                        deepPurpleColor.withOpacity(0.5)),
+                    background: MaterialStateProperty.all(deepPurpleColor.withOpacity(0.5)),
                     textStyle: const TextStyle(color: colorWhite),
                     text: 'No cancel !',
                     onTap: () {
@@ -401,8 +404,7 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                       ? Align(
                           alignment: Alignment.centerLeft,
                           child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 5.0)
-                                .copyWith(bottom: 10.0),
+                            margin: const EdgeInsets.symmetric(vertical: 5.0).copyWith(bottom: 10.0),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -424,8 +426,7 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                                           zipBool.value = false;
                                           zipFileData = null;
                                         },
-                                        icon: const Icon(
-                                            Icons.highlight_remove_sharp)),
+                                        icon: const Icon(Icons.highlight_remove_sharp)),
                                   ),
                                 )
                               ],
@@ -446,29 +447,19 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                                 return Align(
                                   alignment: Alignment.centerLeft,
                                   child: ListView.builder(
-                                      itemCount: (kHomeController
-                                              .imageFileList.length) +
-                                          1,
+                                      itemCount: (kHomeController.imageFileList.length) + 1,
                                       physics: const ClampingScrollPhysics(),
                                       scrollDirection: Axis.horizontal,
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
-                                        return index !=
-                                                kHomeController
-                                                    .imageFileList.length
+                                        return index != kHomeController.imageFileList.length
                                             ? Stack(
                                                 children: [
                                                   Container(
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                              right: 12,
-                                                              top: 5),
+                                                      margin: const EdgeInsets.only(right: 12, top: 5),
                                                       child: Center(
                                                         child: Image.file(
-                                                          File(kHomeController
-                                                              .imageFileList[
-                                                                  index]
-                                                              .path),
+                                                          File(kHomeController.imageFileList[index].path),
                                                           fit: BoxFit.cover,
                                                           width: 130,
                                                         ),
@@ -478,15 +469,10 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                                                     right: 5,
                                                     child: IconButton(
                                                       visualDensity:
-                                                          const VisualDensity(
-                                                              vertical:
-                                                                  VisualDensity
-                                                                      .minimumDensity),
+                                                          const VisualDensity(vertical: VisualDensity.minimumDensity),
                                                       padding: EdgeInsets.zero,
                                                       onPressed: () {
-                                                        kHomeController
-                                                            .imageFileList
-                                                            .removeAt(index);
+                                                        kHomeController.imageFileList.removeAt(index);
                                                       },
                                                       icon: const Icon(
                                                         Icons.remove_circle,
@@ -498,14 +484,15 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                                               )
                                             : InkWell(
                                                 onTap: () async {
-                                            /*      FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+                                                  /*      FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
                                                   if (result != null) {
                                                     kHomeController.selectedImages?.value = result.paths.map((path) => XFile(path??'')).toList();
                                                   } else {
                                                     // User canceled the picker
                                                   }*/
 
-                                                  final List<XFile>?selectedImages = await kHomeController.imagePicker.pickMultiImage();
+                                                  final List<XFile>? selectedImages =
+                                                      await kHomeController.imagePicker.pickMultiImage();
 
                                                   if (selectedImages!.isNotEmpty) {
                                                     kHomeController.imageFileList.addAll(selectedImages);
@@ -513,29 +500,18 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                                                 },
                                                 child: Container(
                                                   decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20.0),
+                                                      borderRadius: BorderRadius.circular(20.0),
                                                       border: Border.all(
-                                                          color: isDarkOn
-                                                                      .value ==
-                                                                  true
+                                                          color: isDarkOn.value == true
                                                               ? colorLightWhite
-                                                              : colorBlack
-                                                                  .withOpacity(
-                                                                      0.5))),
-                                                  margin: const EdgeInsets.only(
-                                                      right: 12),
+                                                              : colorBlack.withOpacity(0.5))),
+                                                  margin: const EdgeInsets.only(right: 12),
                                                   width: 130,
                                                   child: Center(
                                                       child: Icon(Icons.add,
-                                                          color: isDarkOn
-                                                                      .value ==
-                                                                  true
+                                                          color: isDarkOn.value == true
                                                               ? colorLightWhite
-                                                              : colorBlack
-                                                                  .withOpacity(
-                                                                      0.5))),
+                                                              : colorBlack.withOpacity(0.5))),
                                                 ),
                                               );
                                       }),
@@ -548,27 +524,22 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
               () => Row(
                 children: [
                   IconButton(
-                    visualDensity: const VisualDensity(
-                        vertical: VisualDensity.minimumDensity),
+                    visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
                     padding: EdgeInsets.zero,
                     onPressed: () {
-                      kHomeController.imageShowing.value =
-                          !kHomeController.imageShowing.value;
+                      kHomeController.imageShowing.value = !kHomeController.imageShowing.value;
                     },
                     icon: Icon(
                       Icons.image_outlined,
-                      color:
-                          isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                      color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                       size: 25,
                     ),
                   ),
                   20.widthBox,
                   IconButton(
                     onPressed: () async {
-                      FilePickerResult? result = await FilePicker.platform
-                          .pickFiles(
-                              type: FileType.custom,
-                              allowedExtensions: ['zip']);
+                      FilePickerResult? result =
+                          await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['zip']);
 
                       if (result != null) {
                         zipFileData = File(result.files.single.path ?? '');
@@ -580,23 +551,20 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                     },
                     icon: Icon(
                       Icons.folder_zip_outlined,
-                      color:
-                          isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                      color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                       size: 25,
                     ),
                   ),
                   20.widthBox,
                   Icon(
                     Icons.lock_outline,
-                    color:
-                        isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                    color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                     size: 25,
                   ),
                   20.widthBox,
                   Icon(
                     Icons.emoji_emotions_outlined,
-                    color:
-                        isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                    color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                     size: 25,
                   ),
                 ],
@@ -616,8 +584,7 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                   );
                 },
                 height: 40.0,
-                textStyle: FontStyleUtility.blackInter16W500
-                    .copyWith(color: colorWhite)),
+                textStyle: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite)),
             20.heightBox,
             Align(
                 alignment: Alignment.centerRight,
@@ -640,29 +607,20 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: value == 'All Post'
                         ? (kHomeController.myPostModel.value.posts?.length ?? 0)
-                        : kHomeController.homePageModel.value.data?.updates
-                                ?.data?.length ??
-                            0,
+                        : kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0,
                     itemBuilder: (context, index) {
                       return commonPost(
                         context,
                         index: index,
-                        name: kHomeController.homePageModel.value.data?.updates
-                            ?.data?[index].user?.name,
-                        date: kHomeController.homePageModel.value.data?.updates
-                            ?.data?[index].date,
-                        price: kHomeController.homePageModel.value.data?.updates
-                            ?.data?[index].price,
-                        username: kHomeController.homePageModel.value.data
-                            ?.updates?.data?[index].user?.username,
-                        description: kHomeController.homePageModel.value.data
-                            ?.updates?.data?[index].description,
-                        likeCounts: kHomeController.homePageModel.value.data
-                            ?.updates?.data?[index].likeCount
-                            .toString(),
-                        commentsCounts: kHomeController.homePageModel.value.data
-                            ?.updates?.data?[index].commentCount
-                            .toString(),
+                        name: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.name,
+                        date: kHomeController.homePageModel.value.data?.updates?.data?[index].date,
+                        price: kHomeController.homePageModel.value.data?.updates?.data?[index].price,
+                        username: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.username,
+                        description: kHomeController.homePageModel.value.data?.updates?.data?[index].description,
+                        likeCounts:
+                            kHomeController.homePageModel.value.data?.updates?.data?[index].likeCount.toString(),
+                        commentsCounts:
+                            kHomeController.homePageModel.value.data?.updates?.data?[index].commentCount.toString(),
                       );
                     })
             /*   : SizedBox(
@@ -737,8 +695,7 @@ Widget exploreCreatorData() {
                               ),
                             ),
                             color: const Color(0xff7c94b6),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(50.0)),
+                            borderRadius: const BorderRadius.all(Radius.circular(50.0)),
                             border: Border.all(
                               color: colorWhite,
                               width: 2.0,
@@ -755,10 +712,7 @@ Widget exploreCreatorData() {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: const [
                                 Text('Gym Guy',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900,
-                                        color: colorWhite)),
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorWhite)),
                                 Icon(
                                   Icons.verified_outlined,
                                   color: colorWhite,
@@ -850,18 +804,14 @@ Widget commonPost(BuildContext context,
                     children: [
                       Icon(
                         CupertinoIcons.pin,
-                        color: isDarkOn.value == true
-                            ? colorLightWhite
-                            : colorGreyOpacity30,
+                        color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
                         size: 20,
                       ),
                       5.widthBox,
                       Text(
                         'Pinned Post',
                         style: greyInter14W500.copyWith(
-                            color: isDarkOn.value == true
-                                ? colorLightWhite
-                                : colorGreyOpacity30),
+                            color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30),
                       )
                     ],
                   )
@@ -875,13 +825,22 @@ Widget commonPost(BuildContext context,
           ClipOval(
             child: SizedBox.fromSize(
               size: const Size.fromRadius(35), // Image radius
-              child: Image.asset(
-                'assets/images/profile.jpeg',
-                scale: 3.5,
-                height: 55.0,
-                width: 55.0,
-                fit: BoxFit.fill,
-              ),
+              child: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.avatarUrl?.isNotEmpty == true
+                  ? CachedNetworkImage(
+                      height: 55.0,
+                      width: 55.0,
+                      fit: BoxFit.fill,
+                      imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.avatarUrl ?? '',
+                      placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                      errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                    )
+                  : Image.asset(
+                      'assets/images/profile_placeholder.png',
+                      scale: 3.5,
+                      height: 55.0,
+                      width: 55.0,
+                      fit: BoxFit.fill,
+                    ),
             ),
           ),
           20.widthBox,
@@ -897,9 +856,7 @@ Widget commonPost(BuildContext context,
                         Text(
                           name ?? '',
                           style: FontStyleUtility.blackInter22W500.copyWith(
-                              color: isDarkOn.value == true
-                                  ? colorWhite
-                                  : deepPurpleColor,
+                              color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                               fontWeight: FontWeight.w900),
                         ),
                         5.widthBox,
@@ -919,27 +876,19 @@ Widget commonPost(BuildContext context,
                       children: [
                         Text(
                           timeUntil(date),
-                          style: greyInter16W500.copyWith(
-                              color: isDarkOn.value == true
-                                  ? colorLightWhite
-                                  : colorGrey),
+                          style: greyInter16W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGrey),
                         ),
                         10.widthBox,
                         Icon(
-                          kHomeController.myPostModel.value.posts?[index]
-                                      .locked ==
-                                  'yes'
+                          kHomeController.myPostModel.value.posts?[index].locked == 'yes'
                               ? Icons.lock_outline
                               : Icons.public_outlined,
-                          color: isDarkOn.value == true
-                              ? colorLightWhite
-                              : colorGrey,
+                          color: isDarkOn.value == true ? colorLightWhite : colorGrey,
                           size: 20.0,
                         ),
                         5.widthBox,
                         Text(
-                          price ??
-                              '' /*kHomeController.myPostModel.value.posts?[index].price ?? ''*/,
+                          price ?? '' /*kHomeController.myPostModel.value.posts?[index].price ?? ''*/,
                           style: blackInter14W500,
                         )
                       ],
@@ -1031,7 +980,7 @@ Widget commonPost(BuildContext context,
                   color: colorBlack,
                 ),*/
 
-    /*  index == 2
+      kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].type == 'video'
           ? FutureBuilder(
               future: videoPlayerFuture,
               builder: (context, snapshot) {
@@ -1047,14 +996,24 @@ Widget commonPost(BuildContext context,
                 }
               },
             )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                'assets/images/post1.jpeg',
-                fit: BoxFit.cover,
-              ),
-            ),
-      5.heightBox,*/
+          : kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].type == 'image'
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.fill,
+                    imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].mediaUrl ?? '',
+                    placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                    errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                  ),
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    'assets/images/post1.jpeg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+      5.heightBox,
       StreamBuilder<Object>(
           stream: isDarkOn.stream,
           builder: (context, snapshot) {
@@ -1068,7 +1027,7 @@ Widget commonPost(BuildContext context,
                           splashRadius: 20.0,
                           onPressed: () {
                             // kHomeController.likeButton.value = !kHomeController.likeButton.value;
-                            kHomeController.homePageModel.value.data?.updates
+                            /*         kHomeController.homePageModel.value.data?.updates
                                 ?.data?[index].isLiked = !(kHomeController
                                     .homePageModel
                                     .value
@@ -1076,18 +1035,21 @@ Widget commonPost(BuildContext context,
                                     ?.updates
                                     ?.data?[index]
                                     .isLiked ??
-                                false);
+                                false);*/
+
+                            Map<String, dynamic> params = {
+                              'id': kHomeController.homePageModel.value.data?.updates?.data?[index].id
+                            };
+                            kHomeController.postLikeApiCall(params, () {
+                              kHomeController.homePageApiCall({}, () {});
+                            });
                           },
                           icon: Icon(
-                            kHomeController.homePageModel.value.data?.updates
-                                        ?.data?[index].isLiked ==
-                                    true
+                            kHomeController.homePageModel.value.data?.updates?.data?[index].isLiked == true
                                 ? CupertinoIcons.heart_fill
                                 : CupertinoIcons.suit_heart,
                             size: 25,
-                            color: kHomeController.homePageModel.value.data
-                                        ?.updates?.data?[index].isLiked ==
-                                    true
+                            color: kHomeController.homePageModel.value.data?.updates?.data?[index].isLiked == true
                                 ? colorRed
                                 : isDarkOn.value == true
                                     ? colorLightWhite
@@ -1109,8 +1071,7 @@ Widget commonPost(BuildContext context,
                     icon: Icon(
                       CupertinoIcons.chat_bubble,
                       size: 22,
-                      color:
-                          isDarkOn.value == true ? colorLightWhite : colorGrey,
+                      color: isDarkOn.value == true ? colorLightWhite : colorGrey,
                     )),
                 Text(
                   commentsCounts ?? '',
@@ -1139,9 +1100,8 @@ Widget commonPost(BuildContext context,
                           child: GridView(
                             shrinkWrap: true,
                             physics: const ClampingScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2, childAspectRatio: 1.5),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2, childAspectRatio: 1.5),
                             children: [
                               commonDialogItems(
                                 image: facebook,
@@ -1171,8 +1131,7 @@ Widget commonPost(BuildContext context,
                     icon: Icon(
                       CupertinoIcons.share,
                       size: 22,
-                      color:
-                          isDarkOn.value == true ? colorLightWhite : colorGrey,
+                      color: isDarkOn.value == true ? colorLightWhite : colorGrey,
                     )),
                 const Spacer(),
                 StreamBuilder<Object>(
@@ -1190,9 +1149,7 @@ Widget commonPost(BuildContext context,
                             };
                             kHomeController.addBookMarkApiCall(params, () {
                               kHomeController.homePageModel.refresh();
-                              data == 'bookmark'
-                                  ? kHomeController.bookMarkApiCall({}, () {})
-                                  : () {};
+                              data == 'bookmark' ? kHomeController.bookMarkApiCall({}, () {}) : () {};
                             });
                           },
                           icon: Icon(
@@ -1240,51 +1197,36 @@ Widget commonPost(BuildContext context,
                                   builder: (context, snapshot) {
                                     return Column(
                                       // mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             Text(
                                               'Admin Account',
                                               style: blackInter15W500.copyWith(
-                                                  color: isDarkOn.value == true
-                                                      ? colorWhite
-                                                      : deepPurpleColor,
+                                                  color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w900),
                                             ),
                                             Icon(Icons.verified,
-                                                size: 18,
-                                                color: isDarkOn.value == true
-                                                    ? colorWhite
-                                                    : blueColor)
+                                                size: 18, color: isDarkOn.value == true ? colorWhite : blueColor)
                                           ],
                                         ),
                                         3.heightBox,
                                         Text(
                                           'best post',
-                                          style: blackInter15W500.copyWith(
-                                              fontWeight: FontWeight.w400),
+                                          style: blackInter15W500.copyWith(fontWeight: FontWeight.w400),
                                         ),
                                         Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
                                             Text(
                                               '1 Hour ago',
-                                              style: FontStyleUtility
-                                                  .blackInter22W500
-                                                  .copyWith(
-                                                      color:
-                                                          isDarkOn.value == true
-                                                              ? colorLightWhite
-                                                              : colorGrey,
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w400),
+                                              style: FontStyleUtility.blackInter22W500.copyWith(
+                                                  color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w400),
                                             ),
                                             IconButton(
                                                 onPressed: () {
@@ -1299,68 +1241,41 @@ Widget commonPost(BuildContext context,
                                                           fit: BoxFit.fill,
                                                         ),
                                                       ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      msg:
-                                                          'Are you sure you want to delete this comment ?',
+                                                      textAlign: TextAlign.center,
+                                                      msg: 'Are you sure you want to delete this comment ?',
                                                       context: context,
                                                       callback: () {
-                                                        kNotificationController
-                                                            .notificationDeleteApiCall(
-                                                                {}, () {
-                                                          kNotificationController
-                                                              .notificationApiCall(
-                                                                  {}, () {});
+                                                        kNotificationController.notificationDeleteApiCall({}, () {
+                                                          kNotificationController.notificationApiCall({}, () {});
                                                         });
                                                       });
                                                 },
-                                                icon: const Icon(
-                                                    Icons.delete_outline,
-                                                    size: 20.0),
+                                                icon: const Icon(Icons.delete_outline, size: 20.0),
                                                 padding: EdgeInsets.zero,
                                                 visualDensity:
-                                                    const VisualDensity(
-                                                        vertical: VisualDensity
-                                                            .minimumDensity)),
+                                                    const VisualDensity(vertical: VisualDensity.minimumDensity)),
                                             const Spacer(),
                                             StreamBuilder<Object>(
-                                                stream: kHomeController
-                                                    .likeButton.stream,
+                                                stream: kHomeController.likeButton.stream,
                                                 builder: (context, snapshot) {
                                                   return IconButton(
                                                       splashColor: colorRed,
                                                       splashRadius: 20.0,
                                                       padding: EdgeInsets.zero,
                                                       visualDensity:
-                                                          const VisualDensity(
-                                                              vertical:
-                                                                  VisualDensity
-                                                                      .minimumDensity),
+                                                          const VisualDensity(vertical: VisualDensity.minimumDensity),
                                                       onPressed: () {
-                                                        kHomeController
-                                                                .likeButton
-                                                                .value =
-                                                            !kHomeController
-                                                                .likeButton
-                                                                .value;
+                                                        kHomeController.likeButton.value =
+                                                            !kHomeController.likeButton.value;
                                                       },
                                                       icon: Icon(
-                                                        kHomeController
-                                                                    .likeButton
-                                                                    .value ==
-                                                                true
-                                                            ? CupertinoIcons
-                                                                .heart_fill
-                                                            : CupertinoIcons
-                                                                .suit_heart,
+                                                        kHomeController.likeButton.value == true
+                                                            ? CupertinoIcons.heart_fill
+                                                            : CupertinoIcons.suit_heart,
                                                         size: 18,
-                                                        color: kHomeController
-                                                                    .likeButton
-                                                                    .value ==
-                                                                true
+                                                        color: kHomeController.likeButton.value == true
                                                             ? colorRed
-                                                            : isDarkOn.value ==
-                                                                    true
+                                                            : isDarkOn.value == true
                                                                 ? colorLightWhite
                                                                 : colorGrey,
                                                       ));

@@ -30,10 +30,12 @@ class ApiConfig {
   static const String register = '$baseUrl/register';
   static const String bookmarks = '$baseUrl/my/user/bookmarks';
   static const String addBookmark = '$baseUrl/add/bookmark';
-  static const String myPage = '$baseUrl/user';
+  static const String myPage = '$baseUrl/edit-profile';
   static const String restrictions = '$baseUrl/settings/restrictions';
   static const String deleteCover = '$baseUrl/delete/cover';
   static const String messages = '$baseUrl/messages';
   static const String pinPost = '$baseUrl/pin/post';
   static const String home = '$baseUrl/home';
+  static const String uploadProfile = '$baseUrl/upload/avatar';
+  static const String postLike = '$baseUrl/post/like';
 }

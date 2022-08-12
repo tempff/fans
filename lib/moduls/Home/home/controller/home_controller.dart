@@ -7,6 +7,7 @@ import 'package:fans/moduls/Home/home/model/bookmark_model.dart';
 import 'package:fans/moduls/Home/home/model/home_model.dart';
 import 'package:fans/moduls/Home/home/model/my_post_model.dart';
 import 'package:fans/moduls/Home/home/model/pin_post_model.dart';
+import 'package:fans/moduls/Home/home/model/post_like_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -136,6 +137,7 @@ class HomeController extends GetxController {
       success: (dio.Response<dynamic> response) {
         try {
           homePageModel.value = HomePageModel.fromJson(response.data);
+          callback();
         } catch (e) {
           e.toString();
         }
@@ -143,10 +145,40 @@ class HomeController extends GetxController {
       isPassHeader: true,
       methodType: MethodType.get,
       error: (dio.Response<dynamic> response) {
-        Fluttertoast.showToast(msg: json.decode(response.statusMessage??''), toastLength: Toast.LENGTH_LONG);
+        Fluttertoast.showToast(
+            msg: json.decode(response.statusMessage ?? ''),
+            toastLength: Toast.LENGTH_LONG);
       },
       isProgressShow: true,
       params: {},
+    );
+  }
+
+  ///Post Like Api Call
+
+  Rx<PostLikeModel> postLikeModel = PostLikeModel().obs;
+
+  postLikeApiCall(Map<String, dynamic> params, Function callback) {
+    Api().call(
+      url: ApiConfig.postLike,
+      success: (dio.Response<dynamic> response) {
+        try {
+          postLikeModel.value =
+              PostLikeModel.fromJson(json.decode(response.data));
+          callback();
+        } catch (e) {
+          e.toString();
+        }
+      },
+      isPassHeader: true,
+      methodType: MethodType.post,
+      error: (dio.Response<dynamic> response) {
+        Fluttertoast.showToast(
+            msg: json.decode(response.statusMessage ?? ''),
+            toastLength: Toast.LENGTH_LONG);
+      },
+      isProgressShow: false,
+      params: params,
     );
   }
 }
