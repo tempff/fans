@@ -23,8 +23,7 @@ void main() async {
   secureScreen();
   await Firebase.initializeApp();
   await GetStorage.init();
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MyApp());
 }
 
