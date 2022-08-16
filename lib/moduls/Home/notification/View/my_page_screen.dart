@@ -155,12 +155,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                                             height: 125,
                                             width: 125,
                                             fit: BoxFit.cover,
-                                            imageUrl: kNotificationController
-                                                    .myPageModel
-                                                    .value
-                                                    .data
-                                                    ?.user
-                                                    ?.avatar ??
+                                            imageUrl: kNotificationController.myPageModel.value.data?.user?.avatar ??
                                                 '',
                                             placeholder: (context, url) =>
                                                 Image(
@@ -180,22 +175,14 @@ class _MyPageScreenState extends State<MyPageScreen>
                                                     highlightColor: colorWhite,
                                                     splashColor: colorWhite,
                                                     onTap: () async {
-                                                      picImageFromGallery(
-                                                          isProfile: true);
-                                                      if (profileImage
-                                                          .value.isNotEmpty) {
+                                                      await picImageFromGallery(isProfile: true);
+                                                      if (profileImage.value.isNotEmpty) {
                                                         dio.FormData formData =
                                                             dio.FormData
                                                                 .fromMap({
-                                                          "avatar": await dio
-                                                                  .MultipartFile
-                                                              .fromFile(
-                                                                  profileImage
-                                                                      .value),
+                                                          "avatar": await dio.MultipartFile.fromFile(profileImage.value),
                                                         });
-                                                        kNotificationController
-                                                            .uploadProfileApiCall(
-                                                                formData, () {
+                                                        kNotificationController.uploadProfileApiCall(formData, () {
                                                           kNotificationController.myPageApiCall({}, () {});
                                                         });
                                                       }
@@ -533,6 +520,7 @@ class _MyPageScreenState extends State<MyPageScreen>
           final imageTemporary = File(image.path);
           if (isProfile) {
             profileImage.value = imageTemporary.path;
+            profileImage.refresh();
           } else {
             bgImage.value = imageTemporary.path;
           }

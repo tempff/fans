@@ -162,8 +162,7 @@ class NotificationController extends GetxController {
         success: (dio.Response<dynamic> response) async {
           try {
             // mySubscriberModel.value = MySubscriberModel.fromJson(response.data);
-            mySubscriberModel.value =
-                MySubscriberModel.fromJson(json.decode(response.data));
+            mySubscriberModel.value = MySubscriberModel.fromJson(response.data);
             print('><><><><>${mySubscriberModel.value}');
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -186,8 +185,7 @@ class NotificationController extends GetxController {
         url: ApiConfig.mySubscriptions,
         success: (dio.Response<dynamic> response) async {
           try {
-            mySubscriptionsModel.value =
-                MySubscriptionsModel.fromJson(json.decode(response.data));
+            mySubscriptionsModel.value = MySubscriptionsModel.fromJson(response.data);
             print('><><><><>${mySubscriptionsModel.value}');
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -263,6 +261,7 @@ class NotificationController extends GetxController {
         success: (dio.Response<dynamic> response) {
           try {
             myPageModel.value = MyPageModel.fromJson(response.data);
+            callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }

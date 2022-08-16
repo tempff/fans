@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -33,7 +34,9 @@ RxBool zipBool = false.obs;
 RxBool isMessage = false.obs;
 TextEditingController postTextController = TextEditingController();
 TextEditingController editPostTextController = TextEditingController();
+List<TextEditingController> postCommentController = [];
 RxString postText = ''.obs;
+RxBool commentValue = true.obs;
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
@@ -48,18 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
             kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl ?? '');
         */ /*print(kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl);*/ /*
       }*/
-    });
+    }, true);
 
     //
-    videoPlayerController =
-        VideoPlayerController.network('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4');
+    /*  videoPlayerController = VideoPlayerController.network('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4');
     videoPlayerFuture = videoPlayerController?.initialize();
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController!,
       autoPlay: true,
       looping: true,
     );
-    videoPlayerController?.setLooping(true); // videoPlayerController?.play();
+    videoPlayerController?.setLooping(true);*/ // videoPlayerController?.play();
   }
 
   /* @override
@@ -979,22 +981,18 @@ Widget commonPost(BuildContext context,
                   height: 200,
                   color: colorBlack,
                 ),*/
-
       kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].type == 'video'
-          ? FutureBuilder(
-              future: videoPlayerFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return AspectRatio(
-                    aspectRatio: videoPlayerController!.value.aspectRatio,
-                    child: Chewie(
-                      controller: chewieController!,
-                    ),
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
+          ? AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Chewie(
+                controller: ChewieController(
+                  videoPlayerController: VideoPlayerController.network(
+                      kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].mediaUrl ?? ''),
+                  aspectRatio: videoPlayerController?.value.aspectRatio,
+                  autoPlay: true,
+                  looping: true,
+                ),
+              ),
             )
           : kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].type == 'image'
               ? ClipRRect(
@@ -1041,7 +1039,7 @@ Widget commonPost(BuildContext context,
                               'id': kHomeController.homePageModel.value.data?.updates?.data?[index].id
                             };
                             kHomeController.postLikeApiCall(params, () {
-                              kHomeController.homePageApiCall({}, () {});
+                              kHomeController.homePageApiCall({}, () {}, false);
                             });
                           },
                           icon: Icon(
@@ -1067,6 +1065,7 @@ Widget commonPost(BuildContext context,
                 IconButton(
                     onPressed: () {
                       isMessage.value = !isMessage.value;
+                      commentValue.value = !commentValue.value;
                     },
                     icon: Icon(
                       CupertinoIcons.chat_bubble,
@@ -1145,7 +1144,7 @@ Widget commonPost(BuildContext context,
                             Map<String, dynamic> params = {
                               'id': data == 'bookmark'
                                   ? (kHomeController.bookMarkModel.value.updates?[index].id ?? '')
-                                  : kHomeController.myPostModel.value.posts?[index].id ?? '',
+                                  : kHomeController.homePageModel.value.data?.updates?.data?[index].id ?? '',
                             };
                             kHomeController.addBookMarkApiCall(params, () {
                               kHomeController.homePageModel.refresh();
@@ -1174,6 +1173,7 @@ Widget commonPost(BuildContext context,
                 physics: const ClampingScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
+                  postCommentController.add(TextEditingController());
                   return index != 2
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1290,14 +1290,48 @@ Widget commonPost(BuildContext context,
                         ).paddingOnly(bottom: 10)
                       : commonTextField(
                           hintText: 'Write a comment press send..',
-                          textEditingController: null,
+                          textEditingController: postCommentController[index],
                           inputAction: TextInputAction.send,
                           borderRadiusColor: colorGreyOpacity30,
-                          isPassword: false,
                           onFieldSubmit: (value) {
                             FocusManager.instance.primaryFocus?.unfocus();
+                            Map<String, dynamic> params = {
+                              'update_id':
+                                  kHomeController.homePageModel.value.data?.updates?.data?[index].id.toString(),
+                              'comment': postCommentController[index].value.text
+                            };
+                            kHomeController.postCommentApiCall(params, () {
+                              kHomeController.homePageApiCall({}, () {}, false);
+                            });
                           });
                 })
+            : const SizedBox(),
+      ),
+      Obx(
+        () => kHomeController.homePageModel.value.data?.updates?.data?[index].latestComment != null &&
+                commentValue.value == true
+            ? Row(
+                children: [
+                  5.widthBox,
+                  Text(
+                    kHomeController.homePageModel.value.data?.updates?.data?[index].latestComment?.user?.username ?? '',
+                    overflow: TextOverflow.ellipsis,
+                    style: greyInter18W500.copyWith(
+                        color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
+                  ),
+                  5.widthBox,
+                  Expanded(
+                    child: Text(
+                      kHomeController.homePageModel.value.data?.updates?.data?[index].latestComment?.reply ?? '',
+                      overflow: TextOverflow.ellipsis,
+                      style: greyInter18W500.copyWith(
+                          color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16),
+                    ),
+                  ),
+                ],
+              )
             : const SizedBox(),
       ),
       20.heightBox

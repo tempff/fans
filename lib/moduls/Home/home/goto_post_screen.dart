@@ -1,5 +1,4 @@
 import 'package:fans/moduls/Home/home/home_screen.dart';
-import 'package:fans/utility/common_structure.dart';
 import 'package:fans/utility/utility_export.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,7 @@ class _GoToPostScreenState extends State<GoToPostScreen> {
         padding: 10.0,
         context: context,
         child: Column(
-          children: [30.heightBox, commonPost(context,),],
+          children: [30.heightBox, /*commonPost(context,)*/],
         ));
   }
 }

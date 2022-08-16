@@ -42,11 +42,11 @@ class Data {
     this.updates,
   });
 
-  List<User>? users;
-  Updates ?updates;
+  List<UserElement>? users;
+  Updates? updates;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    users: json["users"] == null ? null : List<User>.from(json["users"].map((x) => User.fromJson(x))),
+    users: json["users"] == null ? null : List<UserElement>.from(json["users"].map((x) => UserElement.fromJson(x))),
     updates: json["updates"] == null ? null : Updates.fromJson(json["updates"]),
   );
 
@@ -166,14 +166,14 @@ class Datum {
   String? fileName;
   String? fileSize;
   String? status;
-  User? user;
-  dynamic latestComment;
+  UserElement? user;
+  LatestComment? latestComment;
   int? commentCount;
   int? likeCount;
   bool? isLiked;
   bool? isBookmarked;
   dynamic postUser;
-  List<Media>? media;
+  List<Media> ?media;
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     id: json["id"] == null ? null : json["id"],
@@ -193,8 +193,8 @@ class Datum {
     fileName: json["file_name"] == null ? null : json["file_name"],
     fileSize: json["file_size"] == null ? null : json["file_size"],
     status: json["status"] == null ? null : json["status"],
-    user: json["user"] == null ? null : User.fromJson(json["user"]),
-    latestComment: json["latest_comment"],
+    user: json["user"] == null ? null : UserElement.fromJson(json["user"]),
+    latestComment: json["latest_comment"] == null ? null : LatestComment.fromJson(json["latest_comment"]),
     commentCount: json["comment_count"] == null ? null : json["comment_count"],
     likeCount: json["like_count"] == null ? null : json["like_count"],
     isLiked: json["is_liked"] == null ? null : json["is_liked"],
@@ -222,13 +222,89 @@ class Datum {
     "file_size": fileSize == null ? null : fileSize,
     "status": status == null ? null : status,
     "user": user == null ? null : user?.toJson(),
-    "latest_comment": latestComment,
+    "latest_comment": latestComment == null ? null : latestComment?.toJson(),
     "comment_count": commentCount == null ? null : commentCount,
     "like_count": likeCount == null ? null : likeCount,
     "is_liked": isLiked == null ? null : isLiked,
     "is_bookmarked": isBookmarked == null ? null : isBookmarked,
     "post_user": postUser,
     "media": media == null ? null : List<dynamic>.from(media?.map((x) => x.toJson())??[]),
+  };
+}
+
+class LatestComment {
+  LatestComment({
+    this.id,
+    this.updatesId,
+    this.userId,
+    this.reply,
+    this.date,
+    this.status,
+    this.user,
+    this.likeCount,
+  });
+
+  int? id;
+  int? updatesId;
+  int? userId;
+  String? reply;
+  DateTime? date;
+  String? status;
+  LatestCommentUser? user;
+  int? likeCount;
+
+  factory LatestComment.fromJson(Map<String, dynamic> json) => LatestComment(
+    id: json["id"] == null ? null : json["id"],
+    updatesId: json["updates_id"] == null ? null : json["updates_id"],
+    userId: json["user_id"] == null ? null : json["user_id"],
+    reply: json["reply"] == null ? null : json["reply"],
+    date: json["date"] == null ? null : DateTime.parse(json["date"]),
+    status: json["status"] == null ? null : json["status"],
+    user: json["user"] == null ? null : LatestCommentUser.fromJson(json["user"]),
+    likeCount: json["like_count"] == null ? null : json["like_count"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id == null ? null : id,
+    "updates_id": updatesId == null ? null : updatesId,
+    "user_id": userId == null ? null : userId,
+    "reply": reply == null ? null : reply,
+    "date": date == null ? null : date?.toIso8601String(),
+    "status": status == null ? null : status,
+    "user": user == null ? null : user?.toJson(),
+    "like_count": likeCount == null ? null : likeCount,
+  };
+}
+
+class LatestCommentUser {
+  LatestCommentUser({
+    this.id,
+    this.name,
+    this.username,
+    this.coverUrl,
+    this.avatarUrl,
+  });
+
+  int? id;
+  String? name;
+  String? username;
+  String? coverUrl;
+  String? avatarUrl;
+
+  factory LatestCommentUser.fromJson(Map<String, dynamic> json) => LatestCommentUser(
+    id: json["id"] == null ? null : json["id"],
+    name: json["name"] == null ? null : json["name"],
+    username: json["username"] == null ? null : json["username"],
+    coverUrl: json["cover_url"] == null ? null : json["cover_url"],
+    avatarUrl: json["avatar_url"] == null ? null : json["avatar_url"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id == null ? null : id,
+    "name": name == null ? null : name,
+    "username": username == null ? null : username,
+    "cover_url": coverUrl == null ? null : coverUrl,
+    "avatar_url": avatarUrl == null ? null : avatarUrl,
   };
 }
 
@@ -264,8 +340,8 @@ class Media {
   int? userId;
   String? type;
   String? image;
-  dynamic width;
-  dynamic height;
+  String? width;
+  String? height;
   String? imgType;
   String? video;
   String? encoded;
@@ -289,8 +365,8 @@ class Media {
     userId: json["user_id"] == null ? null : json["user_id"],
     type: json["type"] == null ? null : json["type"],
     image: json["image"] == null ? null : json["image"],
-    width: json["width"],
-    height: json["height"],
+    width: json["width"] == null ? null : json["width"],
+    height: json["height"] == null ? null : json["height"],
     imgType: json["img_type"] == null ? null : json["img_type"],
     video: json["video"] == null ? null : json["video"],
     encoded: json["encoded"] == null ? null : json["encoded"],
@@ -315,8 +391,8 @@ class Media {
     "user_id": userId == null ? null : userId,
     "type": type == null ? null : type,
     "image": image == null ? null : image,
-    "width": width,
-    "height": height,
+    "width": width == null ? null : width,
+    "height": height == null ? null : height,
     "img_type": imgType == null ? null : imgType,
     "video": video == null ? null : video,
     "encoded": encoded == null ? null : encoded,
@@ -360,8 +436,8 @@ class Chapter {
   };
 }
 
-class User {
-  User({
+class UserElement {
+  UserElement({
     this.id,
     this.name,
     this.username,
@@ -559,7 +635,7 @@ class User {
   String? coverUrl;
   String? avatarUrl;
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory UserElement.fromJson(Map<String, dynamic> json) => UserElement(
     id: json["id"] == null ? null : json["id"],
     name: json["name"] == null ? null : json["name"],
     username: json["username"] == null ? null : json["username"],

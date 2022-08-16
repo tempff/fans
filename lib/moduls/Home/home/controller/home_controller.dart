@@ -7,6 +7,7 @@ import 'package:fans/moduls/Home/home/model/bookmark_model.dart';
 import 'package:fans/moduls/Home/home/model/home_model.dart';
 import 'package:fans/moduls/Home/home/model/my_post_model.dart';
 import 'package:fans/moduls/Home/home/model/pin_post_model.dart';
+import 'package:fans/moduls/Home/home/model/post_comment_model.dart';
 import 'package:fans/moduls/Home/home/model/post_like_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -36,8 +37,7 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            myPostModel.value =
-                MyPostModel.fromJson(json.decode(response.data));
+            myPostModel.value = MyPostModel.fromJson(json.decode(response.data));
             print('><><><><>${myPostModel.value}');
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -61,8 +61,7 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            bookMarkModel.value =
-                BookmarkModel.fromJson(json.decode(response.data));
+            bookMarkModel.value = BookmarkModel.fromJson(json.decode(response.data));
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }
@@ -85,8 +84,7 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            addBookMarkModel.value =
-                AddBookmarkModel.fromJson(json.decode(response.data));
+            addBookMarkModel.value = AddBookmarkModel.fromJson(response.data);
             callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -110,8 +108,7 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            pinPostModel.value =
-                PinPostModel.fromJson(json.decode(response.data));
+            pinPostModel.value = PinPostModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -131,7 +128,7 @@ class HomeController extends GetxController {
 
   Rx<HomePageModel> homePageModel = HomePageModel().obs;
 
-  homePageApiCall(Map<String, dynamic> params, Function callback) {
+  homePageApiCall(Map<String, dynamic> params, Function callback, bool loadValue) {
     Api().call(
       url: ApiConfig.home,
       success: (dio.Response<dynamic> response) {
@@ -145,11 +142,9 @@ class HomeController extends GetxController {
       isPassHeader: true,
       methodType: MethodType.get,
       error: (dio.Response<dynamic> response) {
-        Fluttertoast.showToast(
-            msg: json.decode(response.statusMessage ?? ''),
-            toastLength: Toast.LENGTH_LONG);
+        Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
       },
-      isProgressShow: true,
+      isProgressShow: loadValue == true ? true : false,
       params: {},
     );
   }
@@ -158,13 +153,15 @@ class HomeController extends GetxController {
 
   Rx<PostLikeModel> postLikeModel = PostLikeModel().obs;
 
-  postLikeApiCall(Map<String, dynamic> params, Function callback) {
+  postLikeApiCall(
+    Map<String, dynamic> params,
+    Function callback,
+  ) {
     Api().call(
       url: ApiConfig.postLike,
       success: (dio.Response<dynamic> response) {
         try {
-          postLikeModel.value =
-              PostLikeModel.fromJson(json.decode(response.data));
+          postLikeModel.value = PostLikeModel.fromJson(json.decode(response.data));
           callback();
         } catch (e) {
           e.toString();
@@ -173,12 +170,37 @@ class HomeController extends GetxController {
       isPassHeader: true,
       methodType: MethodType.post,
       error: (dio.Response<dynamic> response) {
-        Fluttertoast.showToast(
-            msg: json.decode(response.statusMessage ?? ''),
-            toastLength: Toast.LENGTH_LONG);
+        Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
       },
       isProgressShow: false,
       params: params,
     );
+  }
+
+  ///Post Comment Api Call
+
+  Rx<PostCommentModel> postCommentModel = PostCommentModel().obs;
+
+  postCommentApiCall(
+    Map<String, dynamic> params,
+    Function callback,
+  ) {
+    Api().call(
+        url: ApiConfig.postComment,
+        success: (dio.Response<dynamic> response) {
+          try {
+            postCommentModel.value = PostCommentModel.fromJson(json.decode(response.data));
+            callback();
+          } catch (e) {
+            e.toString();
+          }
+        },
+        methodType: MethodType.post,
+        isProgressShow: true,
+        params: params,
+        error: (dio.Response<dynamic> response) {
+          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        },
+        isPassHeader: true);
   }
 }

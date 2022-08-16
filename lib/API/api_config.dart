@@ -38,4 +38,5 @@ class ApiConfig {
   static const String home = '$baseUrl/home';
   static const String uploadProfile = '$baseUrl/upload/avatar';
   static const String postLike = '$baseUrl/post/like';
+  static const String postComment = '$baseUrl/comment/store';
 }

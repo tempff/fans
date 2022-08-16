@@ -18,7 +18,10 @@ class MyPostsScreen extends StatefulWidget {
 class _MyPostsScreenState extends State<MyPostsScreen> {
   @override
   void initState() {
-    kHomeController.myPostApiCall({}, () => {});
+    kHomeController.myPostApiCall(
+      {},
+      () => {},
+    );
     super.initState();
   }
 
@@ -35,10 +38,7 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
             physics: const ClampingScrollPhysics(),
             child: Column(
               children: [
-                commonScreenView(
-                    icon: Icons.group_outlined,
-                    title: 'My Posts',
-                    subTitle: 'All Post You Have Created'),
+                commonScreenView(icon: Icons.group_outlined, title: 'My Posts', subTitle: 'All Post You Have Created'),
                 30.heightBox,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -67,9 +67,7 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                       ? ListView.builder(
                           shrinkWrap: true,
                           padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          itemCount:
-                              kHomeController.myPostModel.value.posts?.length ??
-                                  0,
+                          itemCount: kHomeController.myPostModel.value.posts?.length ?? 0,
                           // scrollDirection: Axis.horizontal,
                           physics: const ClampingScrollPhysics(),
                           itemBuilder: (context, index) {
@@ -82,28 +80,20 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                                       color: Colors.black.withOpacity(0.3),
                                       spreadRadius: 1,
                                       blurRadius: 5,
-                                      offset: const Offset(
-                                          0, 3), // changes position of shadow
+                                      offset: const Offset(0, 3), // changes position of shadow
                                     ),
                                   ],
                                   borderRadius: BorderRadius.circular(10),
-                                  border:
-                                      Border.all(color: colorPrimary, width: 1),
-                                  color: isDarkOn.value == true
-                                      ? colorLightBlack
-                                      : colorWhite),
+                                  border: Border.all(color: colorPrimary, width: 1),
+                                  color: isDarkOn.value == true ? colorLightBlack : colorWhite),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   SizedBox(
                                     width: 20,
                                     child: Text(
-                                      kHomeController.myPostModel.value
-                                              .posts?[index].id
-                                              .toString() ??
-                                          '',
+                                      kHomeController.myPostModel.value.posts?[index].id.toString() ?? '',
                                       style: greyInter16W500,
                                       maxLines: 1,
                                       textAlign: TextAlign.start,
@@ -113,17 +103,13 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                                   SizedBox(
                                     width: 80,
                                     child: Text(
-                                      kHomeController.myPostModel.value
-                                              .posts?[index].description ??
-                                          '',
+                                      kHomeController.myPostModel.value.posts?[index].description ?? '',
                                       maxLines: 3,
                                       textAlign: TextAlign.center,
                                       style: greyInter16W500,
                                     ),
                                   ),
-                                  Icon(kHomeController.myPostModel.value
-                                              .posts?[index].locked ==
-                                          'yes'
+                                  Icon(kHomeController.myPostModel.value.posts?[index].locked == 'yes'
                                       ? Icons.lock_outline
                                       : Icons.lock_open_outlined),
                                 ],
@@ -138,18 +124,13 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                               Icon(
                                 Icons.group_outlined,
                                 size: 90,
-                                color: isDarkOn.value == true
-                                    ? colorLightWhite
-                                    : colorGreyOpacity30,
+                                color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
                               ),
                               20.heightBox,
                               Text(
                                 'You Don\'t have any post',
-                                style:
-                                    FontStyleUtility.greyInter18W500.copyWith(
-                                  color: isDarkOn.value == true
-                                      ? colorLightWhite
-                                      : colorGreyOpacity30,
+                                style: FontStyleUtility.greyInter18W500.copyWith(
+                                  color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
                                 ),
                               ),
                             ],
