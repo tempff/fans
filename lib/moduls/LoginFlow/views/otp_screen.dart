@@ -173,7 +173,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                                             msg: 'Verification success',
                                             timeInSecForIosWeb: 5);
                                         Get.offAll(() => EditPageScreen(
-                                            name: 'User Profile Details'));
+                                            title: 'User Profile Details'));
                                       }
                                     } on FirebaseAuthException catch (e) {
                                       showLoading.value = false;

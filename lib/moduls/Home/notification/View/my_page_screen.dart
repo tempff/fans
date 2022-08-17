@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fans/moduls/Home/notification/View/edit_page_screen.dart';
 import 'package:fans/utility/theme_data.dart';
@@ -21,8 +22,7 @@ class MyPageScreen extends StatefulWidget {
   State<MyPageScreen> createState() => _MyPageScreenState();
 }
 
-class _MyPageScreenState extends State<MyPageScreen>
-    with TickerProviderStateMixin {
+class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMixin {
   RxString bgImage = ''.obs;
   RxString profileImage = ''.obs;
   TabController? tabController;
@@ -67,9 +67,8 @@ class _MyPageScreenState extends State<MyPageScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10)),
+                            borderRadius:
+                                const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
                             child: /*Image(
                               height: getScreenHeight(context) * 0.23,
                               width: getScreenWidth(context),
@@ -83,11 +82,8 @@ class _MyPageScreenState extends State<MyPageScreen>
                                 CachedNetworkImage(
                               width: getScreenWidth(context),
                               height: getScreenHeight(context) * 0.22,
-                              imageUrl: kNotificationController
-                                      .myPageModel.value.data?.user?.cover ??
-                                  '',
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
+                              imageUrl: kNotificationController.myPageModel.value.data?.user?.cover ?? '',
+                              imageBuilder: (context, imageProvider) => Container(
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
                                     image: imageProvider,
@@ -95,10 +91,8 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   ),
                                 ),
                               ),
-                              placeholder: (context, url) => const Center(
-                                  child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) =>
-                                  Image(image: bgPlaceholder),
+                              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) => Image(image: bgPlaceholder),
                             ),
                           ),
                         ),
@@ -114,8 +108,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                               height: 35,
                               width: 70,
                               decoration: BoxDecoration(
-                                  color: colorBlack.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(25)),
+                                  color: colorBlack.withOpacity(0.3), borderRadius: BorderRadius.circular(25)),
                               child: const Icon(
                                 CupertinoIcons.camera_fill,
                                 color: colorWhite,
@@ -131,22 +124,15 @@ class _MyPageScreenState extends State<MyPageScreen>
                           child: Container(
                               height: 125,
                               width: 125,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                        color: colorGrey,
-                                        offset: Offset(0.0, 3.0),
-                                        blurRadius: 10)
-                                  ]),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
+                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                              ]),
                               child: Stack(
                                 children: [
                                   Container(
                                     decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: colorWhite, width: 3),
-                                        borderRadius:
-                                            BorderRadius.circular(100)),
+                                        border: Border.all(color: colorWhite, width: 3),
+                                        borderRadius: BorderRadius.circular(100)),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
                                       child: Stack(
@@ -155,16 +141,12 @@ class _MyPageScreenState extends State<MyPageScreen>
                                             height: 125,
                                             width: 125,
                                             fit: BoxFit.cover,
-                                            imageUrl: kNotificationController.myPageModel.value.data?.user?.avatar ??
-                                                '',
+                                            imageUrl:
+                                                kNotificationController.myPageModel.value.data?.user?.avatar ?? '',
                                             placeholder: (context, url) =>
-                                                Image(
-                                                    image: profilePlaceholder,
-                                                    fit: BoxFit.cover),
-                                            errorWidget:
-                                                (context, url, error) => Image(
-                                                    image: profilePlaceholder,
-                                                    fit: BoxFit.cover),
+                                                Image(image: profilePlaceholder, fit: BoxFit.cover),
+                                            errorWidget: (context, url, error) =>
+                                                Image(image: profilePlaceholder, fit: BoxFit.cover),
                                           ),
                                           Align(
                                             alignment: Alignment.bottomCenter,
@@ -177,10 +159,9 @@ class _MyPageScreenState extends State<MyPageScreen>
                                                     onTap: () async {
                                                       await picImageFromGallery(isProfile: true);
                                                       if (profileImage.value.isNotEmpty) {
-                                                        dio.FormData formData =
-                                                            dio.FormData
-                                                                .fromMap({
-                                                          "avatar": await dio.MultipartFile.fromFile(profileImage.value),
+                                                        dio.FormData formData = dio.FormData.fromMap({
+                                                          "avatar":
+                                                              await dio.MultipartFile.fromFile(profileImage.value),
                                                         });
                                                         kNotificationController.uploadProfileApiCall(formData, () {
                                                           kNotificationController.myPageApiCall({}, () {});
@@ -190,15 +171,9 @@ class _MyPageScreenState extends State<MyPageScreen>
                                                     child: Container(
                                                       width: 125,
                                                       height: 38,
-                                                      decoration: BoxDecoration(
-                                                          color: colorBlack
-                                                              .withOpacity(
-                                                                  0.3)),
-                                                      child: const Icon(
-                                                          CupertinoIcons
-                                                              .camera_fill,
-                                                          size: 20,
-                                                          color: colorWhite),
+                                                      decoration: BoxDecoration(color: colorBlack.withOpacity(0.3)),
+                                                      child: const Icon(CupertinoIcons.camera_fill,
+                                                          size: 20, color: colorWhite),
                                                     ),
                                                   );
                                                 }),
@@ -218,33 +193,85 @@ class _MyPageScreenState extends State<MyPageScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                          kNotificationController
-                                  .myPageModel.value.data?.user?.username ??
-                              '',
-                          style: greyInter22W800.copyWith(fontSize: 20)),
-                      10.widthBox,
-                      const Icon(
-                        Icons.verified_sharp,
-                        color: skyBlueColor,
-                        size: 20,
+                      // 10.widthBox,
+                      // const Icon(
+                      //   Icons.verified_sharp,
+                      //   color: colorWhite,
+                      //   size: 20,
+                      // ),
+                      // 10.widthBox,
+                      // Image(
+                      //   image: badge,
+                      //   height: 20,
+                      //   color: colorWhite,
+                      //   width: 20,
+                      // ),
+                      70.widthBox,
+                      AutoSizeText(
+                        kNotificationController.myPageModel.value.data?.user?.username ?? '',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        style: greyInter22W800.copyWith(fontSize: 20),
+                        textAlign: TextAlign.center,
                       ),
                       10.widthBox,
-                      Image(
-                        image: badge,
-                        height: 20,
-                        width: 20,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.verified_sharp,
+                            color: skyBlueColor,
+                            size: 20,
+                          ),
+                          5.widthBox,
+                          Image(
+                            image: badge,
+                            height: 20,
+                            width: 20,
+                          ).paddingOnly(right: 5.0),
+                        ],
                       ),
                     ],
                   ),
+                  /*  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [],
+                  )*/
 
-                  kNotificationController.myPageModel.value.data?.user
-                              ?.profession?.isNotEmpty ==
-                          true
+                  /* Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Text(
+                            kNotificationController
+                                .myPageModel.value.data?.user?.username ??
+                                '',
+                            style: greyInter22W800.copyWith(fontSize: 20)),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+
+                          10.widthBox,
+                          const Icon(
+                            Icons.verified_sharp,
+                            color: skyBlueColor,
+                            size: 20,
+                          ),
+                          10.widthBox,
+                          Image(
+                            image: badge,
+                            height: 20,
+                            width: 20,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),*/
+
+                  kNotificationController.myPageModel.value.data?.user?.profession?.isNotEmpty == true
                       ? Text(
-                          kNotificationController
-                                  .myPageModel.value.data?.user?.profession ??
-                              '',
+                          kNotificationController.myPageModel.value.data?.user?.profession ?? '',
                           style: blackInter14W500,
                         ).paddingOnly(top: 5.0, bottom: 5.0)
                       : const SizedBox.shrink(),
@@ -266,9 +293,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   size: 18,
                                 ),
                                 10.widthBox,
-                                Text('Edit page',
-                                    style: FontStyleUtility.blackInter14W500
-                                        .copyWith(color: colorWhite))
+                                Text('Edit page', style: FontStyleUtility.blackInter14W500.copyWith(color: colorWhite))
                               ],
                             ),
                             tapOnButton: () {
@@ -292,8 +317,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                                 callback: () {},
                                 actions: [
                                   TextButton(
-                                    child:
-                                        Text('Cancel', style: blackInter16W600),
+                                    child: Text('Cancel', style: blackInter16W600),
                                     onPressed: () {
                                       Get.back();
                                     },
@@ -305,10 +329,8 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   child: GridView(
                                     shrinkWrap: true,
                                     physics: const ClampingScrollPhysics(),
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 2,
-                                            childAspectRatio: 1.5),
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2, childAspectRatio: 1.5),
                                     children: [
                                       commonDialogItems(
                                         image: facebook,
@@ -347,11 +369,9 @@ class _MyPageScreenState extends State<MyPageScreen>
                             },
                             child: Container(
                                 height: 40,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: deepPurpleColor),
-                                child:
-                                    const Icon(Icons.share, color: colorWhite)),
+                                decoration:
+                                    BoxDecoration(borderRadius: BorderRadius.circular(100), color: deepPurpleColor),
+                                child: const Icon(Icons.share, color: colorWhite)),
                           ),
                         ),
                       ),
@@ -411,8 +431,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                     margin: const EdgeInsets.only(top: 10, left: 12, right: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          color: colorGrey.withOpacity(0.2), width: 1),
+                      border: Border.all(color: colorGrey.withOpacity(0.2), width: 1),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -423,25 +442,19 @@ class _MyPageScreenState extends State<MyPageScreen>
                             padding: const EdgeInsets.only(left: 3, top: 15),
                             child: Text(
                               'About me',
-                              style: greyInter18W500.copyWith(
-                                  fontWeight: FontWeight.w700),
+                              style: greyInter18W500.copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
                           10.heightBox,
-                          commonAboutMeRow(
-                              icon: CupertinoIcons.heart, title: 'Likes'),
+                          commonAboutMeRow(icon: CupertinoIcons.heart, title: 'Likes'),
                           commonAboutMeRow(
                               icon: Icons.pin_drop_outlined,
                               title:
                                   '${kNotificationController.myPageModel.value.data?.user?.address ?? ''} ${kNotificationController.myPageModel.value.data?.user?.city ?? ''}'),
-                          commonAboutMeRow(
-                              icon: Icons.person_outline,
-                              title: 'Member since mar 13, 2021'),
+                          commonAboutMeRow(icon: Icons.person_outline, title: 'Member since mar 13, 2021'),
                           10.heightBox,
                           Text(
-                            kNotificationController
-                                    .myPageModel.value.data?.user?.story ??
-                                '',
+                            kNotificationController.myPageModel.value.data?.user?.story ?? '',
                             style: greyInter14W400,
                           ),
                           10.heightBox,
@@ -460,8 +473,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                       builder: (context, snapshot) {
                         return TabBar(
                           controller: tabController,
-                          unselectedLabelColor:
-                              isDarkOn.value == true ? colorWhite : colorGrey,
+                          unselectedLabelColor: isDarkOn.value == true ? colorWhite : colorGrey,
                           indicatorColor: colorPrimary,
                           labelColor: colorPrimary,
                           tabs: const [
@@ -493,10 +505,14 @@ class _MyPageScreenState extends State<MyPageScreen>
                         physics: const NeverScrollableScrollPhysics(),
                         controller: tabController,
                         children: <Widget>[
-                          homeViewData(false, context, 'All Post'),
-                          homeViewData(false, context, 'Images'),
-                          homeViewData(false, context, 'Videos'),
-                          homeViewData(false, context, 'Music'),
+                          Container(),
+                          Container(),
+                          Container(),
+                          Container(),
+                          /* homeViewData(false, context, 'All Post'),*/
+                          /* homeViewData(false, context, 'Images'),*/
+                          /* homeViewData(false, context, 'Videos'),*/
+                          /* homeViewData(false, context, 'Music'),*/
                         ],
                       ),
                     ),
@@ -514,8 +530,7 @@ class _MyPageScreenState extends State<MyPageScreen>
     if (await Permission.storage.isGranted) {
       // Pick an image
       try {
-        final image =
-            await ImagePicker().pickImage(source: ImageSource.gallery);
+        final image = await ImagePicker().pickImage(source: ImageSource.gallery);
         if (image != null) {
           final imageTemporary = File(image.path);
           if (isProfile) {
@@ -638,10 +653,7 @@ class _MyPageScreenState extends State<MyPageScreen>
 
 }
 
-Widget commonDialogItems(
-    {required ExactAssetImage image,
-    required String title,
-    required Function() callBack}) {
+Widget commonDialogItems({required ExactAssetImage image, required String title, required Function() callBack}) {
   return InkWell(
     onTap: () {
       Get.back();
@@ -651,9 +663,7 @@ Widget commonDialogItems(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: colorPrimary.withOpacity(0.2)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: colorPrimary.withOpacity(0.2)),
           child: StreamBuilder<Object>(
               stream: isDarkOn.stream,
               builder: (context, snapshot) {

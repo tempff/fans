@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -613,7 +612,7 @@ Widget homeViewData(bool? visible, BuildContext context, String? value) {
                     itemBuilder: (context, index) {
                       return commonPost(
                         context,
-                        index: index,
+                        postIndex: index,
                         name: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.name,
                         date: kHomeController.homePageModel.value.data?.updates?.data?[index].date,
                         price: kHomeController.homePageModel.value.data?.updates?.data?[index].price,
@@ -785,7 +784,7 @@ Widget exploreCreatorData() {
 }
 
 Widget commonPost(BuildContext context,
-    {int index = 0,
+    {int postIndex = 0,
     String? data,
     String? name,
     String? username,
@@ -827,12 +826,14 @@ Widget commonPost(BuildContext context,
           ClipOval(
             child: SizedBox.fromSize(
               size: const Size.fromRadius(35), // Image radius
-              child: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.avatarUrl?.isNotEmpty == true
+              child: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl?.isNotEmpty ==
+                      true
                   ? CachedNetworkImage(
                       height: 55.0,
                       width: 55.0,
                       fit: BoxFit.fill,
-                      imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.avatarUrl ?? '',
+                      imageUrl:
+                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl ?? '',
                       placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                       errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                     )
@@ -882,7 +883,7 @@ Widget commonPost(BuildContext context,
                         ),
                         10.widthBox,
                         Icon(
-                          kHomeController.myPostModel.value.posts?[index].locked == 'yes'
+                          kHomeController.myPostModel.value.posts?[postIndex].locked == 'yes'
                               ? Icons.lock_outline
                               : Icons.public_outlined,
                           color: isDarkOn.value == true ? colorLightWhite : colorGrey,
@@ -963,9 +964,9 @@ Widget commonPost(BuildContext context,
               value,
               'name',
               context,
-              kHomeController.myPostModel.value.posts?[index].id,
-              kHomeController.myPostModel.value.posts?[index].description,
-              kHomeController.myPostModel.value.posts?[index].image,
+              kHomeController.myPostModel.value.posts?[postIndex].id,
+              kHomeController.myPostModel.value.posts?[postIndex].description,
+              kHomeController.myPostModel.value.posts?[postIndex].image,
             ),
           ),
         ],
@@ -981,25 +982,26 @@ Widget commonPost(BuildContext context,
                   height: 200,
                   color: colorBlack,
                 ),*/
-      kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].type == 'video'
+      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
           ? AspectRatio(
               aspectRatio: 16 / 9,
               child: Chewie(
                 controller: ChewieController(
                   videoPlayerController: VideoPlayerController.network(
-                      kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].mediaUrl ?? ''),
+                      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? ''),
                   aspectRatio: videoPlayerController?.value.aspectRatio,
                   autoPlay: true,
                   looping: true,
                 ),
               ),
             )
-          : kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].type == 'image'
+          : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'image'
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: CachedNetworkImage(
                     fit: BoxFit.fill,
-                    imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[index].media?[0].mediaUrl ?? '',
+                    imageUrl:
+                        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? '',
                     placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                     errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                   ),
@@ -1036,18 +1038,18 @@ Widget commonPost(BuildContext context,
                                 false);*/
 
                             Map<String, dynamic> params = {
-                              'id': kHomeController.homePageModel.value.data?.updates?.data?[index].id
+                              'id': kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id
                             };
                             kHomeController.postLikeApiCall(params, () {
                               kHomeController.homePageApiCall({}, () {}, false);
                             });
                           },
                           icon: Icon(
-                            kHomeController.homePageModel.value.data?.updates?.data?[index].isLiked == true
+                            kHomeController.homePageModel.value.data?.updates?.data?[postIndex].isLiked == true
                                 ? CupertinoIcons.heart_fill
                                 : CupertinoIcons.suit_heart,
                             size: 25,
-                            color: kHomeController.homePageModel.value.data?.updates?.data?[index].isLiked == true
+                            color: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].isLiked == true
                                 ? colorRed
                                 : isDarkOn.value == true
                                     ? colorLightWhite
@@ -1143,8 +1145,8 @@ Widget commonPost(BuildContext context,
                             kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
                             Map<String, dynamic> params = {
                               'id': data == 'bookmark'
-                                  ? (kHomeController.bookMarkModel.value.updates?[index].id ?? '')
-                                  : kHomeController.homePageModel.value.data?.updates?.data?[index].id ?? '',
+                                  ? (kHomeController.bookMarkModel.value.updates?[postIndex].id ?? '')
+                                  : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id ?? '',
                             };
                             kHomeController.addBookMarkApiCall(params, () {
                               kHomeController.homePageModel.refresh();
@@ -1152,7 +1154,7 @@ Widget commonPost(BuildContext context,
                             });
                           },
                           icon: Icon(
-                            kHomeController.homePageModel.value.data?.updates?.data?[index].isBookmarked == true
+                            kHomeController.homePageModel.value.data?.updates?.data?[postIndex].isBookmarked == true
                                 ? Icons.bookmark
                                 : Icons.bookmark_border,
                             size: 23,
@@ -1290,15 +1292,15 @@ Widget commonPost(BuildContext context,
                         ).paddingOnly(bottom: 10)
                       : commonTextField(
                           hintText: 'Write a comment press send..',
-                          textEditingController: postCommentController[index],
+                          textEditingController: postCommentController[postIndex],
                           inputAction: TextInputAction.send,
                           borderRadiusColor: colorGreyOpacity30,
                           onFieldSubmit: (value) {
                             FocusManager.instance.primaryFocus?.unfocus();
                             Map<String, dynamic> params = {
                               'update_id':
-                                  kHomeController.homePageModel.value.data?.updates?.data?[index].id.toString(),
-                              'comment': postCommentController[index].value.text
+                                  kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id.toString(),
+                              'comment': postCommentController[postIndex].value.text
                             };
                             kHomeController.postCommentApiCall(params, () {
                               kHomeController.homePageApiCall({}, () {}, false);
@@ -1308,27 +1310,50 @@ Widget commonPost(BuildContext context,
             : const SizedBox(),
       ),
       Obx(
-        () => kHomeController.homePageModel.value.data?.updates?.data?[index].latestComment != null &&
+        () => kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment != null &&
                 commentValue.value == true
-            ? Row(
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  5.widthBox,
-                  Text(
-                    kHomeController.homePageModel.value.data?.updates?.data?[index].latestComment?.user?.username ?? '',
-                    overflow: TextOverflow.ellipsis,
-                    style: greyInter18W500.copyWith(
-                        color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
+                  Row(
+                    children: [
+                      5.widthBox,
+                      Text(
+                        kHomeController
+                                .homePageModel.value.data?.updates?.data?[postIndex].latestComment?.user?.username ??
+                            '',
+                        overflow: TextOverflow.ellipsis,
+                        style: greyInter18W500.copyWith(
+                            color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
+                      ),
+                      5.widthBox,
+                      Expanded(
+                        child: Text(
+                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment?.reply ??
+                              '',
+                          overflow: TextOverflow.ellipsis,
+                          style: greyInter18W500.copyWith(
+                              color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16),
+                        ),
+                      ),
+                    ],
                   ),
-                  5.widthBox,
-                  Expanded(
+                  5.heightBox,
+                  InkWell(
+                    onTap: () {
+                      isMessage.value = !isMessage.value;
+                      commentValue.value = !commentValue.value;
+                    },
                     child: Text(
-                      kHomeController.homePageModel.value.data?.updates?.data?[index].latestComment?.reply ?? '',
+                      'View all comment',
                       overflow: TextOverflow.ellipsis,
                       style: greyInter18W500.copyWith(
-                          color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16),
-                    ),
+                          color: isDarkOn.value == true ? colorWhite : colorLightWhite,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400),
+                    ).paddingOnly(left: 5.0),
                   ),
                 ],
               )

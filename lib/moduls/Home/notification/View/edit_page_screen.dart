@@ -1,5 +1,6 @@
 import 'package:fans/moduls/Home/home_structure.dart';
 import 'package:fans/moduls/Home/notification/notification_screen.dart';
+import 'package:fans/moduls/LoginFlow/views/signin_screen.dart';
 import 'package:fans/utility/theme_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -12,9 +13,13 @@ import '../../../../utility/country_code_picker.dart';
 
 // ignore: must_be_immutable
 class EditPageScreen extends StatefulWidget {
+  String? title;
   String? name;
+  String? email;
+  String? userName;
+  String? language;
 
-  EditPageScreen({Key? key, this.name}) : super(key: key);
+  EditPageScreen({Key? key, this.title, this.name, this.language, this.email, this.userName}) : super(key: key);
 
   @override
   State<EditPageScreen> createState() => _EditPageScreenState();
@@ -25,6 +30,19 @@ class _EditPageScreenState extends State<EditPageScreen> {
   RxBool showUserName = false.obs;
 
   GlobalKey<FormState> globalKey = GlobalKey();
+  TextEditingController? nameController;
+  TextEditingController? userNameController;
+  TextEditingController? emailController;
+  TextEditingController? languageController;
+
+  @override
+  void initState() {
+    nameController = TextEditingController(text: widget.name ?? '');
+    userNameController = TextEditingController(text: widget.userName ?? '');
+    emailController = TextEditingController(text: widget.email ?? '');
+    languageController = TextEditingController(text: widget.language ?? '');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +61,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
               children: [
                 commonScreenView(
                     icon: Icons.mode_edit_outline_outlined,
-                    title: widget.name ?? 'Edit my page',
+                    title: widget.title ?? 'Edit my page',
                     subTitle: 'Tell us something about you.'),
 
                 // StreamBuilder<Object>(
@@ -96,19 +114,15 @@ class _EditPageScreenState extends State<EditPageScreen> {
                     ),
                     hintText: 'Admin*',
                     // labelText: 'Full name*',
-                    textEditingController: null,
-                    filledColor:
-                        isDarkOn.value == true ? colorLightBlack : colorWhite,
-                    hintStyle: blackInter16W500.copyWith(
-                        color: isDarkOn.value == true
-                            ? colorLightWhite
-                            : colorGrey)),
+                    textEditingController: nameController,
+                    filledColor: isDarkOn.value == true ? colorLightBlack : colorWhite,
+                    hintStyle: blackInter16W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGrey)),
                 20.heightBox,
                 commonTextField(
                   hintText: 'User name*',
                   preFixWidget: const Icon(Icons.account_circle),
                   // labelText: 'User name*',
-                  textEditingController: null,
+                  textEditingController: userNameController,
                 ),
                 5.heightBox,
                 Row(
@@ -134,7 +148,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
                 commonTextField(
                   preFixWidget: const Icon(Icons.mail_outline),
                   hintText: 'Email*',
-                  textEditingController: null,
+                  textEditingController: emailController,
                 ),
                 10.heightBox,
                 commonTextField(
@@ -146,7 +160,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
                 commonTextField(
                   preFixWidget: const Icon(Icons.language),
                   hintText: 'English',
-                  textEditingController: null,
+                  textEditingController: languageController,
                 ),
                 // CountryCodePickerScreen(
                 //   initialSelection: 'IN',
@@ -165,9 +179,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
                 RichText(
                     text: TextSpan(children: [
                   TextSpan(text: 'Valid formats  ', style: greyInter14W400),
-                  TextSpan(
-                      text: '09-29-2004 - (Can be edited only once)',
-                      style: greyInter14W600),
+                  TextSpan(text: '09-29-2004 - (Can be edited only once)', style: greyInter14W600),
                 ])),
                 10.heightBox,
                 commonTextField(
@@ -290,9 +302,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
             height: 50,
             title: 'SUBMIT',
             tapOnButton: () {
-              widget.name == "User Profile Details"
-                  ? Get.to(() => const HomeStructureView())
-                  : Get.back();
+              widget.title == "User Profile Details" ? Get.off(() => const SignInScreen()) : Get.back();
             }),
       ),
     );

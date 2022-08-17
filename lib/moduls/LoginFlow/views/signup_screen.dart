@@ -1,4 +1,3 @@
-
 import 'package:fans/moduls/LoginFlow/views/mobile_signin.dart';
 import 'package:fans/moduls/LoginFlow/views/signin_screen.dart';
 import 'package:fans/utility/utility_export.dart';
@@ -10,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:velocity_x/velocity_x.dart';
 import '../../../utility/theme_data.dart';
+import '../../Home/notification/View/edit_page_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -62,13 +62,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   height: getScreenHeight(context) * 0.6,
-                  padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 20.0)
-                      .copyWith(top: 25),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0).copyWith(top: 25),
                   decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(28),
-                        topLeft: Radius.circular(28)),
+                    borderRadius: BorderRadius.only(topRight: Radius.circular(28), topLeft: Radius.circular(28)),
                     color: deepPurpleColor,
                   ),
                   child: Column(
@@ -83,8 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           hintText: 'Full Name',
                           textEditingController: userNameController,
                           validationFunction: (val) {
-                            return emptyFieldValidation(
-                                val, 'Please enter value');
+                            return emptyFieldValidation(val, 'Please enter value');
                           }),
                       heightBox(10.0),
                       commonTextField(
@@ -120,12 +115,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               height: 24,
                               width: 24,
                               child: Theme(
-                                data: ThemeData(
-                                    unselectedWidgetColor: colorWhite),
+                                data: ThemeData(unselectedWidgetColor: colorWhite),
                                 child: Checkbox(
                                     side: MaterialStateBorderSide.resolveWith(
-                                      (states) => const BorderSide(
-                                          width: 1.0, color: Colors.white),
+                                      (states) => const BorderSide(width: 1.0, color: Colors.white),
                                     ),
                                     activeColor: deepPurpleColor,
                                     value: isRemember.value,
@@ -140,8 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: RichText(
                               text: TextSpan(children: [
                                 TextSpan(
-                                    text:
-                                        'I agree with the processing of personal data ',
+                                    text: 'I agree with the processing of personal data ',
                                     style: FontStyleUtility.whiteInter16W500,
                                     recognizer: /*TapGestureRecognizer()
                                     ..onTap = () {
@@ -150,15 +142,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         isRemember.value = !isRemember.value;
                                       });
                                     },*/
-                                        TapGestureRecognizer()
-                                          ..onTap = () => isRemember.value =
-                                              !isRemember.value),
+                                        TapGestureRecognizer()..onTap = () => isRemember.value = !isRemember.value),
                                 TextSpan(
                                     text: 'Privacy policy',
-                                    style: FontStyleUtility.whiteInter16W500
-                                        .copyWith(color: colorPrimary),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () => conditionDialog())
+                                    style: FontStyleUtility.whiteInter16W500.copyWith(color: colorPrimary),
+                                    recognizer: TapGestureRecognizer()..onTap = () => conditionDialog())
                               ]),
                             ),
                           ),
@@ -174,10 +162,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: getScreenWidth(context),
                         child: ElevatedButton(
                           style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(lightPurpleColor),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
+                            backgroundColor: MaterialStateProperty.all(lightPurpleColor),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
@@ -193,20 +179,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   'agree_gdpr': isRemember.value
                                 };
 
-                                kAuthenticationController.signupApiCall(params,
-                                    () {
-                                  Get.off(() => const SignInScreen());
+                                kAuthenticationController.signupApiCall(params, () {
+                                  Get.off(() => EditPageScreen(
+                                        title: 'User Profile Details',
+                                        name: kAuthenticationController.signupModel.value.user?.name,
+                                        userName: kAuthenticationController.signupModel.value.user?.username,
+                                        email: kAuthenticationController.signupModel.value.user?.email,
+                                        language: kAuthenticationController.signupModel.value.user?.language,
+                                      ));
                                 });
                               } else {
-                                Fluttertoast.showToast(
-                                    msg: 'select argument policy');
+                                Fluttertoast.showToast(msg: 'select argument policy');
                               }
                             }
                           },
                           child: Text(
                             "Sign up",
-                            style: FontStyleUtility.blackInter16W500
-                                .copyWith(color: colorWhite),
+                            style: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
                           ),
                         ),
                       ),
@@ -216,8 +205,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onTap: () {
                           Get.off(() => const SignInScreen());
                         },
-                        child: Text(' Already have account?',
-                            style: FontStyleUtility.whiteInter20W500),
+                        child: Text(' Already have account?', style: FontStyleUtility.whiteInter20W500),
                       )),
                       heightBox(40.0),
                       Expanded(
@@ -266,8 +254,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           return AlertDialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 15),
             contentPadding: EdgeInsets.zero,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             content: SizedBox(
               height: getScreenHeight(context) * 0.70,
               // Change as per your requirement
@@ -306,7 +293,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void loadAsset(BuildContext context) async {
-    privacyPolicy = await DefaultAssetBundle.of(context)
-        .loadString('assets/privacy_policy.txt');
+    privacyPolicy = await DefaultAssetBundle.of(context).loadString('assets/privacy_policy.txt');
   }
 }

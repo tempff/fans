@@ -44,7 +44,7 @@ class _BookMarkScreenState extends State<BookMarkScreen> {
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             return commonPost(context,
-                                index: index,
+                                postIndex: index,
                                 data: 'bookmark',
                                 description: kHomeController.bookMarkModel.value.updates?[index].description ?? '');
                           })
