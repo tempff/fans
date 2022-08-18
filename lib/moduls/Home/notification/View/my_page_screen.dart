@@ -297,7 +297,13 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                               ],
                             ),
                             tapOnButton: () {
-                              Get.to(() => EditPageScreen());
+                              Get.to(() => EditPageScreen(
+                                    name: kNotificationController.myPageModel.value.data?.user?.name,
+                                    userName: kNotificationController.myPageModel.value.data?.user?.username,
+                                    email: kNotificationController.myPageModel.value.data?.user?.email,
+                                    title: 'MyPage',
+                                    language: kNotificationController.myPageModel.value.data?.user?.language,
+                                  ));
                             },
                           ),
                         ),

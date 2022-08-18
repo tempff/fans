@@ -5,7 +5,9 @@ import 'package:fans/utility/theme_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:fans/utility/utility_export.dart';
 
@@ -34,6 +36,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
   TextEditingController? userNameController;
   TextEditingController? emailController;
   TextEditingController? languageController;
+  TextEditingController? dateController = TextEditingController();
 
   @override
   void initState() {
@@ -173,7 +176,33 @@ class _EditPageScreenState extends State<EditPageScreen> {
                 commonTextField(
                   preFixWidget: const Icon(Icons.calendar_month),
                   hintText: '01/01/1970',
-                  textEditingController: null,
+                  textEditingController: dateController,
+                  onTapFunction: ()async{
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    DateTime? time = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2010),
+                      lastDate: DateTime(2025),
+                      builder: (BuildContext context, Widget? child) {
+                        return Theme(
+                          data: ThemeData.dark().copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: colorPrimary,
+                              onPrimary: Colors.white,
+                              onSurface: colorPrimary,
+                            ),
+                            dialogBackgroundColor: Colors.white,
+                          ),
+                          child: child ?? Container(),
+                        );
+                      },
+                    );
+                    if (time != null) {
+                      // showLog("customStartDate ==> ${customStartDate.value}");
+                      dateController?.text = DateFormat('dd-MM-yyyy').format(time);
+                    }
+                  }
                 ),
                 5.heightBox,
                 RichText(

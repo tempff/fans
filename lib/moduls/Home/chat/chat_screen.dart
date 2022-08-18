@@ -16,7 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    kChatController.messagesApiCall({},() {});
+    // kChatController.messagesApiCall({},() {});
   }
 
   @override
