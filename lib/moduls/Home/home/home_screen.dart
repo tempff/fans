@@ -16,6 +16,7 @@ import 'package:velocity_x/velocity_x.dart';
 import 'package:video_player/video_player.dart';
 import '../../../utility/theme_data.dart';
 import '../../../utility/utility_export.dart';
+import 'controller/home_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -46,17 +47,30 @@ class _HomeScreenState extends State<HomeScreen> {
     /* kHomeController.myPostApiCall({}, () {
       kHomeController.myPostModel.refresh();
     });*/
+
     dataList.clear();
-    kHomeController.homePageApiCall({}, () {
+    // kHomeController.likeDataStoreList.clear();
+
+    kHomeController.homePageApiCall({}, () async {
       kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
         dataList.add(element);
       });
+
+      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+        kHomeController.likeDataStoreList
+            .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+      });
+
       /*     for (int i = 0; i < (kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0); i++) {
         videoPlayerController = VideoPlayerController.network(
             kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl ?? '');
         */ /*print(kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl);*/ /*
       }*/
     }, true);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      print('asdas');
+    });
 
     //
     /*  videoPlayerController = VideoPlayerController.network('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4');
@@ -75,23 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
     videoPlayerController!.dispose();
     super.dispose();
   }*/
-
-  void _onRefresh() async {
-    // monitor network fetch
-    await Future.delayed(const Duration(milliseconds: 1000));
-    // if failed,use refreshFailed()
-    _refreshController.refreshCompleted();
-  }
-
-  void _onLoading() async {
-    // monitor network fetch
-    await Future.delayed(const Duration(milliseconds: 1000));
-    // if failed,use loadFailed(),if no data return,use LoadNodata()
-    dataList.add((dataList.length + 1).toString());
-    if (mounted) setState(() {});
-    print('::::::::::>>>>>>>');
-    _refreshController.loadComplete();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +112,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {
               disableFocusScopeNode(context);
             },
-            child: homeViewData(true, context, '',setState(() {}),mounted)));
+            child: homeViewData(true, context, '', setState(() {}), mounted)));
   }
 }
 
-void actionPopUpItemSelected(
-    String value, String? name, BuildContext context, int? id, String? description, String? image) {
+void actionPopUpItemSelected(String value, String? name, BuildContext context, int? id, String? description, String? image) {
   kHomeController.scaffoldkey.currentState?.hideCurrentSnackBar();
   String message;
   if (value == 'GoToPost') {
@@ -298,16 +294,14 @@ Future deletePost(BuildContext context) {
   );
 }
 
-Widget homeViewData(
-    bool? visible, BuildContext context, String? value, void setState, bool mounted) {
+Widget homeViewData(bool? visible, BuildContext context, String? value, void setState, bool mounted) {
   RxBool isExpansionTileOpen = false.obs;
   return SmartRefresher(
     controller: _refreshController,
     enablePullDown: true,
     enablePullUp: true,
-
     header: const WaterDropHeader(),
-    onRefresh:()async{
+    onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 1000));
       _refreshController.refreshCompleted();
     },
@@ -511,8 +505,7 @@ Widget homeViewData(
                                                       top: 5,
                                                       right: 5,
                                                       child: IconButton(
-                                                        visualDensity:
-                                                            const VisualDensity(vertical: VisualDensity.minimumDensity),
+                                                        visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
                                                         padding: EdgeInsets.zero,
                                                         onPressed: () {
                                                           kHomeController.imageFileList.removeAt(index);
@@ -534,8 +527,7 @@ Widget homeViewData(
                                                       // User canceled the picker
                                                     }*/
 
-                                                    final List<XFile>? selectedImages =
-                                                        await kHomeController.imagePicker.pickMultiImage();
+                                                    final List<XFile>? selectedImages = await kHomeController.imagePicker.pickMultiImage();
 
                                                     if (selectedImages!.isNotEmpty) {
                                                       kHomeController.imageFileList.addAll(selectedImages);
@@ -545,16 +537,12 @@ Widget homeViewData(
                                                     decoration: BoxDecoration(
                                                         borderRadius: BorderRadius.circular(20.0),
                                                         border: Border.all(
-                                                            color: isDarkOn.value == true
-                                                                ? colorLightWhite
-                                                                : colorBlack.withOpacity(0.5))),
+                                                            color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
                                                     margin: const EdgeInsets.only(right: 12),
                                                     width: 130,
                                                     child: Center(
                                                         child: Icon(Icons.add,
-                                                            color: isDarkOn.value == true
-                                                                ? colorLightWhite
-                                                                : colorBlack.withOpacity(0.5))),
+                                                            color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
                                                   ),
                                                 );
                                         }),
@@ -581,8 +569,7 @@ Widget homeViewData(
                     20.widthBox,
                     IconButton(
                       onPressed: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['zip']);
+                        FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['zip']);
 
                         if (result != null) {
                           zipFileData = File(result.files.single.path ?? '');
@@ -660,10 +647,8 @@ Widget homeViewData(
                           price: kHomeController.homePageModel.value.data?.updates?.data?[index].price,
                           username: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.username,
                           description: kHomeController.homePageModel.value.data?.updates?.data?[index].description,
-                          likeCounts:
-                              kHomeController.homePageModel.value.data?.updates?.data?[index].likeCount.toString(),
-                          commentsCounts:
-                              kHomeController.homePageModel.value.data?.updates?.data?[index].commentCount.toString(),
+                          likeCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].likeCount ?? 0,
+                          commentsCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].commentCount.toString(),
                         );
                       })
               /*   : SizedBox(
@@ -755,8 +740,7 @@ Widget exploreCreatorData() {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: const [
-                                Text('Gym Guy',
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorWhite)),
+                                Text('Gym Guy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorWhite)),
                                 Icon(
                                   Icons.verified_outlined,
                                   color: colorWhite,
@@ -827,392 +811,390 @@ Widget exploreCreatorData() {
 }
 
 Widget commonPost(BuildContext context,
-    {int postIndex = 0,
+    {required int postIndex,
     String? data,
     String? name,
     String? username,
     DateTime? date,
     String? description,
     String? commentsCounts,
-    String? likeCounts,
-    String? price}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      StreamBuilder<Object>(
-          stream: kHomeController.pinPostModel.stream,
-          builder: (context, snapshot) {
-            return kHomeController.pinPostModel.value.status == 'pin'
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        CupertinoIcons.pin,
-                        color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
-                        size: 20,
-                      ),
-                      5.widthBox,
-                      Text(
-                        'Pinned Post',
-                        style: greyInter14W500.copyWith(
-                            color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30),
-                      )
-                    ],
+    int likeCounts = 0,
+    String? price,
+    int? bookmarkId,
+    bool? isBookmarked}) {
+  return Obx(() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        kHomeController.pinPostModel.value.status == 'pin'
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    CupertinoIcons.pin,
+                    color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
+                    size: 20,
+                  ),
+                  5.widthBox,
+                  Text(
+                    'Pinned Post',
+                    style: greyInter14W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30),
                   )
-                : const SizedBox();
-          }),
-      10.heightBox,
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ClipOval(
-            child: SizedBox.fromSize(
-              size: const Size.fromRadius(35), // Image radius
-              child: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl?.isNotEmpty ==
-                      true
-                  ? CachedNetworkImage(
-                      height: 55.0,
-                      width: 55.0,
+                ],
+              )
+            : const SizedBox(),
+        10.heightBox,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ClipOval(
+              child: SizedBox.fromSize(
+                size: const Size.fromRadius(35), // Image radius
+                child: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl?.isNotEmpty == true
+                    ? CachedNetworkImage(
+                        height: 55.0,
+                        width: 55.0,
+                        fit: BoxFit.fill,
+                        imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl ?? '',
+                        placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                        errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                      )
+                    : Image.asset(
+                        'assets/images/profile_placeholder.png',
+                        scale: 3.5,
+                        height: 55.0,
+                        width: 55.0,
+                        fit: BoxFit.fill,
+                      ),
+              ),
+            ),
+            20.widthBox,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      name ?? '',
+                      style: FontStyleUtility.blackInter22W500
+                          .copyWith(color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontWeight: FontWeight.w900),
+                    ),
+                    5.widthBox,
+                    const Icon(
+                      Icons.verified,
+                      color: blueColor,
+                    ),
+                    5.widthBox,
+                    Text(
+                      username ?? '',
+                      style: greyInter14W500,
+                    )
+                  ],
+                ),
+                5.heightBox,
+                Row(
+                  children: [
+                    Text(
+                      timeUntil(date),
+                      style: greyInter16W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGrey),
+                    ),
+                    10.widthBox,
+                    Icon(
+                      kHomeController.myPostModel.value.posts?[postIndex].locked == 'yes' ? Icons.lock_outline : Icons.public_outlined,
+                      color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                      size: 20.0,
+                    ),
+                    5.widthBox,
+                    Text(
+                      price ?? '' /*kHomeController.myPostModel.value.posts?[index].price ?? ''*/,
+                      style: blackInter14W500,
+                    )
+                  ],
+                ),
+              ],
+            ),
+            const Spacer(),
+            PopupMenuButton(
+              icon: const Icon(
+                Icons.more_horiz,
+                size: 35,
+                color: colorGrey,
+              ),
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    value: 'GoToPost',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.ios_share_outlined),
+                        10.widthBox,
+                        const Text('Go to post'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'PinYourProfile',
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.pin),
+                        10.widthBox,
+                        const Text('Pin your Profile'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'CopyLink',
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.link),
+                        10.widthBox,
+                        const Text('Copy link'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'EditPost',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit_outlined),
+                        10.widthBox,
+                        const Text('Edit post'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'DeletePost',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete_outline),
+                        10.widthBox,
+                        const Text('Delete post'),
+                      ],
+                    ),
+                  ),
+                ];
+              },
+              onSelected: (String value) => actionPopUpItemSelected(
+                value,
+                'name',
+                context,
+                kHomeController.myPostModel.value.posts?[postIndex].id,
+                kHomeController.myPostModel.value.posts?[postIndex].description,
+                kHomeController.myPostModel.value.posts?[postIndex].image,
+              ),
+            ),
+          ],
+        ),
+        15.heightBox,
+        Text(
+          description ?? '',
+          /*kHomeController.myPostModel.value.posts?[index].description*/
+          style: greyInter16W500,
+        ),
+        10.heightBox,
+        /*Container(
+                      height: 200,
+                      color: colorBlack,
+                    ),*/
+        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
+            ? AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Chewie(
+                  controller: ChewieController(
+                    videoPlayerController: VideoPlayerController.network(
+                        /* kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ??*/
+                        'https://vz-6930c8d3-c90.b-cdn.net/003ef8f7-770c-4ed4-ac2d-7cf39f39904d/playlist.m3u8'),
+                    aspectRatio: videoPlayerController?.value.aspectRatio,
+                    autoPlay: true,
+                    looping: true,
+                  ),
+                ),
+              )
+            : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'image'
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: CachedNetworkImage(
                       fit: BoxFit.fill,
-                      imageUrl:
-                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl ?? '',
+                      imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? '',
                       placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                       errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                    )
-                  : Image.asset(
-                      'assets/images/profile_placeholder.png',
-                      scale: 3.5,
-                      height: 55.0,
-                      width: 55.0,
-                      fit: BoxFit.fill,
                     ),
-            ),
-          ),
-          20.widthBox,
-          StreamBuilder<Object>(
-              stream: isDarkOn.stream,
-              builder: (context, snapshot) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          name ?? '',
-                          style: FontStyleUtility.blackInter22W500.copyWith(
-                              color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
-                              fontWeight: FontWeight.w900),
-                        ),
-                        5.widthBox,
-                        const Icon(
-                          Icons.verified,
-                          color: blueColor,
-                        ),
-                        5.widthBox,
-                        Text(
-                          username ?? '',
-                          style: greyInter14W500,
-                        )
-                      ],
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      'assets/images/post1.jpeg',
+                      fit: BoxFit.cover,
                     ),
-                    5.heightBox,
-                    Row(
-                      children: [
-                        Text(
-                          timeUntil(date),
-                          style: greyInter16W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGrey),
-                        ),
-                        10.widthBox,
-                        Icon(
-                          kHomeController.myPostModel.value.posts?[postIndex].locked == 'yes'
-                              ? Icons.lock_outline
-                              : Icons.public_outlined,
-                          color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                          size: 20.0,
-                        ),
-                        5.widthBox,
-                        Text(
-                          price ?? '' /*kHomeController.myPostModel.value.posts?[index].price ?? ''*/,
-                          style: blackInter14W500,
-                        )
-                      ],
-                    ),
-                  ],
-                );
-              }),
-          const Spacer(),
-          PopupMenuButton(
-            icon: const Icon(
-              Icons.more_horiz,
-              size: 35,
-              color: colorGrey,
-            ),
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  value: 'GoToPost',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.ios_share_outlined),
-                      10.widthBox,
-                      const Text('Go to post'),
-                    ],
                   ),
-                ),
-                PopupMenuItem(
-                  value: 'PinYourProfile',
-                  child: Row(
-                    children: [
-                      const Icon(CupertinoIcons.pin),
-                      10.widthBox,
-                      const Text('Pin your Profile'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'CopyLink',
-                  child: Row(
-                    children: [
-                      const Icon(CupertinoIcons.link),
-                      10.widthBox,
-                      const Text('Copy link'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'EditPost',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit_outlined),
-                      10.widthBox,
-                      const Text('Edit post'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'DeletePost',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.delete_outline),
-                      10.widthBox,
-                      const Text('Delete post'),
-                    ],
-                  ),
-                ),
-              ];
-            },
-            onSelected: (String value) => actionPopUpItemSelected(
-              value,
-              'name',
-              context,
-              kHomeController.myPostModel.value.posts?[postIndex].id,
-              kHomeController.myPostModel.value.posts?[postIndex].description,
-              kHomeController.myPostModel.value.posts?[postIndex].image,
-            ),
-          ),
-        ],
-      ),
-      15.heightBox,
-      Text(
-        description ?? '',
-        /*kHomeController.myPostModel.value.posts?[index].description*/
-        style: greyInter16W500,
-      ),
-      10.heightBox,
-      /*Container(
-                  height: 200,
-                  color: colorBlack,
-                ),*/
-      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
-          ? AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Chewie(
-                controller: ChewieController(
-                  videoPlayerController: VideoPlayerController.network(
-                      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? ''),
-                  aspectRatio: videoPlayerController?.value.aspectRatio,
-                  autoPlay: true,
-                  looping: true,
-                ),
-              ),
-            )
-          : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'image'
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: CachedNetworkImage(
-                    fit: BoxFit.fill,
-                    imageUrl:
-                        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? '',
-                    placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                    errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                  ),
-                )
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    'assets/images/post1.jpeg',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-      5.heightBox,
-      StreamBuilder<Object>(
-          stream: isDarkOn.stream,
-          builder: (context, snapshot) {
-            return Row(
-              children: [
-                StreamBuilder<Object>(
-                    stream: kHomeController.likeButton.stream,
-                    builder: (context, snapshot) {
-                      return IconButton(
-                          splashColor: colorRed,
-                          splashRadius: 20.0,
-                          onPressed: () {
-                            // kHomeController.likeButton.value = !kHomeController.likeButton.value;
-                            /*         kHomeController.homePageModel.value.data?.updates
-                                ?.data?[index].isLiked = !(kHomeController
-                                    .homePageModel
-                                    .value
-                                    .data
-                                    ?.updates
-                                    ?.data?[index]
-                                    .isLiked ??
-                                false);*/
+        5.heightBox,
+        Row(
+          children: [
+            IconButton(
+                splashColor: colorRed,
+                splashRadius: 20.0,
+                onPressed: () {
+                  // kHomeController.likeButton.value = !kHomeController.likeButton.value;
+                  /*         kHomeController.homePageModel.value.data?.updates
+                                      ?.data?[index].isLiked = !(kHomeController
+                                          .homePageModel
+                                          .value
+                                          .data
+                                          ?.updates
+                                          ?.data?[index]
+                                          .isLiked ??
+                                      false);*/
 
-                            Map<String, dynamic> params = {
-                              'id': kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id
-                            };
-                            kHomeController.postLikeApiCall(params, () {
-                              kHomeController.homePageApiCall({}, () {}, false);
-                            });
-                          },
-                          icon: Icon(
-                            kHomeController.homePageModel.value.data?.updates?.data?[postIndex].isLiked == true
-                                ? CupertinoIcons.heart_fill
-                                : CupertinoIcons.suit_heart,
-                            size: 25,
-                            color: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].isLiked == true
-                                ? colorRed
-                                : isDarkOn.value == true
-                                    ? colorLightWhite
-                                    : colorGrey,
-                          ));
-                    }),
-                Text(
-                  likeCounts ?? '',
-                  overflow: TextOverflow.ellipsis,
-                  style: greyInter18W500.copyWith(
-                    color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                  ),
-                ),
-                2.widthBox,
-                IconButton(
-                    onPressed: () {
-                      isMessage.value = !isMessage.value;
-                      commentValue.value = !commentValue.value;
-                    },
-                    icon: Icon(
-                      CupertinoIcons.chat_bubble,
-                      size: 22,
-                      color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                    )),
-                Text(
-                  commentsCounts ?? '',
-                  overflow: TextOverflow.ellipsis,
-                  style: greyInter18W500.copyWith(
-                    color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                  ),
-                ),
-                2.widthBox,
-                IconButton(
-                    onPressed: () {
-                      showAlertDialog(
-                        context: context,
-                        callback: () {},
-                        actions: [
-                          TextButton(
-                            child: Text('Cancel', style: blackInter16W600),
-                            onPressed: () {
-                              Get.back();
-                            },
-                          )
-                        ],
-                        child: SizedBox(
-                          height: getScreenHeight(context) * 0.3,
-                          width: getScreenWidth(context) * 0.9,
-                          child: GridView(
-                            shrinkWrap: true,
-                            physics: const ClampingScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2, childAspectRatio: 1.5),
-                            children: [
-                              commonDialogItems(
-                                image: facebook,
-                                title: 'Facebook',
-                                callBack: () {},
-                              ),
-                              commonDialogItems(
-                                image: twitter,
-                                title: 'Twitter',
-                                callBack: () {},
-                              ),
-                              commonDialogItems(
-                                image: whatsApp,
-                                title: 'WhatsApp',
-                                callBack: () {},
-                              ),
-                              commonDialogItems(
-                                image: message,
-                                title: 'Text message',
-                                callBack: () {},
-                              ),
-                            ],
+                  Map<String, dynamic> params = {'id': kHomeController.likeDataStoreList[postIndex].id};
+                  kHomeController.postLikeApiCall(params, () {
+                    // kHomeController.homePageApiCall({}, () {}, false);
+
+                    kHomeController.likeDataStoreList[postIndex].isLiked = kHomeController.postLikeModel.value.data!.liked;
+
+                    if (kHomeController.likeDataStoreList[postIndex].isLiked ?? true) {
+                      kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) + 1;
+                    } else if ((kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) > 0) {
+                      kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 1) - 1;
+                    }
+                    kHomeController.likeDataStoreList.refresh();
+                  });
+                },
+                icon: Icon(
+                  kHomeController.likeDataStoreList[postIndex].isLiked == true ? CupertinoIcons.heart_fill : CupertinoIcons.suit_heart,
+                  size: 25,
+                  color: kHomeController.likeDataStoreList[postIndex].isLiked == true
+                      ? colorRed
+                      : isDarkOn.value == true
+                          ? colorLightWhite
+                          : colorGrey,
+                )),
+            Text(
+              kHomeController.likeDataStoreList[postIndex].likeCount.toString(),
+              overflow: TextOverflow.ellipsis,
+              style: greyInter18W500.copyWith(
+                color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+              ),
+            ),
+            2.widthBox,
+            IconButton(
+                onPressed: () {
+                  isMessage.value = !isMessage.value;
+                  commentValue.value = !commentValue.value;
+                },
+                icon: Icon(
+                  CupertinoIcons.chat_bubble,
+                  size: 22,
+                  color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                )),
+            Text(
+              commentsCounts ?? '',
+              overflow: TextOverflow.ellipsis,
+              style: greyInter18W500.copyWith(
+                color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+              ),
+            ),
+            2.widthBox,
+            IconButton(
+                onPressed: () {
+                  showAlertDialog(
+                    context: context,
+                    callback: () {},
+                    actions: [
+                      TextButton(
+                        child: Text('Cancel', style: blackInter16W600),
+                        onPressed: () {
+                          Get.back();
+                        },
+                      )
+                    ],
+                    child: SizedBox(
+                      height: getScreenHeight(context) * 0.3,
+                      width: getScreenWidth(context) * 0.9,
+                      child: GridView(
+                        shrinkWrap: true,
+                        physics: const ClampingScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5),
+                        children: [
+                          commonDialogItems(
+                            image: facebook,
+                            title: 'Facebook',
+                            callBack: () {},
                           ),
-                        ),
-                      );
-                    },
-                    icon: Icon(
-                      CupertinoIcons.share,
-                      size: 22,
-                      color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                    )),
-                const Spacer(),
-                StreamBuilder<Object>(
-                    stream: kHomeController.bookmarkButton.stream,
-                    builder: (context, snapshot) {
-                      return IconButton(
-                          splashColor: deepPurpleColor,
-                          splashRadius: 20.0,
-                          onPressed: () {
-                            kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
-                            Map<String, dynamic> params = {
-                              'id': data == 'bookmark'
-                                  ? (kHomeController.bookMarkModel.value.updates?[postIndex].id ?? '')
-                                  : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id ?? '',
-                            };
-                            kHomeController.addBookMarkApiCall(params, () {
-                              kHomeController.homePageModel.refresh();
-                              data == 'bookmark' ? kHomeController.bookMarkApiCall({}, () {}) : () {};
-                            });
-                          },
-                          icon: Icon(
-                            kHomeController.homePageModel.value.data?.updates?.data?[postIndex].isBookmarked == true
-                                ? Icons.bookmark
-                                : Icons.bookmark_border,
-                            size: 23,
-                            color: kHomeController.bookmarkButton.value == true
-                                ? deepPurpleColor
-                                : isDarkOn.value == true
-                                    ? colorLightWhite
-                                    : colorGrey,
-                          ));
-                    })
-              ],
-            );
-          }),
-      Obx(
-        () => isMessage.value == true
+                          commonDialogItems(
+                            image: twitter,
+                            title: 'Twitter',
+                            callBack: () {},
+                          ),
+                          commonDialogItems(
+                            image: whatsApp,
+                            title: 'WhatsApp',
+                            callBack: () {},
+                          ),
+                          commonDialogItems(
+                            image: message,
+                            title: 'Text message',
+                            callBack: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  CupertinoIcons.share,
+                  size: 22,
+                  color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                )),
+            const Spacer(),
+            IconButton(
+                splashColor: deepPurpleColor,
+                splashRadius: 20.0,
+                onPressed: () {
+                  kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
+                  Map<String, dynamic> params = {
+                    'id': data == 'bookmark' ? (bookmarkId ?? '') : kHomeController.likeDataStoreList[postIndex].id ?? '',
+                  };
+                  kHomeController.addBookMarkApiCall(params, () {
+                    if (kHomeController.addBookMarkModel.value.data?.type == 'added') {
+                      kHomeController.likeDataStoreList[postIndex].isBookmark = true;
+                      isBookmarked = true;
+                    } else {
+                      kHomeController.likeDataStoreList[postIndex].isBookmark = false;
+                      isBookmarked = false;
+                    }
+                    kHomeController.likeDataStoreList.refresh();
+
+                    /*   data == 'bookmark'
+                            ? kHomeController.bookMarkApiCall({}, () {
+                                kHomeController.homePageApiCall({}, () {}, false);
+                              })
+                            : kHomeController.homePageApiCall({}, () {}, false);*/
+                  });
+                },
+                icon: data == 'bookmark'
+                    ? Icon(
+                        isBookmarked == true ? Icons.bookmark : Icons.bookmark_border,
+                        size: 23,
+                        color: isBookmarked == true
+                            ? deepPurpleColor
+                            : isDarkOn.value == true
+                                ? colorLightWhite
+                                : colorGrey,
+                      )
+                    : Icon(
+                        kHomeController.likeDataStoreList[postIndex].isBookmark == true ? Icons.bookmark : Icons.bookmark_border,
+                        size: 23,
+                        color: kHomeController.likeDataStoreList[postIndex].isBookmark == true
+                            ? deepPurpleColor
+                            : isDarkOn.value == true
+                                ? colorLightWhite
+                                : colorGrey,
+                      )),
+          ],
+        ),
+        isMessage.value == true
             ? ListView.builder(
                 itemCount: 2 + 1,
                 physics: const ClampingScrollPhysics(),
@@ -1253,8 +1235,7 @@ Widget commonPost(BuildContext context,
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w900),
                                             ),
-                                            Icon(Icons.verified,
-                                                size: 18, color: isDarkOn.value == true ? colorWhite : blueColor)
+                                            Icon(Icons.verified, size: 18, color: isDarkOn.value == true ? colorWhite : blueColor)
                                           ],
                                         ),
                                         3.heightBox,
@@ -1297,8 +1278,7 @@ Widget commonPost(BuildContext context,
                                                 },
                                                 icon: const Icon(Icons.delete_outline, size: 20.0),
                                                 padding: EdgeInsets.zero,
-                                                visualDensity:
-                                                    const VisualDensity(vertical: VisualDensity.minimumDensity)),
+                                                visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity)),
                                             const Spacer(),
                                             StreamBuilder<Object>(
                                                 stream: kHomeController.likeButton.stream,
@@ -1307,11 +1287,9 @@ Widget commonPost(BuildContext context,
                                                       splashColor: colorRed,
                                                       splashRadius: 20.0,
                                                       padding: EdgeInsets.zero,
-                                                      visualDensity:
-                                                          const VisualDensity(vertical: VisualDensity.minimumDensity),
+                                                      visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
                                                       onPressed: () {
-                                                        kHomeController.likeButton.value =
-                                                            !kHomeController.likeButton.value;
+                                                        kHomeController.likeButton.value = !kHomeController.likeButton.value;
                                                       },
                                                       icon: Icon(
                                                         kHomeController.likeButton.value == true
@@ -1341,8 +1319,7 @@ Widget commonPost(BuildContext context,
                           onFieldSubmit: (value) {
                             FocusManager.instance.primaryFocus?.unfocus();
                             Map<String, dynamic> params = {
-                              'update_id':
-                                  kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id.toString(),
+                              'update_id': kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id.toString(),
                               'comment': postCommentController[postIndex].value.text
                             };
                             kHomeController.postCommentApiCall(params, () {
@@ -1351,10 +1328,7 @@ Widget commonPost(BuildContext context,
                           });
                 })
             : const SizedBox(),
-      ),
-      Obx(
-        () => kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment != null &&
-                commentValue.value == true
+        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment != null && commentValue.value == true
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1362,23 +1336,17 @@ Widget commonPost(BuildContext context,
                     children: [
                       5.widthBox,
                       Text(
-                        kHomeController
-                                .homePageModel.value.data?.updates?.data?[postIndex].latestComment?.user?.username ??
-                            '',
+                        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment?.user?.username ?? '',
                         overflow: TextOverflow.ellipsis,
-                        style: greyInter18W500.copyWith(
-                            color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
+                        style: greyInter18W500.copyWith(color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
                       ),
                       5.widthBox,
                       Expanded(
                         child: Text(
-                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment?.reply ??
-                              '',
+                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment?.reply ?? '',
                           overflow: TextOverflow.ellipsis,
                           style: greyInter18W500.copyWith(
-                              color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16),
+                              color: isDarkOn.value == true ? colorLightWhite : colorGrey, fontWeight: FontWeight.w400, fontSize: 16),
                         ),
                       ),
                     ],
@@ -1393,16 +1361,14 @@ Widget commonPost(BuildContext context,
                       'View all comment',
                       overflow: TextOverflow.ellipsis,
                       style: greyInter18W500.copyWith(
-                          color: isDarkOn.value == true ? colorWhite : colorLightWhite,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400),
+                          color: isDarkOn.value == true ? colorWhite : colorLightWhite, fontSize: 15, fontWeight: FontWeight.w400),
                     ).paddingOnly(left: 5.0),
                   ),
                 ],
               )
             : const SizedBox(),
-      ),
-      20.heightBox
-    ],
-  );
+        20.heightBox
+      ],
+    );
+  });
 }

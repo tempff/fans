@@ -62,6 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     0, 3), // changes position of shadow
                               ),
                             ],
+
                             border: Border.all(color: colorPrimary, width: 1),
                             borderRadius: BorderRadius.circular(15)),
                         child: Column(

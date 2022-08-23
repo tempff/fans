@@ -433,47 +433,60 @@ class _MyPageScreenState extends State<MyPageScreen> with TickerProviderStateMix
                   //                   )),
                   //             ),
                   //             children: <Widget>[
-                  Container(
-                    margin: const EdgeInsets.only(top: 10, left: 12, right: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: colorGrey.withOpacity(0.2), width: 1),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 3, top: 15),
-                            child: Text(
-                              'About me',
-                              style: greyInter18W500.copyWith(fontWeight: FontWeight.w700),
+                  StreamBuilder<Object>(
+                      stream: isDarkOn.stream,
+                      builder: (context, snapshot) {
+                        return Container(
+                          margin: const EdgeInsets.only(top: 10, left: 12, right: 12),
+                          decoration: BoxDecoration(
+                            color: isDarkOn.value == true ? colorBlack : colorWhite,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3), // changes position of shadow
+                              ),
+                            ],
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(color: colorGrey.withOpacity(0.2), width: 1),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 3, top: 15),
+                                  child: Text(
+                                    'About me',
+                                    style: greyInter18W500.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                                10.heightBox,
+                                commonAboutMeRow(icon: CupertinoIcons.heart, title: 'Likes'),
+                                commonAboutMeRow(
+                                    icon: Icons.pin_drop_outlined,
+                                    title:
+                                        '${kNotificationController.myPageModel.value.data?.user?.address ?? ''} ${kNotificationController.myPageModel.value.data?.user?.city ?? ''}'),
+                                commonAboutMeRow(icon: Icons.person_outline, title: 'Member since mar 13, 2021'),
+                                10.heightBox,
+                                Text(
+                                  kNotificationController.myPageModel.value.data?.user?.story ?? '',
+                                  style: greyInter14W400,
+                                ),
+                                10.heightBox,
+                              ],
                             ),
                           ),
-                          10.heightBox,
-                          commonAboutMeRow(icon: CupertinoIcons.heart, title: 'Likes'),
-                          commonAboutMeRow(
-                              icon: Icons.pin_drop_outlined,
-                              title:
-                                  '${kNotificationController.myPageModel.value.data?.user?.address ?? ''} ${kNotificationController.myPageModel.value.data?.user?.city ?? ''}'),
-                          commonAboutMeRow(icon: Icons.person_outline, title: 'Member since mar 13, 2021'),
-                          10.heightBox,
-                          Text(
-                            kNotificationController.myPageModel.value.data?.user?.story ?? '',
-                            style: greyInter14W400,
-                          ),
-                          10.heightBox,
-                        ],
-                      ),
-                    ),
-                  ),
+                        );
+                      }),
                   //         ],
                   //       ),
                   //     ),
                   //   );
                   // }),
-                  // 10.heightBox,
+                  10.heightBox,
                   StreamBuilder<Object>(
                       stream: isDarkOn.stream,
                       builder: (context, snapshot) {

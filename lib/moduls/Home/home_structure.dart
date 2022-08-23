@@ -61,9 +61,7 @@ class _HomeStructureViewState extends State<HomeStructureView> {
       child: Scaffold(
         key: _key,
         appBar: commonAppBar(
-            height: tabSelectedIndex.value == 0 || tabSelectedIndex.value == 1
-                ? 80.0
-                : 70.0,
+            height: tabSelectedIndex.value == 0 || tabSelectedIndex.value == 1 ? 80.0 : 70.0,
             // appbarBgColor: isDarkOn.value == true ? colorBlack : colorWhite,
             leadingIcon: Container(
               margin: const EdgeInsets.only(top: 15.0),
@@ -80,28 +78,27 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                 },
               ),
             ),
-            titleWidget:
-                tabSelectedIndex.value == 0 || tabSelectedIndex.value == 1
-                    ? Container(
-                        padding: const EdgeInsets.only(
-                          top: 10,
-                        ),
-                        child: commonTextField(
-                            filledColor: appBarColor,
-                            hintText: 'Search',
-                            textEditingController: null,
-                            borderOpacity: 0.0,
-                            contentPadding: EdgeInsets.zero,
-                            borderRadiusColor: deepPurpleColor.withOpacity(0.0),
-                            hintStyle: FontStyleUtility.whiteInter16W500,
-                            isBorder: true,
-                            textStyle: FontStyleUtility.whiteInter16W500,
-                            preFixWidget: const Icon(
-                              Icons.search,
-                              color: colorWhite,
-                            )),
-                      )
-                    : const SizedBox(),
+            titleWidget: tabSelectedIndex.value == 0 || tabSelectedIndex.value == 1
+                ? Container(
+                    padding: const EdgeInsets.only(
+                      top: 10,
+                    ),
+                    child: commonTextField(
+                        filledColor: appBarColor,
+                        hintText: 'Search',
+                        textEditingController: null,
+                        borderOpacity: 0.0,
+                        contentPadding: EdgeInsets.zero,
+                        borderRadiusColor: deepPurpleColor.withOpacity(0.0),
+                        hintStyle: FontStyleUtility.whiteInter16W500,
+                        isBorder: true,
+                        textStyle: FontStyleUtility.whiteInter16W500,
+                        preFixWidget: const Icon(
+                          Icons.search,
+                          color: colorWhite,
+                        )),
+                  )
+                : const SizedBox(),
             actionWidgets: [
               tabSelectedIndex.value == 0
                   ? Container(
@@ -111,28 +108,23 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                           onPressed: () {
                             showModalBottomSheet(
                                 shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(20),
-                                        topLeft: Radius.circular(20))),
+                                    borderRadius:
+                                        BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
                                 context: context,
                                 builder: (context) {
                                   return Container(
                                     decoration: const BoxDecoration(
                                         borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(20),
-                                            topLeft: Radius.circular(20))),
+                                            topRight: Radius.circular(20), topLeft: Radius.circular(20))),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
                                         Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              vertical: 20),
+                                          margin: const EdgeInsets.symmetric(vertical: 20),
                                           height: 5,
                                           width: 100,
-                                          decoration: BoxDecoration(
-                                              color: colorGrey,
-                                              borderRadius:
-                                                  BorderRadius.circular(100)),
+                                          decoration:
+                                              BoxDecoration(color: colorGrey, borderRadius: BorderRadius.circular(100)),
                                         ),
                                         ListTile(
                                             title: Text(
@@ -161,9 +153,7 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                           },
                           icon: Image.asset(
                             'assets/appIcons/filter.png',
-                            color: isDarkOn.value == true
-                                ? colorWhite
-                                : colorBlack,
+                            color: isDarkOn.value == true ? colorWhite : colorBlack,
                             height: 25,
                             width: 25,
                             scale: 3.5,
@@ -328,9 +318,7 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                   stream: isDarkOn.stream,
                   builder: (context, snapshot) {
                     return ListTile(
-                      leading: Icon(isDarkOn.value == true
-                          ? Icons.sunny
-                          : Icons.nights_stay_rounded),
+                      leading: Icon(isDarkOn.value == true ? Icons.sunny : Icons.nights_stay_rounded),
                       title: Text(
                         isDarkOn.value == true ? 'Light Mode' : 'Dark Mode',
                         style: blackInter16W500,

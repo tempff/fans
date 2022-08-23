@@ -1,10 +1,7 @@
 class ApiConfig {
-
   ///Old URL
   // static const String baseUrl = "https://fans2.co.tz/api";
   static const String baseUrl = "https://alpha.fans2.co.tz/api";
-
-
 
   static const String appName = "Fans";
 
@@ -18,7 +15,6 @@ class ApiConfig {
   static const String warning = "Warning";
   static const String subUrlUser = "/user/";
 
-
   static const String loginUser = '$baseUrl/login';
   static const String signupUser = '$baseUrl/register';
   static const String forgotPassword = '$baseUrl/password/email';
@@ -28,7 +24,7 @@ class ApiConfig {
   static const String notifications = '$baseUrl/notifications';
   static const String notificationsDelete = '$baseUrl/notifications/delete';
   static const String register = '$baseUrl/register';
-  static const String bookmarks = '$baseUrl/my/user/bookmarks';
+  static const String bookmarks = '$baseUrl/user/bookmarks';
   static const String addBookmark = '$baseUrl/add/bookmark';
   static const String myPage = '$baseUrl/edit-profile';
   static const String restrictions = '$baseUrl/settings/restrictions';

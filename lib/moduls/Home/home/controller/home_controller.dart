@@ -26,6 +26,7 @@ class HomeController extends GetxController {
   ImagePicker imagePicker = ImagePicker();
   RxList<XFile>? selectedImages;
   RxList imageFileList = [].obs;
+  RxList<LikeDataStore> likeDataStoreList = <LikeDataStore>[].obs;
 
   // RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;
 
@@ -61,7 +62,8 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            bookMarkModel.value = BookmarkModel.fromJson(json.decode(response.data));
+            bookMarkModel.value = BookmarkModel.fromJson(response.data);
+            callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }
@@ -84,13 +86,13 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            addBookMarkModel.value = AddBookmarkModel.fromJson(response.data);
+            addBookMarkModel.value = AddBookmarkModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }
         },
-        isProgressShow: true,
+        isProgressShow: false,
         params: params,
         methodType: MethodType.post,
         isPassHeader: true,
@@ -145,7 +147,7 @@ class HomeController extends GetxController {
         Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
       },
       isProgressShow: loadValue == true ? true : false,
-      params: {},
+      params: params,
     );
   }
 
@@ -203,4 +205,21 @@ class HomeController extends GetxController {
         },
         isPassHeader: true);
   }
+
+  @override
+  void onInit() {
+    // TODO: implement onInit
+
+    super.onInit();
+  }
+}
+
+class LikeDataStore {
+  int? id;
+  bool? isLiked;
+  bool? isBookmark;
+  int? likeCount;
+
+
+  LikeDataStore({this.likeCount, this.id, this.isLiked,this.isBookmark});
 }

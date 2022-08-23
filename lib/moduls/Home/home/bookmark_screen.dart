@@ -33,20 +33,25 @@ class _BookMarkScreenState extends State<BookMarkScreen> {
               children: [
                 30.heightBox,
                 Obx(
-                  () => kHomeController
-                              .bookMarkModel.value.updates?.isNotEmpty ==
-                          true
+                  () => kHomeController.bookMarkModel.value.data?.updates?.isNotEmpty == true
                       ? ListView.builder(
                           physics: const ClampingScrollPhysics(),
-                          itemCount: kHomeController
-                                  .bookMarkModel.value.updates?.length ??
-                              0,
+                          itemCount: kHomeController.bookMarkModel.value.data?.updates?.length ?? 0,
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             return commonPost(context,
                                 postIndex: index,
                                 data: 'bookmark',
-                                description: kHomeController.bookMarkModel.value.updates?[index].description ?? '');
+                                bookmarkId : kHomeController.bookMarkModel.value.data?.updates?[index].id,
+                                name: kHomeController.bookMarkModel.value.data?.updates?[index].fileName,
+                                date: kHomeController.bookMarkModel.value.data?.updates?[index].date,
+                                commentsCounts: kHomeController.bookMarkModel.value.data?.updates?[index].commentCount.toString(),
+                                likeCounts: kHomeController.bookMarkModel.value.data?.updates?[index].likeCount ?? 0,
+                                price: kHomeController.bookMarkModel.value.data?.updates?[index].price,
+                                username: kHomeController.bookMarkModel.value.data?.updates?[index].fileName,
+                                description: kHomeController.bookMarkModel.value.data?.updates?[index].description ?? '',
+                               isBookmarked: kHomeController.bookMarkModel.value.data?.updates?[index].isBookmarked,
+                          );
                           })
                       : SizedBox(
                           height: getScreenHeight(context) * 0.4,
@@ -56,18 +61,13 @@ class _BookMarkScreenState extends State<BookMarkScreen> {
                               Icon(
                                 Icons.bookmark_border,
                                 size: 90,
-                                color: isDarkOn.value == true
-                                    ? colorLightWhite
-                                    : colorGreyOpacity30,
+                                color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
                               ),
                               20.heightBox,
                               Text(
                                 'No Book Mark Yet',
-                                style:
-                                    FontStyleUtility.greyInter18W500.copyWith(
-                                  color: isDarkOn.value == true
-                                      ? colorLightWhite
-                                      : colorGreyOpacity30,
+                                style: FontStyleUtility.greyInter18W500.copyWith(
+                                  color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
                                 ),
                               ),
                               5.heightBox,
