@@ -303,14 +303,5 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
         ));
   }
 
-  String getFormattedDate(String date) {
-    var localDate = DateTime.parse(date).toLocal();
 
-    var inputFormat = DateFormat('yyyy-MM-dd HH:mm');
-    var inputDate = inputFormat.parse(localDate.toString());
-    final DateFormat formatter = DateFormat.yMMMd().add_jms();
-    final String formatted = formatter.format(inputDate);
-
-    return formatted.toString();
-  }
 }

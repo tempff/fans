@@ -27,7 +27,6 @@ class ApiConfig {
   static const String bookmarks = '$baseUrl/user/bookmarks';
   static const String addBookmark = '$baseUrl/add/bookmark';
   static const String myPage = '$baseUrl/edit-profile';
-  static const String restrictions = '$baseUrl/settings/restrictions';
   static const String deleteCover = '$baseUrl/delete/cover';
   static const String messages = '$baseUrl/messages';
   static const String pinPost = '$baseUrl/pin/post';
@@ -35,4 +34,7 @@ class ApiConfig {
   static const String uploadProfile = '$baseUrl/upload/avatar';
   static const String postLike = '$baseUrl/post/like';
   static const String postComment = '$baseUrl/comment/store';
+  static const String restrictions = '$baseUrl/user/restrictions';
+  static const String verifyMobile = '$baseUrl/verify-mobile';
+
 }

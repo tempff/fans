@@ -330,7 +330,7 @@ commonCountryCodePicker({
                   bottom: 0,
                   child: Icon(
                     Icons.arrow_drop_down,
-                    color: Colors.black,
+                    color: Colors.white,
                     size: 25,
                   ),
                 )

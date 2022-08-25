@@ -58,9 +58,7 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
                           heightBox(50.0),
                           InkWell(
                             onTap: () {
-                              Get.isDarkMode
-                                  ? Get.changeTheme(ThemeData.light())
-                                  : Get.changeTheme(ThemeData.light());
+                              Get.isDarkMode ? Get.changeTheme(ThemeData.light()) : Get.changeTheme(ThemeData.light());
                             },
                             child: Image.asset(
                               'assets/logo/fans_logo1.png',
@@ -70,10 +68,7 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
                             ),
                           ),
                           heightBox(50.0),
-                          Text(
-                              'Join now and Start making money\nwith your content!',
-                              textAlign: TextAlign.center,
-                              style: greyInter22W500),
+                          Text('Join now and Start making money\nwith your content!', textAlign: TextAlign.center, style: greyInter22W500),
                           // const ChangeThemeButtonWidget(),
                         ],
                       ),
@@ -82,13 +77,9 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
                       alignment: Alignment.bottomCenter,
                       child: Container(
                         height: getScreenHeight(context) * 0.6,
-                        padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 20.0)
-                            .copyWith(top: 25),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0).copyWith(top: 25),
                         decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(28),
-                              topLeft: Radius.circular(28)),
+                          borderRadius: BorderRadius.only(topRight: Radius.circular(28), topLeft: Radius.circular(28)),
                           color: deepPurpleColor,
                         ),
                         child: Column(
@@ -127,68 +118,57 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
                               width: getScreenWidth(context),
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      lightPurpleColor),
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
+                                  backgroundColor: MaterialStateProperty.all(lightPurpleColor),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25.0),
                                     ),
                                   ),
                                 ),
                                 onPressed: () async {
-                                  if (globalKey.currentState?.validate() ==
-                                      true) {
-                                    setState(() {
-                                      showLoading = true;
+                                  if (globalKey.currentState?.validate() == true) {
+                                    Map<String, dynamic> params = {'mobile': dialCode + phoneController.text};
+                                    kAuthenticationController.verifyMobileApiCall(params, () async {
+                                      setState(() {
+                                        showLoading = true;
+                                      });
+
+                                      await auth.verifyPhoneNumber(
+                                        phoneNumber: dialCode + phoneController.text,
+                                        verificationCompleted: (phoneAuthCredential) async {
+                                          setState(() {
+                                            showLoading = false;
+                                          });
+
+                                          //signInWithPhoneAuthCredential(phoneAuthCredential);
+                                        },
+                                        verificationFailed: (verificationFailed) async {
+                                          setState(() {
+                                            showLoading = false;
+                                          });
+                                          Fluttertoast.showToast(msg: 'Invalid Number', toastLength: Toast.LENGTH_SHORT);
+                                        },
+                                        codeSent: (verificationId, resendingToken) async {
+                                          setState(() {
+                                            showLoading = false;
+                                            this.verificationId = verificationId;
+                                            Get.to(() => OtpScreen(data: verificationId));
+                                          });
+                                          Fluttertoast.showToast(msg: 'Sent otp on this number', toastLength: Toast.LENGTH_SHORT);
+                                        },
+                                        timeout: const Duration(seconds: 60),
+                                        codeAutoRetrievalTimeout: (verificationId) async {
+                                          setState(() {
+                                            this.verificationId = verificationId;
+                                          });
+                                        },
+                                      );
                                     });
-
-                                    await auth.verifyPhoneNumber(
-                                      phoneNumber:
-                                          dialCode + phoneController.text,
-                                      verificationCompleted:
-                                          (phoneAuthCredential) async {
-                                        setState(() {
-                                          showLoading = false;
-                                        });
-
-                                        //signInWithPhoneAuthCredential(phoneAuthCredential);
-                                      },
-                                      verificationFailed:
-                                          (verificationFailed) async {
-                                        setState(() {
-                                          showLoading = false;
-                                        });
-                                        Fluttertoast.showToast(
-                                            msg: 'Invalid Number',
-                                            toastLength: Toast.LENGTH_SHORT);
-                                      },
-                                      codeSent: (verificationId,
-                                          resendingToken) async {
-                                        setState(() {
-                                          showLoading = false;
-                                          this.verificationId = verificationId;
-                                          Get.to(() =>
-                                              OtpScreen(data: verificationId));
-                                        });
-                                        Fluttertoast.showToast(
-                                            msg: 'Sent otp on this number',
-                                            toastLength: Toast.LENGTH_SHORT);
-                                      },
-                                      timeout: const Duration(seconds: 60),
-                                      codeAutoRetrievalTimeout:
-                                          (verificationId) async {
-                                        setState(() {
-                                          this.verificationId = verificationId;
-                                        });
-                                      },
-                                    );
                                   }
                                 },
                                 child: Text(
                                   "Continue",
-                                  style: FontStyleUtility.blackInter16W500
-                                      .copyWith(color: colorWhite),
+                                  style: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
                                 ),
                               ),
                             ),

@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:fans/API/api_call.dart';
 import 'package:fans/API/api_config.dart';
 import 'package:fans/moduls/LoginFlow/Model/forgot_password_model.dart';
 import 'package:fans/moduls/LoginFlow/Model/signup_model.dart';
+import 'package:fans/moduls/LoginFlow/Model/verify_mobile_model.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
@@ -22,15 +25,11 @@ class AuthenticationController extends GetxController {
 
             if (loginModel.value.token == null) {
               // showSnackBar(message: response.data['message']);
-              showToast(
-                  message: response.data['message'],
-                  bgColor: colorRed,
-                  toastLength: Toast.LENGTH_LONG);
+              showToast(message: response.data['message'], bgColor: colorRed, toastLength: Toast.LENGTH_LONG);
               return;
             }
 
-            if (loginModel.value.token != null &&
-                loginModel.value.token!.isNotEmpty) {
+            if (loginModel.value.token != null && loginModel.value.token!.isNotEmpty) {
               storage.write('loginToken', loginModel.value.token);
             }
 
@@ -62,13 +61,10 @@ class AuthenticationController extends GetxController {
             if (signupModel.value.success == true) {
               callback();
             } else {
-               Fluttertoast.showToast(
-                  msg:   'Error',
-                  toastLength: Toast.LENGTH_LONG);
+              Fluttertoast.showToast(msg: 'Error', toastLength: Toast.LENGTH_LONG);
             }
           } catch (e) {
-            Fluttertoast.showToast(
-                msg: e.toString(), toastLength: Toast.LENGTH_LONG);
+            Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG);
           }
         },
         error: (dio.Response<dynamic> response) {
@@ -95,6 +91,31 @@ class AuthenticationController extends GetxController {
       error: (dio.Response<dynamic> response) {
         showLog(response.toString());
       },
+    );
+  }
+
+  /// Verify Mobile Api
+
+  Rx<VerifyMobileModel> verifyMobileModel = VerifyMobileModel().obs;
+
+  verifyMobileApiCall(Map<String, dynamic> params, Function callback) {
+    Api().call(
+      url: ApiConfig.verifyMobile,
+      success: (dio.Response<dynamic> response) async {
+        verifyMobileModel.value = VerifyMobileModel.fromJson(json.decode(response.data));
+        if (verifyMobileModel.value.success == true) {
+          callback();
+        } else {
+          Fluttertoast.showToast(msg: verifyMobileModel.value.message ?? "", toastLength: Toast.LENGTH_LONG);
+        }
+      },
+      error: (dio.Response<dynamic> response) {
+        Fluttertoast.showToast(msg: response.statusMessage ?? "", toastLength: Toast.LENGTH_SHORT);
+      },
+      isProgressShow: true,
+      isPassHeader: true,
+      params: params,
+      methodType: MethodType.post,
     );
   }
 }

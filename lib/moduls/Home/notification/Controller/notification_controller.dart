@@ -6,7 +6,7 @@ import 'package:fans/moduls/Home/notification/Model/my_subscriber_model.dart';
 import 'package:fans/moduls/Home/notification/Model/my_subscriptions_model.dart';
 import 'package:fans/moduls/Home/notification/Model/notification_delete_model.dart';
 import 'package:fans/moduls/Home/notification/Model/notification_model.dart';
-import 'package:fans/moduls/Home/notification/Model/restiction_model.dart';
+import 'package:fans/moduls/Home/notification/Model/restrictions_model.dart';
 import 'package:fans/moduls/Home/notification/Model/upload_profile_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -160,7 +160,7 @@ class NotificationController extends GetxController {
         url: ApiConfig.notifications,
         success: (dio.Response<dynamic> response) async {
           try {
-            notificationModel.value = NotificationModel.fromJson(json.decode(response.data));
+            notificationModel.value = NotificationModel.fromJson(response.data);
             print('><><><><>${notificationModel.value}');
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -229,10 +229,11 @@ class NotificationController extends GetxController {
 
   restrictionsApiCall(Map<String, dynamic> params, Function callback) async {
     Api().call(
-        url: ApiConfig.myPage,
+        url: ApiConfig.restrictions,
         success: (dio.Response<dynamic> response) {
           try {
-            restrictionsModel.value = RestrictionsModel.fromJson(json.decode(response.data));
+            restrictionsModel.value = RestrictionsModel.fromJson(response.data);
+            callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
           }
@@ -269,7 +270,7 @@ class NotificationController extends GetxController {
         isPassHeader: true);
   }
 
-  ///Upload Profile Pic
+  ///Upload Profile Pic Api Call
   Rx<UploadProfileModel> uploadProfileModel = UploadProfileModel().obs;
 
   uploadProfileApiCall(dio.FormData formData, Function callback) {

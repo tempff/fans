@@ -1,9 +1,11 @@
+import 'package:country_code_picker/country_code.dart';
 import 'package:fans/moduls/LoginFlow/views/mobile_signin.dart';
 import 'package:fans/moduls/LoginFlow/views/signin_screen.dart';
 import 'package:fans/utility/utility_export.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,6 +27,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController passController = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey();
   final Uri _url = Uri.parse('https://fans2.co.tz/p/privacy');
+  TextEditingController countyController = TextEditingController();
+  final phoneController = TextEditingController();
+  String dialCode = '+255';
 
   String? privacyPolicy;
 
@@ -54,14 +59,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: 130.0,
               ),
               heightBox(50.0),
-              Text('Join now and Start making money\nwith your content!',
-                  textAlign: TextAlign.center, style: greyInter22W500),
+              Text('Join now and Start making money\nwith your content!', textAlign: TextAlign.center, style: greyInter22W500),
               heightBox(50.0),
               heightBox(30.0),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  height: getScreenHeight(context) * 0.6,
+                  // height: getScreenHeight(context) * 0.6,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0).copyWith(top: 25),
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(topRight: Radius.circular(28), topLeft: Radius.circular(28)),
@@ -79,7 +83,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           hintText: 'Full Name',
                           textEditingController: userNameController,
                           validationFunction: (val) {
-                            return emptyFieldValidation(val, 'Please enter value');
+                            return emptyFieldValidation(val, 'please enter name');
                           }),
                       heightBox(10.0),
                       commonTextField(
@@ -104,8 +108,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           isEnabled: true,
                           isPassword: true,
                           validationFunction: (val) {
-                            return emptyFieldValidation(val, 'error');
+                            return emptyFieldValidation(val, 'please enter password');
                           }),
+                      heightBox(10.0),
+                      commonTextField(
+                        hintText: 'Enter Your Mobile Number',
+                        textEditingController: phoneController,
+                        validationFunction: (String val) {
+                          return phoneValidationFunction(val);
+                        },
+                        inputFormatter: [
+                          LengthLimitingTextInputFormatter(12),
+                        ],
+                        keyboardType: TextInputType.phone,
+                        preFixWidget: commonCountryCodePicker(
+                          hideMainText: true,
+                          width: 60,
+                          height: 50,
+                          borderColor: colorWhite.withOpacity(0),
+                          textController: countyController,
+                          onChanged: (CountryCode cCode) {
+                            print(cCode.dialCode);
+                            setState(() {
+                              dialCode = cCode.dialCode.toString();
+                              // countryCode = cCode.code.toString();
+                            });
+                          },
+                          initialSelection: dialCode,
+                        ),
+                      ),
                       heightBox(20.0),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +207,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   'name': userNameController.text.trim(),
                                   'email': emailController.text.trim(),
                                   'password': passController.text.trim(),
-                                  'agree_gdpr': isRemember.value
+                                  'agree_gdpr': isRemember.value,
+                                  'mobile': countyController.value.text + phoneController.value.text
                                 };
 
                                 kAuthenticationController.signupApiCall(params, () {
@@ -207,28 +239,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                         child: Text(' Already have account?', style: FontStyleUtility.whiteInter20W500),
                       )),
-                      heightBox(40.0),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            Get.to(() => const MobileSignIn());
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.phone_android_sharp,
-                                color: colorWhite,
-                              ),
-                              widthBox(20.0),
-                              Text(
-                                'Login with Mobile Number',
-                                style: FontStyleUtility.whiteInter16W500,
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
+                      // heightBox(40.0),
+                      // Expanded(
+                      //   child: InkWell(
+                      //     onTap: () {
+                      //       Get.to(() => const MobileSignIn());
+                      //     },
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         const Icon(
+                      //           Icons.phone_android_sharp,
+                      //           color: colorWhite,
+                      //         ),
+                      //         widthBox(20.0),
+                      //         Text(
+                      //           'Login with Mobile Number',
+                      //           style: FontStyleUtility.whiteInter16W500,
+                      //         )
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

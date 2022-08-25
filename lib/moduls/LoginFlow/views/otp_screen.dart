@@ -67,9 +67,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                           heightBox(50.0),
                           InkWell(
                             onTap: () {
-                              Get.isDarkMode
-                                  ? Get.changeTheme(ThemeData.light())
-                                  : Get.changeTheme(ThemeData.light());
+                              Get.isDarkMode ? Get.changeTheme(ThemeData.light()) : Get.changeTheme(ThemeData.light());
                             },
                             child: Image.asset(
                               'assets/logo/fans_logo1.png',
@@ -79,10 +77,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                             ),
                           ),
                           heightBox(50.0),
-                          Text(
-                              'Join now and Start making money\nwith your content!',
-                              textAlign: TextAlign.center,
-                              style: greyInter22W500),
+                          Text('Join now and Start making money\nwith your content!', textAlign: TextAlign.center, style: greyInter22W500),
                           // const ChangeThemeButtonWidget(),
                         ],
                       ),
@@ -91,13 +86,9 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                       alignment: Alignment.bottomCenter,
                       child: Container(
                         height: getScreenHeight(context) * 0.6,
-                        padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 20.0)
-                            .copyWith(top: 25),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0).copyWith(top: 25),
                         decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(28),
-                              topLeft: Radius.circular(28)),
+                          borderRadius: BorderRadius.only(topRight: Radius.circular(28), topLeft: Radius.circular(28)),
                           color: deepPurpleColor,
                         ),
                         child: Column(
@@ -108,10 +99,8 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                             20.heightBox,
                             PinFieldAutoFill(
                               decoration: UnderlineDecoration(
-                                textStyle: const TextStyle(
-                                    fontSize: 20, color: colorWhite),
-                                colorBuilder: FixedColorBuilder(
-                                    colorWhite.withOpacity(0.5)),
+                                textStyle: const TextStyle(fontSize: 20, color: colorWhite),
+                                colorBuilder: FixedColorBuilder(colorWhite.withOpacity(0.5)),
                               ),
                               currentCode: codeValue.value,
                               controller: otpController,
@@ -119,8 +108,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                               onCodeChanged: (code) {
                                 if (code!.length == 6) {
                                   codeValue.value = code;
-                                  FocusScope.of(context)
-                                      .requestFocus(FocusNode());
+                                  FocusScope.of(context).requestFocus(FocusNode());
                                 }
                               },
                             ),
@@ -146,34 +134,24 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                               width: getScreenWidth(context),
                               child: ElevatedButton(
                                 style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      lightPurpleColor),
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
+                                  backgroundColor: MaterialStateProperty.all(lightPurpleColor),
+                                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25.0),
                                     ),
                                   ),
                                 ),
                                 onPressed: () async {
-                                  if (globalKey.currentState?.validate() ==
-                                      true) {
+                                  if (globalKey.currentState?.validate() == true) {
                                     showLoading.value = true;
                                     final phoneAuthCredential =
-                                        PhoneAuthProvider.credential(
-                                            verificationId: widget.data ?? '',
-                                            smsCode: otpController.text);
+                                        PhoneAuthProvider.credential(verificationId: widget.data ?? '', smsCode: otpController.text);
                                     try {
-                                      final authCredential =
-                                          await auth.signInWithCredential(
-                                              phoneAuthCredential);
+                                      final authCredential = await auth.signInWithCredential(phoneAuthCredential);
                                       if (authCredential.user != null) {
                                         showLoading.value = false;
-                                        Fluttertoast.showToast(
-                                            msg: 'Verification success',
-                                            timeInSecForIosWeb: 5);
-                                        Get.offAll(() => EditPageScreen(
-                                            title: 'User Profile Details'));
+                                        Fluttertoast.showToast(msg: 'Verification success', timeInSecForIosWeb: 5);
+                                        Get.offAll(() => EditPageScreen(title: 'User Profile Details'));
                                       }
                                     } on FirebaseAuthException catch (e) {
                                       showLoading.value = false;
@@ -187,8 +165,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                                 },
                                 child: Text(
                                   "Verify",
-                                  style: FontStyleUtility.blackInter16W500
-                                      .copyWith(color: colorWhite),
+                                  style: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
                                 ),
                               ),
                             ),

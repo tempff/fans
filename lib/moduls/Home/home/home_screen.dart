@@ -37,7 +37,7 @@ TextEditingController editPostTextController = TextEditingController();
 List<TextEditingController> postCommentController = [];
 RxString postText = ''.obs;
 RxBool commentValue = true.obs;
-RefreshController _refreshController = RefreshController(initialRefresh: false);
+RefreshController _refreshController = RefreshController(initialRefresh: true);
 List<dynamic> dataList = [];
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -48,28 +48,27 @@ class _HomeScreenState extends State<HomeScreen> {
       kHomeController.myPostModel.refresh();
     });*/
 
-    dataList.clear();
-    // kHomeController.likeDataStoreList.clear();
 
-    kHomeController.homePageApiCall({}, () async {
-      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-        dataList.add(element);
-      });
 
-      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-        kHomeController.likeDataStoreList
-            .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
-      });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      dataList.clear();
+      // kHomeController.likeDataStoreList.clear();
 
-      /*     for (int i = 0; i < (kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0); i++) {
+      kHomeController.homePageApiCall({}, () async {
+        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+          dataList.add(element);
+        });
+
+        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+          kHomeController.likeDataStoreList.add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+        });
+
+        /*     for (int i = 0; i < (kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0); i++) {
         videoPlayerController = VideoPlayerController.network(
             kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl ?? '');
         */ /*print(kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl);*/ /*
       }*/
-    }, true);
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      print('asdas');
+      }, true);
     });
 
     //
