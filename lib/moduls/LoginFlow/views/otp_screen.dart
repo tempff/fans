@@ -188,7 +188,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                           ),
                         ),
                       )
-                    : const SizedBox()
+                    : const   SizedBox()
               ],
             ),
           );
