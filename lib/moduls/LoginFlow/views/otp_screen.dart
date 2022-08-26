@@ -147,7 +147,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                                     final phoneAuthCredential = PhoneAuthProvider.credential(verificationId: widget.data ?? '', smsCode: otpController.text);
                                     try {
                                       final authCredential = await auth.signInWithCredential(phoneAuthCredential);
-                                      authCredential.user?.phoneNumber;
+                                     print('opopopopop${authCredential.user?.phoneNumber}');
                                       if (authCredential.user != null) {
                                         showLoading.value = false;
                                         Fluttertoast.showToast(msg: 'Verification success', timeInSecForIosWeb: 5);
