@@ -1,26 +1,21 @@
-import 'package:fans/moduls/Home/home_structure.dart';
 import 'package:fans/moduls/Home/notification/View/edit_page_screen.dart';
-import 'package:fans/moduls/LoginFlow/views/forget_password_screen.dart';
 import 'package:fans/moduls/LoginFlow/views/mobile_signin.dart';
-import 'package:fans/moduls/LoginFlow/views/signup_screen.dart';
 import 'package:fans/utility/colors_utility.dart';
-import 'package:fans/utility/common_function.dart';
 import 'package:fans/utility/common_structure.dart';
-import 'package:fans/utility/common_textfield.dart';
 import 'package:fans/utility/common_widgets.dart';
 import 'package:fans/utility/font_style_utility.dart';
+import 'package:fans/utility/utility_export.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class OtpScreen extends StatefulWidget {
-  String? data;
+  String? resendingToken;
 
-  OtpScreen({Key? key, this.data}) : super(key: key);
+  OtpScreen({Key? key, this.resendingToken}) : super(key: key);
 
   @override
   State<OtpScreen> createState() => _OtpScreenScreenState();
@@ -33,6 +28,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
   RxBool showLoading = false.obs;
   GlobalKey<FormState> globalKey = GlobalKey();
   RxString codeValue = "".obs;
+  String? userToken;
 
   @override
   void initState() {
@@ -144,14 +140,39 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                                 onPressed: () async {
                                   if (globalKey.currentState?.validate() == true) {
                                     showLoading.value = true;
-                                    final phoneAuthCredential = PhoneAuthProvider.credential(verificationId: widget.data ?? '', smsCode: otpController.text);
+
+                                    final phoneAuthCredential = PhoneAuthProvider.credential(
+                                      verificationId: widget.resendingToken ?? '',
+                                      smsCode: otpController.text,
+                                    );
+                                    print('firebase_token${phoneAuthCredential.token}');
                                     try {
                                       final authCredential = await auth.signInWithCredential(phoneAuthCredential);
-                                     print('opopopopop${authCredential.user?.phoneNumber}');
+
+                                      print('opopopopop${authCredential.user?.phoneNumber}');
                                       if (authCredential.user != null) {
                                         showLoading.value = false;
-                                        Fluttertoast.showToast(msg: 'Verification success', timeInSecForIosWeb: 5);
-                                        Get.offAll(() => EditPageScreen(title: 'User Profile Details'));
+
+                                      await FirebaseAuth.instance.userChanges().listen((user) {
+                                          if (user != null) {
+                                            // do something.
+                                            user.getIdToken().then((value) {
+                                              Map<String, dynamic> params = {'mobile': authCredential.user?.phoneNumber, 'token': value};
+
+                                              kAuthenticationController.firebaseTokenApiCall(params, () {
+                                                Fluttertoast.showToast(msg: 'Verification success', timeInSecForIosWeb: 5);
+                                                Get.offAll(() => EditPageScreen(
+                                                  title: 'User Profile Details',
+                                                  name: kAuthenticationController.firebaseTokenModel.value.data?.data?.name,
+                                                  userName: kAuthenticationController.firebaseTokenModel.value.data?.data?.username,
+                                                  language: kAuthenticationController.firebaseTokenModel.value.data?.data?.language,
+                                                  email: kAuthenticationController.firebaseTokenModel.value.data?.data?.email,
+                                                ));
+                                              });
+                                              print('----->>> $value');
+                                            });
+                                          }
+                                        });
                                       }
                                     } on FirebaseAuthException catch (e) {
                                       showLoading.value = false;
@@ -188,7 +209,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                           ),
                         ),
                       )
-                    : const   SizedBox()
+                    : const SizedBox()
               ],
             ),
           );

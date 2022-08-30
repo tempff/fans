@@ -333,6 +333,7 @@ class Media {
     this.updatedAt,
     this.mediaUrl,
     this.videoPosterUrl,
+    this.mediaHlsUrl,
   });
 
   int? id;
@@ -358,6 +359,8 @@ class Media {
   DateTime? updatedAt;
   String? mediaUrl;
   String? videoPosterUrl;
+  String? mediaHlsUrl;
+
 
   factory Media.fromJson(Map<String, dynamic> json) => Media(
     id: json["id"] == null ? null : json["id"],
@@ -383,6 +386,7 @@ class Media {
     updatedAt: json["updated_at"] == null ? null : DateTime.parse(json["updated_at"]),
     mediaUrl: json["media_url"] == null ? null : json["media_url"],
     videoPosterUrl: json["video_poster_url"] == null ? null : json["video_poster_url"],
+    mediaHlsUrl: json["media_hls_url"] == null ? null : json["media_hls_url"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -409,6 +413,7 @@ class Media {
     "updated_at": updatedAt == null ? null : updatedAt?.toIso8601String(),
     "media_url": mediaUrl == null ? null : mediaUrl,
     "video_poster_url": videoPosterUrl == null ? null : videoPosterUrl,
+    "media_hls_url": mediaHlsUrl == null ? null : mediaHlsUrl,
   };
 }
 

@@ -25,11 +25,7 @@ class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              commonTextField(
-                  hintText: 'Search',
-                  textEditingController: null,
-                  borderOpacity: 0.2,
-                  preFixWidget: const Icon(Icons.search)),
+              commonTextField(hintText: 'Search', textEditingController: null, borderOpacity: 0.2, preFixWidget: const Icon(Icons.search)),
               8.heightBox,
               Theme(
                 data: ThemeData(dividerColor: Colors.transparent),
@@ -41,34 +37,28 @@ class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
                       height: 50.0,
                       padding: const EdgeInsets.only(left: 12.0),
                       decoration: BoxDecoration(
-                          color: colorWhite,
-                          border:
-                              Border.all(color: colorBlack.withOpacity(0.5)),
-                          borderRadius: BorderRadius.circular(5.0)),
+                          color: colorWhite, border: Border.all(color: colorBlack.withOpacity(0.5)), borderRadius: BorderRadius.circular(5.0)),
                       child: Align(
                           alignment: Alignment.centerLeft,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              Text('Latest'),
-                              Icon(Icons.arrow_drop_down_rounded)
-                            ],
+                            children: const [Text('Latest'), Icon(Icons.arrow_drop_down_rounded)],
                           ))),
                   trailing: null,
                   children: [
                     ListTile(
                         title: Text(
-                      'Latest',
+                      'Featured',
                       style: FontStyleUtility.blackInter14W500,
                     )),
                     ListTile(
                         title: Text(
-                      'Old',
+                      'More-Active',
                       style: FontStyleUtility.blackInter14W500,
                     )),
                     ListTile(
                         title: Text(
-                      'Un lockable',
+                      'New',
                       style: FontStyleUtility.blackInter14W500,
                     )),
                     ListTile(
@@ -114,10 +104,7 @@ class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
                                   children: [
                                     Text(
                                       'Admin',
-                                      style: FontStyleUtility.blackInter22W500
-                                          .copyWith(
-                                              color: deepPurpleColor,
-                                              fontWeight: FontWeight.w900),
+                                      style: FontStyleUtility.blackInter22W500.copyWith(color: deepPurpleColor, fontWeight: FontWeight.w900),
                                     ),
                                     5.widthBox,
                                     const Icon(
@@ -210,17 +197,13 @@ class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
                                   ),
                                 ];
                               },
-                              onSelected: (String value) =>
-                                  actionPopUpItemSelected(
+                              onSelected: (String value) => actionPopUpItemSelected(
                                 value,
                                 'name',
                                 context,
-                                kHomeController
-                                    .myPostModel.value.posts?[index].id,
-                                kHomeController.myPostModel.value.posts?[index]
-                                    .description,
-                                kHomeController
-                                    .myPostModel.value.posts?[index ?? 0].image,
+                                kHomeController.myPostModel.value.posts?[index].id,
+                                kHomeController.myPostModel.value.posts?[index].description,
+                                kHomeController.myPostModel.value.posts?[index ?? 0].image,
                               ),
                             ),
                           ],
@@ -248,19 +231,12 @@ class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
                                       splashColor: colorRed,
                                       splashRadius: 20.0,
                                       onPressed: () {
-                                        kHomeController.likeButton.value =
-                                            !kHomeController.likeButton.value;
+                                        kHomeController.likeButton.value = !kHomeController.likeButton.value;
                                       },
                                       icon: Icon(
-                                        kHomeController.likeButton.value == true
-                                            ? CupertinoIcons.heart_fill
-                                            : CupertinoIcons.suit_heart,
+                                        kHomeController.likeButton.value == true ? CupertinoIcons.heart_fill : CupertinoIcons.suit_heart,
                                         size: 25,
-                                        color:
-                                            kHomeController.likeButton.value ==
-                                                    true
-                                                ? colorRed
-                                                : colorGrey,
+                                        color: kHomeController.likeButton.value == true ? colorRed : colorGrey,
                                       ));
                                 }),
                             Text(
@@ -297,21 +273,12 @@ class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
                                       splashColor: deepPurpleColor,
                                       splashRadius: 20.0,
                                       onPressed: () {
-                                        kHomeController.bookmarkButton.value =
-                                            !kHomeController
-                                                .bookmarkButton.value;
+                                        kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
                                       },
                                       icon: Icon(
-                                        kHomeController.bookmarkButton.value ==
-                                                true
-                                            ? Icons.bookmark
-                                            : Icons.bookmark_border,
+                                        kHomeController.bookmarkButton.value == true ? Icons.bookmark : Icons.bookmark_border,
                                         size: 23,
-                                        color: kHomeController
-                                                    .bookmarkButton.value ==
-                                                true
-                                            ? deepPurpleColor
-                                            : colorGrey,
+                                        color: kHomeController.bookmarkButton.value == true ? deepPurpleColor : colorGrey,
                                       ));
                                 })
                           ],

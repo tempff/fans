@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:fans/moduls/Home/home/goto_post_screen.dart';
@@ -9,11 +10,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:lottie/lottie.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../utility/theme_data.dart';
 import '../../../utility/utility_export.dart';
 import 'controller/home_controller.dart';
@@ -39,6 +41,8 @@ RxString postText = ''.obs;
 RxBool commentValue = true.obs;
 RefreshController _refreshController = RefreshController(initialRefresh: true);
 List<dynamic> dataList = [];
+RxList<String> videoThumbnail = <String>[].obs;
+String? videoThumbnailTemp;
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
@@ -47,8 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
     /* kHomeController.myPostApiCall({}, () {
       kHomeController.myPostModel.refresh();
     });*/
-
-
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       dataList.clear();
@@ -60,19 +62,14 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-          kHomeController.likeDataStoreList.add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+          kHomeController.likeDataStoreList
+              .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
         });
-
-        /*     for (int i = 0; i < (kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0); i++) {
-        videoPlayerController = VideoPlayerController.network(
-            kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl ?? '');
-        */ /*print(kHomeController.homePageModel.value.data?.updates?.data?[i].media?[0].mediaUrl);*/ /*
-      }*/
       }, true);
     });
 
     //
-    /*  videoPlayerController = VideoPlayerController.network('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4');
+    /* videoPlayerController = VideoPlayerController.network('https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4');
     videoPlayerFuture = videoPlayerController?.initialize();
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController!,
@@ -82,12 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
     videoPlayerController?.setLooping(true);*/ // videoPlayerController?.play();
   }
 
-  /* @override
+  @override
   void dispose() {
     chewieController!.dispose();
     videoPlayerController!.dispose();
     super.dispose();
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -295,6 +292,7 @@ Future deletePost(BuildContext context) {
 
 Widget homeViewData(bool? visible, BuildContext context, String? value, void setState, bool mounted) {
   RxBool isExpansionTileOpen = false.obs;
+
   return SmartRefresher(
     controller: _refreshController,
     enablePullDown: true,
@@ -470,86 +468,147 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                             ))
                         : const SizedBox.shrink();
                   }),
-              StreamBuilder<Object>(
-                  stream: kHomeController.imageShowing.stream,
-                  builder: (context, snapshot) {
-                    return kHomeController.imageShowing.value == true
-                        ? Container(
-                            margin: const EdgeInsets.only(bottom: 10.0),
-                            height: 130,
-                            child: StreamBuilder<Object>(
-                                stream: kHomeController.imageFileList.stream,
-                                builder: (context, snapshot) {
-                                  return Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: ListView.builder(
-                                        itemCount: (kHomeController.imageFileList.length) + 1,
-                                        physics: const ClampingScrollPhysics(),
-                                        scrollDirection: Axis.horizontal,
-                                        shrinkWrap: true,
-                                        itemBuilder: (context, index) {
-                                          return index != kHomeController.imageFileList.length
-                                              ? Stack(
-                                                  children: [
-                                                    Container(
-                                                        margin: const EdgeInsets.only(right: 12, top: 5),
-                                                        child: Center(
-                                                          child: Image.file(
-                                                            File(kHomeController.imageFileList[index].path),
-                                                            fit: BoxFit.cover,
-                                                            width: 130,
-                                                          ),
-                                                        )),
-                                                    Positioned(
-                                                      top: 5,
-                                                      right: 5,
-                                                      child: IconButton(
-                                                        visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
-                                                        padding: EdgeInsets.zero,
-                                                        onPressed: () {
-                                                          kHomeController.imageFileList.removeAt(index);
-                                                        },
-                                                        icon: const Icon(
-                                                          Icons.remove_circle,
-                                                          color: colorRed,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
+              Obx(() {
+                return kHomeController.imageShowing.value == true
+                    ? Container(
+                        margin: const EdgeInsets.only(bottom: 10.0),
+                        height: 130,
+                        child: StreamBuilder<Object>(
+                            stream: kHomeController.imageFileList.stream,
+                            builder: (context, snapshot) {
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: ListView.builder(
+                                    itemCount: (kHomeController.imageFileList.length) + 1,
+                                    physics: const ClampingScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      return index != kHomeController.imageFileList.length
+                                          ? Stack(
+                                              children: [
+                                                Container(
+                                                    margin: const EdgeInsets.only(right: 12, top: 5),
+                                                    child: Center(
+                                                      child: kHomeController.imageFileList[index].path.endsWith(".mp3") ||
+                                                              kHomeController.imageFileList[index].path.endsWith(".mpeg")
+                                                          ? Container(
+                                                              height: 130,
+                                                              width: 130,
+                                                              color: lightPurpleColor,
+                                                              child: Column(
+                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                children: [
+                                                                  const Expanded(
+                                                                    flex: 3,
+                                                                    child: Icon(
+                                                                      Icons.music_note_sharp,
+                                                                      size: 50.0,
+                                                                      color: colorWhite,
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
+                                                                      flex: 1,
+                                                                      child: Text(
+                                                                        '${kHomeController.imageFileList[index].path.split('/').last}',
+                                                                        overflow: TextOverflow.ellipsis,
+                                                                      ).paddingSymmetric(horizontal: 5.0))
+                                                                ],
+                                                              ),
+                                                            )
+                                                          : kHomeController.imageFileList[index].path.endsWith(".mp4") == true ||
+                                                                  kHomeController.imageFileList[index].path.endsWith(".avi") ||
+                                                                  kHomeController.imageFileList[index].path.endsWith(".3gp") ||
+                                                                  kHomeController.imageFileList[index].path.endsWith(".mkv") ||
+                                                                  kHomeController.imageFileList[index].path.endsWith(".flv")
+                                                              ? videoThumbnail.length >= index
+                                                                  ? StreamBuilder<Object>(
+                                                                      stream: videoThumbnail.stream,
+                                                                      builder: (context, snapshot) {
+                                                                        return videoThumbnail.isNotEmpty
+                                                                            ? Image.file(
+                                                                                File(videoThumbnail[index]),
+                                                                                fit: BoxFit.cover,
+                                                                                width: 130,
+                                                                              )
+                                                                            : const SizedBox();
+                                                                      })
+                                                                  : const SizedBox()
+                                                              : Image.file(
+                                                                  File(kHomeController.imageFileList[index].path),
+                                                                  errorBuilder: (context, error, stackTrace) => const Padding(
+                                                                    padding: EdgeInsets.all(15),
+                                                                    child: Icon(
+                                                                      Icons.play_arrow,
+                                                                      color: colorWhite,
+                                                                      size: 30,
+                                                                    ),
+                                                                  ),
+                                                                  fit: BoxFit.cover,
+                                                                  width: 130,
+                                                                ),
+                                                    )),
+                                                Positioned(
+                                                  top: 5,
+                                                  right: 5,
+                                                  child: IconButton(
+                                                    visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+                                                    padding: EdgeInsets.zero,
+                                                    onPressed: () {
+                                                      kHomeController.imageFileList.removeAt(index);
+                                                      videoThumbnail.removeAt(index);
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.remove_circle,
+                                                      color: colorRed,
+                                                    ),
+                                                  ),
                                                 )
-                                              : InkWell(
-                                                  onTap: () async {
-                                                    /*      FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
-                                                    if (result != null) {
-                                                      kHomeController.selectedImages?.value = result.paths.map((path) => XFile(path??'')).toList();
-                                                    } else {
-                                                      // User canceled the picker
-                                                    }*/
+                                              ],
+                                            )
+                                          : InkWell(
+                                              onTap: () async {
+                                                FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
 
-                                                    final List<XFile>? selectedImages = await kHomeController.imagePicker.pickMultiImage();
+                                                // if (result != null) {
+                                                //   kHomeController.selectedImages?.value = result.paths.map((path) => XFile(path ?? '')).toList();
+                                                // } else {
+                                                // }
+                                                //   // User canceled the picker
+
+                                                if (result != null) {
+                                                  for (var element in result.files) {
+                                                    // kHomeController.imageFileList.addIf(kHomeController.imageFileList.contains(element) == false, element);
+                                                    await videoImage(element.path ?? '');
+                                                    kHomeController.imageFileList.addIf(kHomeController.imageFileList.contains(element) == false, element);
+                                                  }
+                                                  print('opopopopoop${result.files}');
+                                                }
+                                                /*
+                                                final List<XFile>? selectedImages = await kHomeController.imagePicker.pickMultiImage();
 
                                                     if (selectedImages!.isNotEmpty) {
                                                       kHomeController.imageFileList.addAll(selectedImages);
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(20.0),
-                                                        border: Border.all(
-                                                            color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
-                                                    margin: const EdgeInsets.only(right: 12),
-                                                    width: 130,
-                                                    child: Center(
-                                                        child: Icon(Icons.add,
-                                                            color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
-                                                  ),
-                                                );
-                                        }),
-                                  );
-                                }),
-                          )
-                        : const SizedBox();
-                  }),
+                                                    }*/
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(20.0),
+                                                    border:
+                                                        Border.all(color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
+                                                margin: const EdgeInsets.only(right: 12),
+                                                width: 130,
+                                                child: Center(
+                                                    child: Icon(Icons.add,
+                                                        color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
+                                              ),
+                                            );
+                                    }),
+                              );
+                            }),
+                      )
+                    : const SizedBox();
+              }),
               Obx(
                 () => Row(
                   children: [
@@ -679,6 +738,26 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
       ),
     ),
   );
+}
+
+Future videoImage(String path) async {
+  if (path.endsWith(".mp4") || path.endsWith(".avi") || path.endsWith(".3gp") || path.endsWith(".mkv") || path.endsWith(".flv")) {
+    videoThumbnailTemp = await VideoThumbnail.thumbnailFile(
+      video: path,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 130,
+      maxHeight: 130,
+      quality: 100,
+    );
+
+    videoThumbnail.addIf(videoThumbnail.contains(videoThumbnailTemp) == false, videoThumbnailTemp ?? path);
+
+    print('ioioi${videoThumbnail}');
+    // return videoThumbnail;
+  } else {
+    videoThumbnail.addIf(videoThumbnail.contains(path) == false, path);
+    // return videoThumbnail;
+  }
 }
 
 Widget exploreCreatorData() {
@@ -887,7 +966,7 @@ Widget commonPost(BuildContext context,
                     ),
                     5.widthBox,
                     Text(
-                      username ?? '',
+                      '@${username ?? ''}',
                       style: greyInter14W500,
                     )
                   ],
@@ -999,14 +1078,19 @@ Widget commonPost(BuildContext context,
                     ),*/
         kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
             ? AspectRatio(
-                aspectRatio: 16 / 9,
+                aspectRatio: getRatio(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
                 child: Chewie(
                   controller: ChewieController(
-                    videoPlayerController: VideoPlayerController.network(
-                        /* kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ??*/
-                        'https://vz-6930c8d3-c90.b-cdn.net/003ef8f7-770c-4ed4-ac2d-7cf39f39904d/playlist.m3u8'),
+                    videoPlayerController: getController(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
                     aspectRatio: videoPlayerController?.value.aspectRatio,
-                    autoPlay: true,
+                    autoPlay: false,
+                    autoInitialize: true,
+
+
+                    // placeholder: Image.network(
+                    //   kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].videoPosterUrl ?? '',
+                    //   fit: BoxFit.cover,
+                    // ),
                     looping: true,
                   ),
                 ),
@@ -1370,4 +1454,20 @@ Widget commonPost(BuildContext context,
       ],
     );
   });
+}
+
+double getVideoHeight(url) {
+  videoPlayerController = VideoPlayerController.network(url);
+  return videoPlayerController?.value.size.height ?? 250;
+}
+
+VideoPlayerController getController(url) {
+  // videoPlayerController = VideoPlayerController.network(url);
+  return videoPlayerController ?? VideoPlayerController.network(url);
+}
+
+double getRatio(url) {
+  videoPlayerController = VideoPlayerController.network(url);
+  print('---- ${videoPlayerController?.value.aspectRatio}');
+  return videoPlayerController?.value.aspectRatio ?? 0.0;
 }

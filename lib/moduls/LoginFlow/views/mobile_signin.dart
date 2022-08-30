@@ -28,7 +28,7 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
   RxBool isRemember = false.obs;
   final phoneController = TextEditingController();
   bool showLoading = false;
-  String? verificationId;
+  String? resendingToken;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   GlobalKey<FormState> globalKey = GlobalKey<FormState>();
   TextEditingController countyController = TextEditingController();
@@ -133,13 +133,14 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
                                         showLoading = true;
                                       });
 
-                                      await auth.verifyPhoneNumber(
+                                      auth
+                                          .verifyPhoneNumber(
                                         phoneNumber: dialCode + phoneController.text,
                                         verificationCompleted: (phoneAuthCredential) async {
                                           setState(() {
                                             showLoading = false;
                                           });
-
+                                          await FirebaseAuth.instance.signInWithPhoneNumber('');
                                           //signInWithPhoneAuthCredential(phoneAuthCredential);
                                         },
                                         verificationFailed: (verificationFailed) async {
@@ -148,21 +149,25 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
                                           });
                                           Fluttertoast.showToast(msg: 'Invalid Number', toastLength: Toast.LENGTH_SHORT);
                                         },
-                                        codeSent: (verificationId, resendingToken) async {
+                                        codeSent: (resendingToken, verificationId) async {
+                                          print('opopop$resendingToken');
                                           setState(() {
                                             showLoading = false;
-                                            this.verificationId = verificationId;
-                                            Get.to(() => OtpScreen(data: verificationId));
+                                            this.resendingToken = resendingToken;
+                                            Get.to(() => OtpScreen(resendingToken: resendingToken));
                                           });
                                           Fluttertoast.showToast(msg: 'Sent otp on this number', toastLength: Toast.LENGTH_SHORT);
                                         },
                                         timeout: const Duration(seconds: 60),
-                                        codeAutoRetrievalTimeout: (verificationId) async {
+                                        codeAutoRetrievalTimeout: (resendingToken) async {
                                           setState(() {
-                                            this.verificationId = verificationId;
+                                            this.resendingToken = resendingToken;
                                           });
                                         },
-                                      );
+                                      )
+                                          .then((value) {
+                                        print('asdasd }');
+                                      });
                                     });
                                   }
                                 },

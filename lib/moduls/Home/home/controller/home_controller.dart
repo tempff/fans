@@ -126,7 +126,7 @@ class HomeController extends GetxController {
         url: ApiConfig.pinPost);
   }
 
-  ///Home Api Call
+  /// Home Api Call
 
   Rx<HomePageModel> homePageModel = HomePageModel().obs;
 

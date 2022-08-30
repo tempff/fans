@@ -5,6 +5,7 @@ import 'package:fans/moduls/Home/notification/View/my_page_screen.dart';
 import 'package:fans/moduls/Home/notification/View/mysubscribers_screen.dart';
 import 'package:fans/moduls/Home/notification/View/mysubscriptions_screen.dart';
 import 'package:fans/moduls/Home/notification/View/social_profile_screen.dart';
+import 'package:fans/moduls/Home/notification/View/subscription_price.dart';
 import 'package:fans/moduls/Home/notification/View/wallet_screen.dart';
 import 'package:fans/utility/theme_data.dart';
 import 'package:fans/utility/utility_export.dart';
@@ -33,13 +34,7 @@ RxInt tabSelectedIndex = 0.obs;
 final GlobalKey<ScaffoldState> _key = GlobalKey();
 
 class _HomeStructureViewState extends State<HomeStructureView> {
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
-    ExploreScreen(),
-    ChatScreen(),
-    NotificationScreen(),
-    MyPageScreen()
-  ];
+  static const List<Widget> _widgetOptions = <Widget>[HomeScreen(), ExploreScreen(), ChatScreen(), NotificationScreen(), MyPageScreen()];
 
   @override
   void initState() {
@@ -108,14 +103,12 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                           onPressed: () {
                             showModalBottomSheet(
                                 shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
+                                    borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
                                 context: context,
                                 builder: (context) {
                                   return Container(
                                     decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(20), topLeft: Radius.circular(20))),
+                                        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
@@ -123,22 +116,21 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                                           margin: const EdgeInsets.symmetric(vertical: 20),
                                           height: 5,
                                           width: 100,
-                                          decoration:
-                                              BoxDecoration(color: colorGrey, borderRadius: BorderRadius.circular(100)),
+                                          decoration: BoxDecoration(color: colorGrey, borderRadius: BorderRadius.circular(100)),
                                         ),
                                         ListTile(
                                             title: Text(
-                                          'Latest',
+                                          'Featured',
                                           style: blackInter18W500,
                                         )),
                                         ListTile(
                                             title: Text(
-                                          'Old',
+                                          'More-Active',
                                           style: blackInter18W500,
                                         )),
                                         ListTile(
                                             title: Text(
-                                          'Unlockable',
+                                          'New',
                                           style: blackInter18W500,
                                         )),
                                         ListTile(
@@ -257,6 +249,19 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                 ),
                 onTap: () {
                   Get.to(() => const WalletScreen());
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.subscriptions,
+                  size: 30,
+                ),
+                title: Text(
+                  'Subscription Price',
+                  style: blackInter16W500,
+                ),
+                onTap: () {
+                  Get.to(() => const SubscriptionPrice());
                 },
               ),
               ListTile(

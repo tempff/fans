@@ -39,7 +39,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                 commonScreenView(
                     icon: CupertinoIcons.person_crop_circle_badge_checkmark,
                     title: 'My Subscriptions',
-                    subTitle: 'Users you have subscribed to your content'),
+                    subTitle: 'Users you have subscribed to your content').paddingSymmetric(horizontal: 5.0),
 
                 30.heightBox,
                 Column(
@@ -205,7 +205,7 @@ class _MySubscriptionsScreenState extends State<MySubscriptionsScreen> {
                                                         .subscriptions?[index]
                                                         .stripeStatus ??
                                                     '')
-                                                : 'No Data',
+                                                : 'Active',
                                             textAlign: TextAlign.center,
                                             style: greyInter16W500.copyWith(
                                                 color: colorWhite),

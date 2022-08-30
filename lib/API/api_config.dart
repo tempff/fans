@@ -36,5 +36,7 @@ class ApiConfig {
   static const String postComment = '$baseUrl/comment/store';
   static const String restrictions = '$baseUrl/user/restrictions';
   static const String verifyMobile = '$baseUrl/verify-mobile';
-
+  static const String creators = '$baseUrl/creators';
+  static const String creatorsNew = '$baseUrl/creators/new';
+  static const String firebaseToken = '$baseUrl/firebase-login';
 }

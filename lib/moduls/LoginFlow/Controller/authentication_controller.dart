@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:fans/API/api_call.dart';
 import 'package:fans/API/api_config.dart';
+import 'package:fans/moduls/LoginFlow/Model/firebase_token_model.dart';
 import 'package:fans/moduls/LoginFlow/Model/forgot_password_model.dart';
 import 'package:fans/moduls/LoginFlow/Model/signup_model.dart';
 import 'package:fans/moduls/LoginFlow/Model/verify_mobile_model.dart';
@@ -118,4 +119,33 @@ class AuthenticationController extends GetxController {
       methodType: MethodType.post,
     );
   }
+
+  /// Firebase Token Api Call
+
+  Rx<FirebaseTokenModel> firebaseTokenModel = FirebaseTokenModel().obs;
+
+  firebaseTokenApiCall(Map<String, dynamic> params, Function callback) {
+    Api().call(
+      url: ApiConfig.firebaseToken,
+      success: (dio.Response<dynamic> response) async {
+        firebaseTokenModel.value = FirebaseTokenModel.fromJson(json.decode(response.data));
+        if (firebaseTokenModel.value.success == true) {
+          storage.write('loginToken', firebaseTokenModel.value.data?.data?.apiToken);
+          callback();
+
+        } else {
+          Fluttertoast.showToast(msg: verifyMobileModel.value.message ?? "", toastLength: Toast.LENGTH_LONG);
+        }
+      },
+      error: (dio.Response<dynamic> response) {
+        Fluttertoast.showToast(msg: response.statusMessage ?? "", toastLength: Toast.LENGTH_SHORT);
+      },
+      isProgressShow: true,
+      isPassHeader: true,
+      params: params,
+      methodType: MethodType.post,
+    );
+  }
+
+
 }

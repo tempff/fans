@@ -1,4 +1,4 @@
-
+import 'package:fans/moduls/Home/home_structure.dart';
 import 'package:fans/moduls/Home/notification/notification_screen.dart';
 import 'package:fans/moduls/LoginFlow/views/signin_screen.dart';
 import 'package:fans/utility/theme_data.dart';
@@ -50,7 +50,6 @@ class _EditPageScreenState extends State<EditPageScreen> {
   Widget build(BuildContext context) {
     return commonStructure(
       context: context,
-      appBar: commonAppBar(),
       child: RawScrollbar(
         thickness: 5.0,
         thumbColor: colorSplash.withOpacity(0.5),
@@ -62,9 +61,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 commonScreenView(
-                    icon: Icons.mode_edit_outline_outlined,
-                    title: widget.title ?? 'Edit my page',
-                    subTitle: 'Tell us something about you.'),
+                    icon: Icons.mode_edit_outline_outlined, title: widget.title ?? 'Edit my page', subTitle: 'Tell us something about you.'),
 
                 // StreamBuilder<Object>(
                 //     stream: isExpansionTileOpen.stream,
@@ -173,36 +170,35 @@ class _EditPageScreenState extends State<EditPageScreen> {
 
                 10.heightBox,
                 commonTextField(
-                  preFixWidget: const Icon(Icons.calendar_month),
-                  hintText: '01/01/1970',
-                  textEditingController: dateController,
-                  onTapFunction: ()async{
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    DateTime? time = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2010),
-                      lastDate: DateTime(2025),
-                      builder: (BuildContext context, Widget? child) {
-                        return Theme(
-                          data: ThemeData.dark().copyWith(
-                            colorScheme: const ColorScheme.light(
-                              primary: colorPrimary,
-                              onPrimary: Colors.white,
-                              onSurface: colorPrimary,
+                    preFixWidget: const Icon(Icons.calendar_month),
+                    hintText: '01/01/1970',
+                    textEditingController: dateController,
+                    onTapFunction: () async {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      DateTime? time = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2010),
+                        lastDate: DateTime(2025),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData.dark().copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: colorPrimary,
+                                onPrimary: Colors.white,
+                                onSurface: colorPrimary,
+                              ),
+                              dialogBackgroundColor: Colors.white,
                             ),
-                            dialogBackgroundColor: Colors.white,
-                          ),
-                          child: child ?? Container(),
-                        );
-                      },
-                    );
-                    if (time != null) {
-                      // showLog("customStartDate ==> ${customStartDate.value}");
-                      dateController?.text = DateFormat('dd-MM-yyyy').format(time);
-                    }
-                  }
-                ),
+                            child: child ?? Container(),
+                          );
+                        },
+                      );
+                      if (time != null) {
+                        // showLog("customStartDate ==> ${customStartDate.value}");
+                        dateController?.text = DateFormat('dd-MM-yyyy').format(time);
+                      }
+                    }),
                 5.heightBox,
                 RichText(
                     text: TextSpan(children: [
@@ -330,7 +326,7 @@ class _EditPageScreenState extends State<EditPageScreen> {
             height: 50,
             title: 'SUBMIT',
             tapOnButton: () {
-              widget.title == "User Profile Details" ? Get.off(() => const SignInScreen()) : Get.back();
+              widget.title == "User Profile Details" ? Get.off(() => const HomeStructureView()) : Get.back();
             }),
       ),
     );

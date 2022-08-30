@@ -32,8 +32,7 @@ class _BlockCountriesScreenState extends State<BlockCountriesScreen> {
               commonScreenView(
                   icon: CupertinoIcons.eye_slash,
                   title: 'Block countries',
-                  subTitle:
-                      'Select the countries in which you do not want your profile to be displayed, they will not be able to see your profile in any section of the site.'),
+                  subTitle: 'Select the countries in which you do not want your profile to be displayed, they will not be able to see your profile in any section of the site.'),
               30.heightBox,
               SizedBox(
                 width: getScreenWidth(context),

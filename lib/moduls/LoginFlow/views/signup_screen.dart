@@ -208,7 +208,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   'email': emailController.text.trim(),
                                   'password': passController.text.trim(),
                                   'agree_gdpr': isRemember.value,
-                                  'mobile': countyController.value.text + phoneController.value.text
+                                  'mobile': dialCode + phoneController.value.text
                                 };
 
                                 kAuthenticationController.signupApiCall(params, () {
