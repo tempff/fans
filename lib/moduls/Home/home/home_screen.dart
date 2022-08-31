@@ -81,8 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    chewieController!.dispose();
-    videoPlayerController!.dispose();
+    chewieController?.dispose();
+    videoPlayerController?.dispose();
     super.dispose();
   }
 
@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 void actionPopUpItemSelected(String value, String? name, BuildContext context, int? id, String? description, String? image) {
-  kHomeController.scaffoldkey.currentState?.hideCurrentSnackBar();
+  // kHomeController.scaffoldkey.currentState?.hideCurrentSnackBar();
   String message;
   if (value == 'GoToPost') {
     Get.to(() => const GoToPostScreen());
@@ -418,13 +418,15 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                       minLines: 3,
                       maxLines: null,
                       controller: postTextController,
+                      maxLength: 5000,
                       onChanged: (val) {
                         postText.value = val;
                       },
                       keyboardType: TextInputType.multiline,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Write something...',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        counter: Container(),
                         border: InputBorder.none,
                       ),
                     ),
@@ -512,6 +514,7 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                                                       child: Text(
                                                                         '${kHomeController.imageFileList[index].path.split('/').last}',
                                                                         overflow: TextOverflow.ellipsis,
+                                                                        style: FontStyleUtility.whiteInter16W500,
                                                                       ).paddingSymmetric(horizontal: 5.0))
                                                                 ],
                                                               ),
@@ -526,10 +529,21 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                                                       stream: videoThumbnail.stream,
                                                                       builder: (context, snapshot) {
                                                                         return videoThumbnail.isNotEmpty
-                                                                            ? Image.file(
-                                                                                File(videoThumbnail[index]),
-                                                                                fit: BoxFit.cover,
-                                                                                width: 130,
+                                                                            ? Stack(
+                                                                                children: [
+                                                                                  Image.file(
+                                                                                    File(videoThumbnail[index]),
+                                                                                    fit: BoxFit.cover,
+                                                                                    width: 130,
+                                                                                  ),
+                                                                                  const Align(
+                                                                                      alignment: Alignment.center,
+                                                                                      child: Icon(
+                                                                                        Icons.play_circle,
+                                                                                        color: colorWhite,
+                                                                                        size: 50,
+                                                                                      )),
+                                                                                ],
                                                                               )
                                                                             : const SizedBox();
                                                                       })
@@ -580,7 +594,8 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                                   for (var element in result.files) {
                                                     // kHomeController.imageFileList.addIf(kHomeController.imageFileList.contains(element) == false, element);
                                                     await videoImage(element.path ?? '');
-                                                    kHomeController.imageFileList.addIf(kHomeController.imageFileList.contains(element) == false, element);
+                                                    kHomeController.imageFileList
+                                                        .addIf(kHomeController.imageFileList.contains(element) == false, element);
                                                   }
                                                   print('opopopopoop${result.files}');
                                                 }
@@ -644,44 +659,47 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                       ),
                     ),
                     20.widthBox,
-                    Icon(
-                      Icons.lock_outline,
-                      color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
-                      size: 25,
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.lock_outline,
+                        color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                        size: 25,
+                      ),
                     ),
                     20.widthBox,
-                    Icon(
-                      Icons.emoji_emotions_outlined,
-                      color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
-                      size: 25,
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: materialButton(
+                            background: MaterialStateProperty.all(lightPurpleColor),
+                            text: 'Publish',
+                            onTap: () async {
+                              await analytics.logEvent(
+                                name: "select_content",
+                                parameters: {
+                                  "content_type": "button",
+                                  "item_id": 1,
+                                },
+                              );
+                            },
+                            height: 40.0,
+                            width: 120,
+                            textStyle: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite, fontSize: 15)),
+                      ),
                     ),
                   ],
                 ),
               ),
-              20.heightBox,
-              materialButton(
-                  background: MaterialStateProperty.all(lightPurpleColor),
-                  text: 'Publish',
-                  onTap: () async {
-                    await analytics.logEvent(
-                      name: "select_content",
-                      parameters: {
-                        "content_type": "button",
-                        "item_id": 1,
-                      },
-                    );
-                  },
-                  height: 40.0,
-                  textStyle: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite)),
-              20.heightBox,
+              18.heightBox,
               Align(
                   alignment: Alignment.centerRight,
                   child: StreamBuilder<Object>(
                       stream: postText.stream,
                       builder: (context, snapshot) {
                         return Text(
-                          '${postText.value.length}',
-                          style: FontStyleUtility.greyInter14W500,
+                          '${postText.value.length}/5000',
+                          style: FontStyleUtility.greyInter14W500.copyWith(fontWeight: FontWeight.w400),
                         );
                       }))
             ],
@@ -931,8 +949,8 @@ Widget commonPost(BuildContext context,
                 size: const Size.fromRadius(35), // Image radius
                 child: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl?.isNotEmpty == true
                     ? CachedNetworkImage(
-                        height: 55.0,
-                        width: 55.0,
+                        height: 40.0,
+                        width: 40.0,
                         fit: BoxFit.fill,
                         imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl ?? '',
                         placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
@@ -941,8 +959,8 @@ Widget commonPost(BuildContext context,
                     : Image.asset(
                         'assets/images/profile_placeholder.png',
                         scale: 3.5,
-                        height: 55.0,
-                        width: 55.0,
+                        height: 40.0,
+                        width: 40.0,
                         fit: BoxFit.fill,
                       ),
               ),
@@ -957,6 +975,7 @@ Widget commonPost(BuildContext context,
                     Text(
                       name ?? '',
                       style: FontStyleUtility.blackInter22W500
+                          .copyWith(fontSize: 18)
                           .copyWith(color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontWeight: FontWeight.w900),
                     ),
                     5.widthBox,
@@ -966,7 +985,8 @@ Widget commonPost(BuildContext context,
                     ),
                     5.widthBox,
                     Text(
-                      '@${username ?? ''}',
+                      '@${/*username ??*/ 'opopooppo'}',
+                      overflow: TextOverflow.ellipsis,
                       style: greyInter14W500,
                     )
                   ],
@@ -993,74 +1013,78 @@ Widget commonPost(BuildContext context,
                 ),
               ],
             ),
-            const Spacer(),
-            PopupMenuButton(
-              icon: const Icon(
-                Icons.more_horiz,
-                size: 35,
-                color: colorGrey,
-              ),
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                    value: 'GoToPost',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.ios_share_outlined),
-                        10.widthBox,
-                        const Text('Go to post'),
-                      ],
-                    ),
+            Expanded(
+              child: PopupMenuButton(
+                icon: const Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(
+                    Icons.more_horiz,
+                    size: 35,
+                    color: colorGrey,
                   ),
-                  PopupMenuItem(
-                    value: 'PinYourProfile',
-                    child: Row(
-                      children: [
-                        const Icon(CupertinoIcons.pin),
-                        10.widthBox,
-                        const Text('Pin your Profile'),
-                      ],
+                ),
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      value: 'GoToPost',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.ios_share_outlined),
+                          10.widthBox,
+                          const Text('Go to post'),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'CopyLink',
-                    child: Row(
-                      children: [
-                        const Icon(CupertinoIcons.link),
-                        10.widthBox,
-                        const Text('Copy link'),
-                      ],
+                    PopupMenuItem(
+                      value: 'PinYourProfile',
+                      child: Row(
+                        children: [
+                          const Icon(CupertinoIcons.pin),
+                          10.widthBox,
+                          const Text('Pin your Profile'),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'EditPost',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.edit_outlined),
-                        10.widthBox,
-                        const Text('Edit post'),
-                      ],
+                    PopupMenuItem(
+                      value: 'CopyLink',
+                      child: Row(
+                        children: [
+                          const Icon(CupertinoIcons.link),
+                          10.widthBox,
+                          const Text('Copy link'),
+                        ],
+                      ),
                     ),
-                  ),
-                  PopupMenuItem(
-                    value: 'DeletePost',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.delete_outline),
-                        10.widthBox,
-                        const Text('Delete post'),
-                      ],
+                    PopupMenuItem(
+                      value: 'EditPost',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.edit_outlined),
+                          10.widthBox,
+                          const Text('Edit post'),
+                        ],
+                      ),
                     ),
-                  ),
-                ];
-              },
-              onSelected: (String value) => actionPopUpItemSelected(
-                value,
-                'name',
-                context,
-                kHomeController.myPostModel.value.posts?[postIndex].id,
-                kHomeController.myPostModel.value.posts?[postIndex].description,
-                kHomeController.myPostModel.value.posts?[postIndex].image,
+                    PopupMenuItem(
+                      value: 'DeletePost',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.delete_outline),
+                          10.widthBox,
+                          const Text('Delete post'),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+                onSelected: (String value) => actionPopUpItemSelected(
+                  value,
+                  'name',
+                  context,
+                  kHomeController.myPostModel.value.posts?[postIndex].id,
+                  kHomeController.myPostModel.value.posts?[postIndex].description,
+                  kHomeController.myPostModel.value.posts?[postIndex].image,
+                ),
               ),
             ),
           ],
@@ -1081,11 +1105,12 @@ Widget commonPost(BuildContext context,
                 aspectRatio: getRatio(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
                 child: Chewie(
                   controller: ChewieController(
-                    videoPlayerController: getController(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
+                    videoPlayerController:
+                        getController(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
                     aspectRatio: videoPlayerController?.value.aspectRatio,
                     autoPlay: false,
                     autoInitialize: true,
-
+                    showControls: true,
 
                     // placeholder: Image.network(
                     //   kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].videoPosterUrl ?? '',
@@ -1105,13 +1130,15 @@ Widget commonPost(BuildContext context,
                       errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                     ),
                   )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      'assets/images/post1.jpeg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'audio'
+                    ? Container()
+                    : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'file'
+                        ? const Icon(
+                            Icons.folder_zip,
+                            size: 80,
+                            color: deepPurpleColor,
+                          )
+                        : ClipRRect(borderRadius: BorderRadius.circular(10), child: const SizedBox()),
         5.heightBox,
         Row(
           children: [

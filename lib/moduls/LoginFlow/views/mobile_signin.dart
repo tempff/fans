@@ -29,7 +29,6 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
   final phoneController = TextEditingController();
   bool showLoading = false;
   String? resendingToken;
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   GlobalKey<FormState> globalKey = GlobalKey<FormState>();
   TextEditingController countyController = TextEditingController();
   String dialCode = '+255';
@@ -38,7 +37,6 @@ class _MobileSignInScreenState extends State<MobileSignIn> {
   Widget build(BuildContext context) {
     return commonStructure(
         appBar: commonAppBar(),
-        key: scaffoldKey,
         padding: 0.0,
         context: context,
         child: Form(

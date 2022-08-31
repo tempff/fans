@@ -15,7 +15,6 @@ class ExplorePostsScreen extends StatefulWidget {
 
 class _ExplorePostsScreenState extends State<ExplorePostsScreen> {
   String foos = 'One';
-  final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {

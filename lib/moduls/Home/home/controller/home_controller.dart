@@ -9,6 +9,7 @@ import 'package:fans/moduls/Home/home/model/my_post_model.dart';
 import 'package:fans/moduls/Home/home/model/pin_post_model.dart';
 import 'package:fans/moduls/Home/home/model/post_comment_model.dart';
 import 'package:fans/moduls/Home/home/model/post_like_model.dart';
+import 'package:fans/moduls/Home/home/model/upload_media_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -18,7 +19,7 @@ import 'package:dio/dio.dart' as dio;
 import '../../../../Utility/common_function.dart';
 
 class HomeController extends GetxController {
-  final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
+  // final GlobalKey<ScaffoldState> scaffoldkey = GlobalKey<ScaffoldState>();
 
   RxBool likeButton = false.obs;
   RxBool bookmarkButton = false.obs;
@@ -192,6 +193,33 @@ class HomeController extends GetxController {
         success: (dio.Response<dynamic> response) {
           try {
             postCommentModel.value = PostCommentModel.fromJson(json.decode(response.data));
+            callback();
+          } catch (e) {
+            e.toString();
+          }
+        },
+        methodType: MethodType.post,
+        isProgressShow: true,
+        params: params,
+        error: (dio.Response<dynamic> response) {
+          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        },
+        isPassHeader: true);
+  }
+
+  /// Upload Media Api Call
+
+  Rx<UploadMediaModel> uploadMediaModel = UploadMediaModel().obs;
+
+  uploadMediaApiCall(
+    Map<String, dynamic> params,
+    Function callback,
+  ) {
+    Api().call(
+        url: ApiConfig.uploadMedia,
+        success: (dio.Response<dynamic> response) {
+          try {
+            uploadMediaModel.value = UploadMediaModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             e.toString();

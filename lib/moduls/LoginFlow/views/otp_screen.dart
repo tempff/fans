@@ -24,7 +24,7 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenScreenState extends State<OtpScreen> {
   RxBool isRemember = false.obs;
   final otpController = TextEditingController();
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   RxBool showLoading = false.obs;
   GlobalKey<FormState> globalKey = GlobalKey();
   RxString codeValue = "".obs;
@@ -153,7 +153,7 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                                       if (authCredential.user != null) {
                                         showLoading.value = false;
 
-                                      await FirebaseAuth.instance.userChanges().listen((user) {
+                                        await FirebaseAuth.instance.userChanges().listen((user) {
                                           if (user != null) {
                                             // do something.
                                             user.getIdToken().then((value) {
@@ -162,12 +162,12 @@ class _OtpScreenScreenState extends State<OtpScreen> {
                                               kAuthenticationController.firebaseTokenApiCall(params, () {
                                                 Fluttertoast.showToast(msg: 'Verification success', timeInSecForIosWeb: 5);
                                                 Get.offAll(() => EditPageScreen(
-                                                  title: 'User Profile Details',
-                                                  name: kAuthenticationController.firebaseTokenModel.value.data?.data?.name,
-                                                  userName: kAuthenticationController.firebaseTokenModel.value.data?.data?.username,
-                                                  language: kAuthenticationController.firebaseTokenModel.value.data?.data?.language,
-                                                  email: kAuthenticationController.firebaseTokenModel.value.data?.data?.email,
-                                                ));
+                                                      title: 'User Profile Details',
+                                                      name: kAuthenticationController.firebaseTokenModel.value.data?.data?.name,
+                                                      userName: kAuthenticationController.firebaseTokenModel.value.data?.data?.username,
+                                                      language: kAuthenticationController.firebaseTokenModel.value.data?.data?.language,
+                                                      email: kAuthenticationController.firebaseTokenModel.value.data?.data?.email,
+                                                    ));
                                               });
                                               print('----->>> $value');
                                             });

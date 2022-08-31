@@ -1,4 +1,5 @@
 import 'package:fans/moduls/Home/home/my_posts_screen.dart';
+import 'package:fans/moduls/Home/home/pagination_demo.dart';
 import 'package:fans/moduls/Home/notification/View/billing_screen.dart';
 import 'package:fans/moduls/Home/notification/View/dashboard_screen.dart';
 import 'package:fans/moduls/Home/notification/View/my_page_screen.dart';
@@ -9,7 +10,6 @@ import 'package:fans/moduls/Home/notification/View/subscription_price.dart';
 import 'package:fans/moduls/Home/notification/View/wallet_screen.dart';
 import 'package:fans/utility/theme_data.dart';
 import 'package:fans/utility/utility_export.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -31,11 +31,11 @@ class HomeStructureView extends StatefulWidget {
 
 RxInt tabSelectedIndex = 0.obs;
 
-final GlobalKey<ScaffoldState> _key = GlobalKey();
+
 
 class _HomeStructureViewState extends State<HomeStructureView> {
-  static const List<Widget> _widgetOptions = <Widget>[HomeScreen(), ExploreScreen(), ChatScreen(), NotificationScreen(), MyPageScreen()];
-
+  static const List<Widget> _widgetOptions = <Widget>[/*PaginationDemo()*/HomeScreen(), ExploreScreen(), ChatScreen(), NotificationScreen(), MyPageScreen()];
+  final GlobalKey<ScaffoldState> _key = GlobalKey();
   @override
   void initState() {
     setIsLogin(isLogin: true);

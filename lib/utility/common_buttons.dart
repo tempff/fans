@@ -135,10 +135,7 @@ Widget commonRoundedCornerButton({required Function() onTap, required String tit
       return Container(
         height: 40,
         width: getScreenWidth(context) * 0.5,
-        decoration: BoxDecoration(
-            color: colorWhite,
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: colorGrey.withOpacity(0.5))),
+        decoration: BoxDecoration(color: colorWhite, borderRadius: BorderRadius.circular(25), border: Border.all(color: colorGrey.withOpacity(0.5))),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -154,16 +151,11 @@ Widget commonRoundedCornerButton({required Function() onTap, required String tit
 }
 
 Widget materialButton(
-    {double? height,
-    String? text,
-    Function()? onTap,
-    TextStyle? textStyle,
-    MaterialStateProperty<Color?>? background,
-    Widget? icon}) {
+    {double? height, double? width, String? text, Function()? onTap, TextStyle? textStyle, MaterialStateProperty<Color?>? background, Widget? icon}) {
   return Builder(builder: (context) {
     return SizedBox(
       height: height ?? 40,
-      width: getScreenWidth(context) * 0.5,
+      width: width ?? getScreenWidth(context) * 0.5,
       child: ElevatedButton(
         style: ButtonStyle(
           backgroundColor: background ?? MaterialStateProperty.all(deepPurpleColor),
