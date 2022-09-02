@@ -11,6 +11,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/fans_icon"
         android:label="Fans2"
+        android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
         <activity

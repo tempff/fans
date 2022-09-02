@@ -1,5 +1,6 @@
 import 'package:fans/moduls/Home/home/my_posts_screen.dart';
 import 'package:fans/moduls/Home/home/pagination_demo.dart';
+import 'package:fans/moduls/Home/home/search_screen.dart';
 import 'package:fans/moduls/Home/notification/View/billing_screen.dart';
 import 'package:fans/moduls/Home/notification/View/dashboard_screen.dart';
 import 'package:fans/moduls/Home/notification/View/my_page_screen.dart';
@@ -31,15 +32,22 @@ class HomeStructureView extends StatefulWidget {
 
 RxInt tabSelectedIndex = 0.obs;
 
-
-
 class _HomeStructureViewState extends State<HomeStructureView> {
-  static const List<Widget> _widgetOptions = <Widget>[/*PaginationDemo()*/HomeScreen(), ExploreScreen(), ChatScreen(), NotificationScreen(), MyPageScreen()];
+  static const List<Widget> _widgetOptions = <Widget>[
+    /*PaginationDemo()*/
+    HomeScreen(),
+    ExploreScreen(),
+    ChatScreen(),
+    NotificationScreen(),
+    MyPageScreen()
+  ];
   final GlobalKey<ScaffoldState> _key = GlobalKey();
+
   @override
   void initState() {
     setIsLogin(isLogin: true);
     super.initState();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   void onItemTapped(int index) {
@@ -88,6 +96,11 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                         hintStyle: FontStyleUtility.whiteInter16W500,
                         isBorder: true,
                         textStyle: FontStyleUtility.whiteInter16W500,
+                        isReadOnly: true,
+                        onTapFunction: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          Get.to(() => const SearchScreen());
+                        },
                         preFixWidget: const Icon(
                           Icons.search,
                           color: colorWhite,
@@ -95,7 +108,7 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                   )
                 : const SizedBox(),
             actionWidgets: [
-              tabSelectedIndex.value == 0
+              tabSelectedIndex.value == 1
                   ? Container(
                       margin: const EdgeInsets.only(top: 15.0),
                       child: IconButton(
@@ -119,25 +132,42 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                                           decoration: BoxDecoration(color: colorGrey, borderRadius: BorderRadius.circular(100)),
                                         ),
                                         ListTile(
-                                            title: Text(
-                                          'Featured',
-                                          style: blackInter18W500,
-                                        )),
+                                          title: Text(
+                                            'Featured',
+                                            style: blackInter18W500,
+                                          ),
+                                          onTap: () {
+                                            kExploreController.creatorsApiCall({}, () {}, 'creators/featured');
+                                            Get.back();
+                                          },
+                                        ),
                                         ListTile(
                                             title: Text(
-                                          'More-Active',
-                                          style: blackInter18W500,
-                                        )),
+                                              'More-Active',
+                                              style: blackInter18W500,
+                                            ),
+                                            onTap: () {
+                                              kExploreController.creatorsApiCall({}, () {}, 'creators/more-active');
+                                              Get.back();
+                                            }),
                                         ListTile(
                                             title: Text(
-                                          'New',
-                                          style: blackInter18W500,
-                                        )),
+                                              'New',
+                                              style: blackInter18W500,
+                                            ),
+                                            onTap: () {
+                                              kExploreController.creatorsApiCall({}, () {}, 'creators/new');
+                                              Get.back();
+                                            }),
                                         ListTile(
                                             title: Text(
-                                          'Free',
-                                          style: blackInter18W500,
-                                        )),
+                                              'Free',
+                                              style: blackInter18W500,
+                                            ),
+                                            onTap: () {
+                                              kExploreController.creatorsApiCall({}, () {}, 'creators/free');
+                                              Get.back();
+                                            }),
                                       ],
                                     ),
                                   );

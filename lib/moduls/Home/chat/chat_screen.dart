@@ -43,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             30.heightBox,
-            Padding(
+           /* Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -60,21 +60,25 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ],
               ),
-            ),
+            ),*/
             5.heightBox,
-            StreamBuilder<Object>(
-                stream: isDarkOn.stream,
-                builder: (context, snapshot) {
-                  return Text(
-                    'You don\'t have any chat',
-                    style: greyInter18W500.copyWith(
-                        color: isDarkOn.value == true
-                            ? colorWhite.withOpacity(0.7)
-                            : colorDarkBlue.withOpacity(0.7),
-                        letterSpacing: 1),
-                    textAlign: TextAlign.center,
-                  );
-                }),
+            Expanded(
+              child: StreamBuilder<Object>(
+                  stream: isDarkOn.stream,
+                  builder: (context, snapshot) {
+                    return Center(
+                      child: Text(
+                        'Coming Soon...',
+                        style: greyInter18W500.copyWith(
+                            color: isDarkOn.value == true
+                                ? colorWhite.withOpacity(0.7)
+                                : colorDarkBlue.withOpacity(0.7),
+                            letterSpacing: 1),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }),
+            ),
             30.heightBox,
           ],
         ));

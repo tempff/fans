@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,6 +20,7 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../utility/theme_data.dart';
 import '../../../utility/utility_export.dart';
 import 'controller/home_controller.dart';
+import 'package:dio/dio.dart' as dio;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -43,8 +45,22 @@ RefreshController _refreshController = RefreshController(initialRefresh: true);
 List<dynamic> dataList = [];
 RxList<String> videoThumbnail = <String>[].obs;
 String? videoThumbnailTemp;
+RxString lockValue = 'yes'.obs;
+
+late ScrollController _controller;
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _page = 0;
+
+  final int _limit = 3;
+
+  bool _isFirstLoadRunning = false;
+  bool _hasNextPage = true;
+
+  bool _isLoadMoreRunning = false;
+
+  List _posts = [];
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       dataList.clear();
       // kHomeController.likeDataStoreList.clear();
-
       kHomeController.homePageApiCall({}, () async {
         kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
           dataList.add(element);
@@ -65,7 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
           kHomeController.likeDataStoreList
               .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
         });
-      }, true);
+
+        // _controller = ScrollController()..addListener(_loadMore);
+      }, true.obs);
+
+      // _firstLoad();
+      // _controller = ScrollController()..addListener(_loadMore);
     });
 
     //
@@ -77,6 +97,80 @@ class _HomeScreenState extends State<HomeScreen> {
       looping: true,
     );
     videoPlayerController?.setLooping(true);*/ // videoPlayerController?.play();
+  }
+
+  void _firstLoad() {
+    setState(() {
+      _isFirstLoadRunning = true;
+    });
+
+    Map<String, dynamic> params = {'page': _page};
+
+    kHomeController.homePageApiCall(params, () async {
+      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+        dataList.add(element);
+      });
+
+      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+        kHomeController.likeDataStoreList
+            .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+      });
+
+      // _controller = ScrollController()..addListener(_loadMore);
+    }, true.obs);
+
+    setState(() {
+      _isFirstLoadRunning = false;
+    });
+  }
+
+  void _loadMore() {
+    if (_hasNextPage == true && _isFirstLoadRunning == false && _isLoadMoreRunning == false && _controller.position.extentAfter < 300) {
+      setState(() {
+        _isLoadMoreRunning = true; // Display a progress indicator at the bottom
+      });
+
+      _page += 1; // Increase _page by 1
+
+      Map<String, dynamic> params = {'page': _page};
+
+      kHomeController.homePageApiCall(params, () async {
+        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+          dataList.add(element);
+        });
+
+        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+          kHomeController.likeDataStoreList
+              .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+        });
+      }, true.obs);
+
+      // try {
+      //   final res = await http.get(Uri.parse("$_baseUrl?_page=$_page&_limit=$_limit"));
+      //
+      //   final List fetchedPosts = json.decode(res.body);
+      //   if (fetchedPosts.isNotEmpty) {
+      //     setState(() {
+      //       _posts.addAll(fetchedPosts);
+      //     });
+      //   } else {
+      //     setState(() {
+      //       _hasNextPage = false;
+      //     });
+      //   }
+      // } catch (err) {
+      //   if (kDebugMode) {
+      //     print('Something went wrong!');
+      //   }
+      // }
+
+      setState(() {
+        Timer(
+          const Duration(seconds: 1),
+          () => _isLoadMoreRunning = false,
+        );
+      });
+    }
   }
 
   @override
@@ -301,11 +395,13 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
     onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 1000));
       _refreshController.refreshCompleted();
+      kHomeController.homePageApiCall({}, () async {}, false.obs);
     },
     onLoading: () async {
       await Future.delayed(const Duration(milliseconds: 1000));
       // if failed,use loadFailed(),if no data return,use LoadNodata()
       dataList.add((dataList.length + 1).toString());
+
       if (mounted) setState;
       print('::::::::::>>>>>>>');
       _refreshController.loadComplete();
@@ -592,13 +688,19 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
 
                                                 if (result != null) {
                                                   for (var element in result.files) {
-                                                    // kHomeController.imageFileList.addIf(kHomeController.imageFileList.contains(element) == false, element);
                                                     await videoImage(element.path ?? '');
                                                     kHomeController.imageFileList
                                                         .addIf(kHomeController.imageFileList.contains(element) == false, element);
+                                                    if (element.path != null) {
+                                                      dio.FormData formData = dio.FormData.fromMap({
+                                                        "photo": await dio.MultipartFile.fromFile(element.path!),
+                                                      });
+
+                                                      await kHomeController.uploadMediaApiCall(formData, () {});
+                                                    }
                                                   }
-                                                  print('opopopopoop${result.files}');
                                                 }
+
                                                 /*
                                                 final List<XFile>? selectedImages = await kHomeController.imagePicker.pickMultiImage();
 
@@ -643,7 +745,6 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                     IconButton(
                       onPressed: () async {
                         FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['zip']);
-
                         if (result != null) {
                           zipFileData = File(result.files.single.path ?? '');
                           zipFileData != null ? zipBool.value = true : false;
@@ -660,9 +761,11 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                     ),
                     20.widthBox,
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        lockValue.value == 'yes' ? lockValue.value = 'no' : lockValue.value = 'yes';
+                      },
                       icon: Icon(
-                        Icons.lock_outline,
+                        lockValue.value == 'yes' ? Icons.lock_outline : Icons.lock_open,
                         color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
                         size: 25,
                       ),
@@ -682,6 +785,16 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                   "item_id": 1,
                                 },
                               );
+
+                              Map<String, dynamic> params = {
+                                'description': postTextController.text.toString(),
+                                'price': 1000,
+                                'fileuploader-list-photo': [
+                                  {"file": kHomeController.uploadMediaModel.value.data?.files?[0]?.name}
+                                ],
+                                'locked': lockValue.value.text
+                              };
+                              kHomeController.uploadCreateApiCall(params, () {});
                             },
                             height: 40.0,
                             width: 120,
@@ -705,53 +818,54 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
             ],
           ),
           15.heightBox,
-          Obx(() =>
-                  /*value == 'All Post'? (kHomeController.myPostModel.value.posts?.isNotEmpty == true && kHomeController.myPostModel.value.posts != null): (value == ''?kHomeController.homePageModel.value.data.updates.data.isNotEmpty==true kHomeController.homePageModel.value.data.updates !=null)
+
+          /*value == 'All Post'? (kHomeController.myPostModel.value.posts?.isNotEmpty == true && kHomeController.myPostModel.value.posts != null): (value == ''?kHomeController.homePageModel.value.data.updates.data.isNotEmpty==true kHomeController.homePageModel.value.data.updates !=null)
                 ?*/
-                  ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: value == 'All Post'
-                          ? (kHomeController.myPostModel.value.posts?.length ?? 0)
-                          : kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        return commonPost(
-                          context,
-                          postIndex: index,
-                          name: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.name,
-                          date: kHomeController.homePageModel.value.data?.updates?.data?[index].date,
-                          price: kHomeController.homePageModel.value.data?.updates?.data?[index].price,
-                          username: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.username,
-                          description: kHomeController.homePageModel.value.data?.updates?.data?[index].description,
-                          likeCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].likeCount ?? 0,
-                          commentsCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].commentCount.toString(),
-                        );
-                      })
-              /*   : SizedBox(
-            height: getScreenHeight(context) * 0.4,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.image_not_supported,
-              color: isDarkOn.value == true
-                  ? colorLightWhite
-                  : colorGreyOpacity30,
-              size: 65.0,
-            ),
-            Text(
-              'No Post Posted',
-              style: blackInter15W500.copyWith(
-                fontSize: 20,
-                color: isDarkOn.value == true
-                    ? colorLightWhite
-                    : colorGreyOpacity30,
-              ),
-            )
-          ],
-        ),
-      ),*/
-              ),
+
+          StreamBuilder<Object>(
+              stream: kHomeController.homePageModel.stream,
+              builder: (context, snapshot) {
+                return kHomeController.homePageModel.value.data?.updates?.data?.length != null
+                    ? ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: value == 'All Post'
+                            ? (kHomeController.myPostModel.value.posts?.length ?? 0)
+                            : kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          return commonPost(
+                            context,
+                            postIndex: index,
+                            name: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.name,
+                            date: kHomeController.homePageModel.value.data?.updates?.data?[index].date,
+                            price: kHomeController.homePageModel.value.data?.updates?.data?[index].price,
+                            username: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.username,
+                            description: kHomeController.homePageModel.value.data?.updates?.data?[index].description,
+                            likeCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].likeCount ?? 0,
+                            commentsCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].commentCount.toString(),
+                          );
+                        })
+                    : SizedBox(
+                        height: getScreenHeight(context) * 0.4,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.image_not_supported,
+                              color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
+                              size: 65.0,
+                            ),
+                            Text(
+                              'No Post Posted',
+                              style: blackInter15W500.copyWith(
+                                fontSize: 20,
+                                color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+              })
         ],
       ),
     ),
@@ -918,6 +1032,278 @@ Widget commonPost(BuildContext context,
     String? price,
     int? bookmarkId,
     bool? isBookmarked}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      /// Post Top portion
+      postChangesData(context, postIndex, name, price, description, date),
+
+      10.heightBox,
+
+      /// Video Image File
+
+      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
+              kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
+          ? AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Chewie(
+                controller: ChewieController(
+                  videoPlayerController:
+                      getController(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
+                  aspectRatio: 16 / 9,
+                  autoPlay: false,
+                  autoInitialize: true,
+                  cupertinoProgressColors: ChewieProgressColors(
+                      playedColor: lightPurpleColor,
+                      backgroundColor: lightPurpleColor,
+                      handleColor: lightPurpleColor,
+                      bufferedColor: lightPurpleColor),
+                  showControls: true,
+
+                  // placeholder: Image.network(
+                  //   kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].videoPosterUrl ?? '',
+                  //   fit: BoxFit.cover,
+                  // ),
+                  looping: true,
+                ),
+              ),
+            )
+          : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
+                  kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'image'
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.fill,
+                    imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? '',
+                    placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                    errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                  ),
+                )
+              : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
+                      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'audio'
+                  ? Container()
+                  : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
+                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'file'
+                      ? const Icon(
+                          Icons.folder_zip,
+                          size: 80,
+                          color: deepPurpleColor,
+                        )
+                      : ClipRRect(borderRadius: BorderRadius.circular(10), child: const SizedBox()),
+      5.heightBox,
+
+      /// Post Options
+      postOptions(
+        context,
+        postIndex,
+        commentsCounts,
+        data,
+        bookmarkId,
+        isBookmarked,
+      ),
+
+      /// Comment Section
+
+      commentSection(postIndex),
+
+      20.heightBox
+    ],
+  );
+}
+
+double getVideoHeight(url) {
+  videoPlayerController = VideoPlayerController.network(url);
+  return videoPlayerController?.value.size.height ?? 250;
+}
+
+VideoPlayerController getController(url) {
+  // videoPlayerController = VideoPlayerController.network(url);
+  return videoPlayerController ?? VideoPlayerController.network(url);
+}
+
+double getRatio(url) {
+  videoPlayerController = VideoPlayerController.network(url);
+  print('---- ${videoPlayerController?.value.aspectRatio}');
+  return videoPlayerController?.value.aspectRatio ?? 0.0;
+}
+
+postOptions(
+  BuildContext context,
+  int postIndex,
+  String? commentsCounts,
+  String? data,
+  int? bookmarkId,
+  bool? isBookmarked,
+) {
+  return Obx(() {
+    return Row(
+      children: [
+        IconButton(
+            splashColor: colorRed,
+            splashRadius: 20.0,
+            onPressed: () {
+              // kHomeController.likeButton.value = !kHomeController.likeButton.value;
+              /*         kHomeController.homePageModel.value.data?.updates
+                                          ?.data?[index].isLiked = !(kHomeController
+                                              .homePageModel
+                                              .value
+                                              .data
+                                              ?.updates
+                                              ?.data?[index]
+                                              .isLiked ??
+                                          false);*/
+
+              Map<String, dynamic> params = {'id': kHomeController.likeDataStoreList[postIndex].id};
+              kHomeController.postLikeApiCall(params, () {
+                // kHomeController.homePageApiCall({}, () {}, false);
+
+                kHomeController.likeDataStoreList[postIndex].isLiked = kHomeController.postLikeModel.value.data!.liked;
+
+                if (kHomeController.likeDataStoreList[postIndex].isLiked ?? true) {
+                  kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) + 1;
+                } else if ((kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) > 0) {
+                  kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 1) - 1;
+                }
+                kHomeController.likeDataStoreList.refresh();
+              });
+            },
+            icon: Icon(
+              kHomeController.likeDataStoreList[postIndex].isLiked == true ? CupertinoIcons.heart_fill : CupertinoIcons.suit_heart,
+              size: 25,
+              color: kHomeController.likeDataStoreList[postIndex].isLiked == true
+                  ? colorRed
+                  : isDarkOn.value == true
+                      ? colorLightWhite
+                      : colorGrey,
+            )),
+        Text(
+          kHomeController.likeDataStoreList[postIndex].likeCount.toString(),
+          overflow: TextOverflow.ellipsis,
+          style: greyInter18W500.copyWith(
+            color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+          ),
+        ),
+        2.widthBox,
+        IconButton(
+            onPressed: () {
+              isMessage.value = !isMessage.value;
+              commentValue.value = !commentValue.value;
+            },
+            icon: Icon(
+              CupertinoIcons.chat_bubble,
+              size: 22,
+              color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+            )),
+        Text(
+          commentsCounts ?? '',
+          overflow: TextOverflow.ellipsis,
+          style: greyInter18W500.copyWith(
+            color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+          ),
+        ),
+        2.widthBox,
+        IconButton(
+            onPressed: () {
+              showAlertDialog(
+                context: context,
+                callback: () {},
+                actions: [
+                  TextButton(
+                    child: Text('Cancel', style: blackInter16W600),
+                    onPressed: () {
+                      Get.back();
+                    },
+                  )
+                ],
+                child: SizedBox(
+                  height: getScreenHeight(context) * 0.3,
+                  width: getScreenWidth(context) * 0.9,
+                  child: GridView(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5),
+                    children: [
+                      commonDialogItems(
+                        image: facebook,
+                        title: 'Facebook',
+                        callBack: () {},
+                      ),
+                      commonDialogItems(
+                        image: twitter,
+                        title: 'Twitter',
+                        callBack: () {},
+                      ),
+                      commonDialogItems(
+                        image: whatsApp,
+                        title: 'WhatsApp',
+                        callBack: () {},
+                      ),
+                      commonDialogItems(
+                        image: message,
+                        title: 'Text message',
+                        callBack: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            icon: Icon(
+              CupertinoIcons.share,
+              size: 22,
+              color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+            )),
+        const Spacer(),
+        IconButton(
+            splashColor: deepPurpleColor,
+            splashRadius: 20.0,
+            onPressed: () {
+              kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
+              Map<String, dynamic> params = {
+                'id': data == 'bookmark' ? (bookmarkId ?? '') : kHomeController.likeDataStoreList[postIndex].id ?? '',
+              };
+              kHomeController.addBookMarkApiCall(params, () {
+                if (kHomeController.addBookMarkModel.value.data?.type == 'added') {
+                  kHomeController.likeDataStoreList[postIndex].isBookmark = true;
+                  isBookmarked = true;
+                } else {
+                  kHomeController.likeDataStoreList[postIndex].isBookmark = false;
+                  isBookmarked = false;
+                }
+                kHomeController.likeDataStoreList.refresh();
+
+                /*   data == 'bookmark'
+                                ? kHomeController.bookMarkApiCall({}, () {
+                                    kHomeController.homePageApiCall({}, () {}, false);
+                                  })
+                                : kHomeController.homePageApiCall({}, () {}, false);*/
+              });
+            },
+            icon: data == 'bookmark'
+                ? Icon(
+                    isBookmarked == true ? Icons.bookmark : Icons.bookmark_border,
+                    size: 23,
+                    color: isBookmarked == true
+                        ? deepPurpleColor
+                        : isDarkOn.value == true
+                            ? colorLightWhite
+                            : colorGrey,
+                  )
+                : Icon(
+                    kHomeController.likeDataStoreList[postIndex].isBookmark == true ? Icons.bookmark : Icons.bookmark_border,
+                    size: 23,
+                    color: kHomeController.likeDataStoreList[postIndex].isBookmark == true
+                        ? deepPurpleColor
+                        : isDarkOn.value == true
+                            ? colorLightWhite
+                            : colorGrey,
+                  )),
+      ],
+    );
+  });
+}
+
+postChangesData(BuildContext context, int postIndex, String? name, String? price, String? description, DateTime? date) {
   return Obx(() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,12 +1342,14 @@ Widget commonPost(BuildContext context,
                         placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                         errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                       )
-                    : Image.asset(
-                        'assets/images/profile_placeholder.png',
-                        scale: 3.5,
-                        height: 40.0,
-                        width: 40.0,
-                        fit: BoxFit.fill,
+                    : Center(
+                        child: Image.asset(
+                          'user',
+                          scale: 3.5,
+                          height: 40.0,
+                          width: 40.0,
+                          fit: BoxFit.fill,
+                        ),
                       ),
               ),
             ),
@@ -1095,215 +1483,15 @@ Widget commonPost(BuildContext context,
           /*kHomeController.myPostModel.value.posts?[index].description*/
           style: greyInter16W500,
         ),
-        10.heightBox,
-        /*Container(
-                      height: 200,
-                      color: colorBlack,
-                    ),*/
-        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
-            ? AspectRatio(
-                aspectRatio: getRatio(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
-                child: Chewie(
-                  controller: ChewieController(
-                    videoPlayerController:
-                        getController(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
-                    aspectRatio: videoPlayerController?.value.aspectRatio,
-                    autoPlay: false,
-                    autoInitialize: true,
-                    showControls: true,
+      ],
+    );
+  });
+}
 
-                    // placeholder: Image.network(
-                    //   kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].videoPosterUrl ?? '',
-                    //   fit: BoxFit.cover,
-                    // ),
-                    looping: true,
-                  ),
-                ),
-              )
-            : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'image'
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: CachedNetworkImage(
-                      fit: BoxFit.fill,
-                      imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? '',
-                      placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                      errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                    ),
-                  )
-                : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'audio'
-                    ? Container()
-                    : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'file'
-                        ? const Icon(
-                            Icons.folder_zip,
-                            size: 80,
-                            color: deepPurpleColor,
-                          )
-                        : ClipRRect(borderRadius: BorderRadius.circular(10), child: const SizedBox()),
-        5.heightBox,
-        Row(
-          children: [
-            IconButton(
-                splashColor: colorRed,
-                splashRadius: 20.0,
-                onPressed: () {
-                  // kHomeController.likeButton.value = !kHomeController.likeButton.value;
-                  /*         kHomeController.homePageModel.value.data?.updates
-                                      ?.data?[index].isLiked = !(kHomeController
-                                          .homePageModel
-                                          .value
-                                          .data
-                                          ?.updates
-                                          ?.data?[index]
-                                          .isLiked ??
-                                      false);*/
-
-                  Map<String, dynamic> params = {'id': kHomeController.likeDataStoreList[postIndex].id};
-                  kHomeController.postLikeApiCall(params, () {
-                    // kHomeController.homePageApiCall({}, () {}, false);
-
-                    kHomeController.likeDataStoreList[postIndex].isLiked = kHomeController.postLikeModel.value.data!.liked;
-
-                    if (kHomeController.likeDataStoreList[postIndex].isLiked ?? true) {
-                      kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) + 1;
-                    } else if ((kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) > 0) {
-                      kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 1) - 1;
-                    }
-                    kHomeController.likeDataStoreList.refresh();
-                  });
-                },
-                icon: Icon(
-                  kHomeController.likeDataStoreList[postIndex].isLiked == true ? CupertinoIcons.heart_fill : CupertinoIcons.suit_heart,
-                  size: 25,
-                  color: kHomeController.likeDataStoreList[postIndex].isLiked == true
-                      ? colorRed
-                      : isDarkOn.value == true
-                          ? colorLightWhite
-                          : colorGrey,
-                )),
-            Text(
-              kHomeController.likeDataStoreList[postIndex].likeCount.toString(),
-              overflow: TextOverflow.ellipsis,
-              style: greyInter18W500.copyWith(
-                color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-              ),
-            ),
-            2.widthBox,
-            IconButton(
-                onPressed: () {
-                  isMessage.value = !isMessage.value;
-                  commentValue.value = !commentValue.value;
-                },
-                icon: Icon(
-                  CupertinoIcons.chat_bubble,
-                  size: 22,
-                  color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                )),
-            Text(
-              commentsCounts ?? '',
-              overflow: TextOverflow.ellipsis,
-              style: greyInter18W500.copyWith(
-                color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-              ),
-            ),
-            2.widthBox,
-            IconButton(
-                onPressed: () {
-                  showAlertDialog(
-                    context: context,
-                    callback: () {},
-                    actions: [
-                      TextButton(
-                        child: Text('Cancel', style: blackInter16W600),
-                        onPressed: () {
-                          Get.back();
-                        },
-                      )
-                    ],
-                    child: SizedBox(
-                      height: getScreenHeight(context) * 0.3,
-                      width: getScreenWidth(context) * 0.9,
-                      child: GridView(
-                        shrinkWrap: true,
-                        physics: const ClampingScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5),
-                        children: [
-                          commonDialogItems(
-                            image: facebook,
-                            title: 'Facebook',
-                            callBack: () {},
-                          ),
-                          commonDialogItems(
-                            image: twitter,
-                            title: 'Twitter',
-                            callBack: () {},
-                          ),
-                          commonDialogItems(
-                            image: whatsApp,
-                            title: 'WhatsApp',
-                            callBack: () {},
-                          ),
-                          commonDialogItems(
-                            image: message,
-                            title: 'Text message',
-                            callBack: () {},
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  CupertinoIcons.share,
-                  size: 22,
-                  color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                )),
-            const Spacer(),
-            IconButton(
-                splashColor: deepPurpleColor,
-                splashRadius: 20.0,
-                onPressed: () {
-                  kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
-                  Map<String, dynamic> params = {
-                    'id': data == 'bookmark' ? (bookmarkId ?? '') : kHomeController.likeDataStoreList[postIndex].id ?? '',
-                  };
-                  kHomeController.addBookMarkApiCall(params, () {
-                    if (kHomeController.addBookMarkModel.value.data?.type == 'added') {
-                      kHomeController.likeDataStoreList[postIndex].isBookmark = true;
-                      isBookmarked = true;
-                    } else {
-                      kHomeController.likeDataStoreList[postIndex].isBookmark = false;
-                      isBookmarked = false;
-                    }
-                    kHomeController.likeDataStoreList.refresh();
-
-                    /*   data == 'bookmark'
-                            ? kHomeController.bookMarkApiCall({}, () {
-                                kHomeController.homePageApiCall({}, () {}, false);
-                              })
-                            : kHomeController.homePageApiCall({}, () {}, false);*/
-                  });
-                },
-                icon: data == 'bookmark'
-                    ? Icon(
-                        isBookmarked == true ? Icons.bookmark : Icons.bookmark_border,
-                        size: 23,
-                        color: isBookmarked == true
-                            ? deepPurpleColor
-                            : isDarkOn.value == true
-                                ? colorLightWhite
-                                : colorGrey,
-                      )
-                    : Icon(
-                        kHomeController.likeDataStoreList[postIndex].isBookmark == true ? Icons.bookmark : Icons.bookmark_border,
-                        size: 23,
-                        color: kHomeController.likeDataStoreList[postIndex].isBookmark == true
-                            ? deepPurpleColor
-                            : isDarkOn.value == true
-                                ? colorLightWhite
-                                : colorGrey,
-                      )),
-          ],
-        ),
+commentSection(int postIndex) {
+  return Obx(() {
+    return Column(
+      children: [
         isMessage.value == true
             ? ListView.builder(
                 itemCount: 2 + 1,
@@ -1477,24 +1665,7 @@ Widget commonPost(BuildContext context,
                 ],
               )
             : const SizedBox(),
-        20.heightBox
       ],
     );
   });
-}
-
-double getVideoHeight(url) {
-  videoPlayerController = VideoPlayerController.network(url);
-  return videoPlayerController?.value.size.height ?? 250;
-}
-
-VideoPlayerController getController(url) {
-  // videoPlayerController = VideoPlayerController.network(url);
-  return videoPlayerController ?? VideoPlayerController.network(url);
-}
-
-double getRatio(url) {
-  videoPlayerController = VideoPlayerController.network(url);
-  print('---- ${videoPlayerController?.value.aspectRatio}');
-  return videoPlayerController?.value.aspectRatio ?? 0.0;
 }

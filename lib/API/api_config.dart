@@ -40,4 +40,7 @@ class ApiConfig {
   static const String creatorsNew = '$baseUrl/creators/new';
   static const String firebaseToken = '$baseUrl/firebase-login';
   static const String uploadMedia = '$baseUrl/upload/media';
+  static const String updateCreate = '$baseUrl/update/create';
+  static const String categoryArtist = '$baseUrl/category/artist';
+  static const String searchCreators = '$baseUrl/search/creators';
 }

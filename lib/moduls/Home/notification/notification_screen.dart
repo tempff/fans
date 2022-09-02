@@ -162,23 +162,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                     Icons.verified_outlined),
                                                 title: const Text(
                                                     'Verified account!')),
-
-                                            ListTile(
-                                                onTap: () {
-                                                  Get.back();
-                                                  Get.to(() =>
-                                                      const SubscriptionPrice());
-                                                },
-                                                trailing: const Icon(
-                                                  Icons
-                                                      .arrow_forward_ios_rounded,
-                                                  size: 18,
-                                                  color: colorGrey,
-                                                ),
-                                                leading: const Icon(Icons
-                                                    .subscriptions_outlined),
-                                                title: const Text(
-                                                    'Subscription price')),
                                             ListTile(
                                                 onTap: () {
                                                   Get.back();
@@ -192,7 +175,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 leading: const Icon(
                                                     Icons.privacy_tip_outlined),
                                                 title: const Text(
-                                                    'Privacy and security')),
+                                                    'Privacy and security (Coming Soon)')),
                                             ListTile(
                                                 onTap: () {
                                                   Get.back();
@@ -222,7 +205,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 leading: const Icon(
                                                     CupertinoIcons.eye_slash),
                                                 title: const Text(
-                                                    'Block countries')),
+                                                    'Block countries (Coming Soon)')),
                                             ListTile(
                                                 onTap: () {
                                                   Get.back();
@@ -238,7 +221,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 leading: const Icon(
                                                     Icons.block_flipped),
                                                 title: const Text(
-                                                    'Restricted user')),
+                                                    'Restricted user (Coming Soon)')),
                                           ],
                                         ));
                                   });

@@ -9,6 +9,8 @@ import 'package:fans/moduls/Home/home/model/my_post_model.dart';
 import 'package:fans/moduls/Home/home/model/pin_post_model.dart';
 import 'package:fans/moduls/Home/home/model/post_comment_model.dart';
 import 'package:fans/moduls/Home/home/model/post_like_model.dart';
+import 'package:fans/moduls/Home/home/model/search_home_model.dart';
+import 'package:fans/moduls/Home/home/model/upload_create_model.dart';
 import 'package:fans/moduls/Home/home/model/upload_media_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -28,6 +30,7 @@ class HomeController extends GetxController {
   RxList<XFile>? selectedImages;
   RxList imageFileList = [].obs;
   RxList<LikeDataStore> likeDataStoreList = <LikeDataStore>[].obs;
+  RxBool? loadValue = true.obs;
 
   // RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;
 
@@ -130,13 +133,19 @@ class HomeController extends GetxController {
   /// Home Api Call
 
   Rx<HomePageModel> homePageModel = HomePageModel().obs;
+  RxList<Datum> homePostData = <Datum>[].obs;
 
-  homePageApiCall(Map<String, dynamic> params, Function callback, bool loadValue) {
+  homePageApiCall(Map<String, dynamic> params, Function callback, loadValue) {
     Api().call(
       url: ApiConfig.home,
       success: (dio.Response<dynamic> response) {
         try {
+          loadValue.value = false;
           homePageModel.value = HomePageModel.fromJson(response.data);
+
+          // homePageModel.value.data?.updates?.data?.forEach((element) {
+          //   homePostData.add(element);
+          // });
           callback();
         } catch (e) {
           e.toString();
@@ -147,7 +156,7 @@ class HomeController extends GetxController {
       error: (dio.Response<dynamic> response) {
         Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
       },
-      isProgressShow: loadValue == true ? true : false,
+      isProgressShow: loadValue.value == true ? true : false,
       params: params,
     );
   }
@@ -212,7 +221,7 @@ class HomeController extends GetxController {
   Rx<UploadMediaModel> uploadMediaModel = UploadMediaModel().obs;
 
   uploadMediaApiCall(
-    Map<String, dynamic> params,
+    dio.FormData formData,
     Function callback,
   ) {
     Api().call(
@@ -227,6 +236,36 @@ class HomeController extends GetxController {
         },
         methodType: MethodType.post,
         isProgressShow: true,
+        formValues: formData,
+        error: (dio.Response<dynamic> response) {
+          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        },
+        isPassHeader: true);
+  }
+
+  /// Upload Create Media Api Call
+
+  Rx<UploadCreateModel> uploadCreateModel = UploadCreateModel().obs;
+
+  uploadCreateApiCall(
+    Map<String, dynamic> params,
+    Function callback,
+  ) {
+    Api().call(
+        url: ApiConfig.updateCreate,
+        success: (dio.Response<dynamic> response) {
+          try {
+            uploadCreateModel.value = UploadCreateModel.fromJson(json.decode(response.data));
+            /*  uploadMediaModel.value.success == false{
+
+            }*/
+            callback();
+          } catch (e) {
+            e.toString();
+          }
+        },
+        methodType: MethodType.post,
+        isProgressShow: true,
         params: params,
         error: (dio.Response<dynamic> response) {
           Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
@@ -234,11 +273,32 @@ class HomeController extends GetxController {
         isPassHeader: true);
   }
 
-  @override
-  void onInit() {
-    // TODO: implement onInit
+  Rx<SearchHomeModel> searchHomeModel = SearchHomeModel().obs;
 
-    super.onInit();
+  searchHomeApiCall(
+    Map<String, dynamic> params,
+    Function callback,
+  ) {
+    Api().call(
+        url: ApiConfig.searchCreators,
+        success: (dio.Response<dynamic> response) {
+          try {
+            searchHomeModel.value = SearchHomeModel.fromJson(response.data);
+            /*  uploadMediaModel.value.success == false{
+
+            }*/
+            callback();
+          } catch (e) {
+            e.toString();
+          }
+        },
+        methodType: MethodType.get,
+        isProgressShow: false,
+        params: params,
+        error: (dio.Response<dynamic> response) {
+          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        },
+        isPassHeader: true);
   }
 }
 
@@ -248,6 +308,5 @@ class LikeDataStore {
   bool? isBookmark;
   int? likeCount;
 
-
-  LikeDataStore({this.likeCount, this.id, this.isLiked,this.isBookmark});
+  LikeDataStore({this.likeCount, this.id, this.isLiked, this.isBookmark});
 }

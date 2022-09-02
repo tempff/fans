@@ -13,12 +13,9 @@ const String baseUri = "https://stagingrentech.rentechdigital.com:3001/";
 
 const String somethingWrong = "Something went wrong!";
 const String responseMessage = "No response data found!";
-const String interNetMessage =
-    "please check your internet connection and try again latter.";
-const String connectionTimeOutMessage =
-    "Oops.. Server not working or might be in maintenance. Please Try Again Later";
-const String authenticationMessage =
-    "The session has been expired. Please log in again.";
+const String interNetMessage = "please check your internet connection and try again latter.";
+const String connectionTimeOutMessage = "Oops.. Server not working or might be in maintenance. Please Try Again Later";
+const String authenticationMessage = "The session has been expired. Please log in again.";
 const String tryAgain = "Try again";
 
 int serviceCallCount = 0;
@@ -64,8 +61,10 @@ class Api {
       }*/
 
       Map<String, dynamic> headerParameters;
+
       headerParameters = {
-        'Authorization': 'Bearer ${storage.read('loginToken') ?? ''}',
+        // 'Authorization': 'Bearer ${storage.read('loginToken') ?? ''}',
+        'Authorization': 'Bearer 0tyQAL1lMubRCgElCSrdihQehGOfrPuUyWrGe5aSptEs6tPO6e7iN8aJNBKt',
         'Accept': 'application/json',
       };
       String mainUrl = url;
@@ -100,14 +99,14 @@ class Api {
                   ? Options(
                       headers: headerParameters,
                       responseType: ResponseType.plain,
+                      followRedirects: false,
+                      validateStatus: (_) => true,
                     )
                   : null);
         }
         if (handleResponse(response)) {
           if (kDebugMode) {
-            isPassHeader
-                ? print('LOGIN TOKEN ${storage.read('loginToken') ?? ''}')
-                : print('LOGIN TOKEN Header did\'t pass here...');
+            isPassHeader ? print('LOGIN TOKEN ${storage.read('loginToken') ?? ''}') : print('LOGIN TOKEN Header did\'t pass here...');
             print(url);
             print(params);
             print(response.data);
@@ -269,10 +268,7 @@ class Api {
   }
 }
 
-showErrorMessage(
-    {required String message,
-    required bool isRecall,
-    required Function callBack}) {
+showErrorMessage({required String message, required bool isRecall, required Function callBack}) {
   serviceCallCount = 0;
   // serviceCallCount++;
   hideProgressDialog();
@@ -300,10 +296,7 @@ void showProgressDialog({bool isLoading = true}) {
       barrierDismissible: false);
 }
 
-void hideProgressDialog(
-    {bool isLoading = true,
-    bool isProgressShow = true,
-    bool isHideLoader = true}) {
+void hideProgressDialog({bool isLoading = true, bool isProgressShow = true, bool isHideLoader = true}) {
   isLoading = false;
   if ((isProgressShow || isHideLoader) && getX.Get.isDialogOpen!) {
     getX.Get.back();
@@ -379,11 +372,7 @@ bool handleResponse(Response response) {
   }
 }
 
-apiAlertDialog(
-    {required String message,
-    String? buttonTitle,
-    Function? buttonCallBack,
-    bool isShowGoBack = true}) async {
+apiAlertDialog({required String message, String? buttonTitle, Function? buttonCallBack, bool isShowGoBack = true}) async {
   if (!getX.Get.isDialogOpen!) {
     await getX.Get.dialog(
       WillPopScope(
@@ -397,9 +386,7 @@ apiAlertDialog(
               ? [
                   CupertinoDialogAction(
                     isDefaultAction: true,
-                    child: Text(isNotEmptyString(buttonTitle)
-                        ? buttonTitle!
-                        : "Try again"),
+                    child: Text(isNotEmptyString(buttonTitle) ? buttonTitle! : "Try again"),
                     onPressed: () {
                       if (buttonCallBack != null) {
                         buttonCallBack();
@@ -420,9 +407,7 @@ apiAlertDialog(
               : [
                   CupertinoDialogAction(
                     isDefaultAction: true,
-                    child: Text(isNotEmptyString(buttonTitle)
-                        ? buttonTitle!
-                        : "Try again"),
+                    child: Text(isNotEmptyString(buttonTitle) ? buttonTitle! : "Try again"),
                     onPressed: () {
                       if (buttonCallBack != null) {
                         buttonCallBack();
@@ -443,12 +428,4 @@ apiAlertDialog(
 
 enum MethodType { get, post, put }
 
-enum ErrorMessageType {
-  snackBarOnlyError,
-  snackBarOnlySuccess,
-  snackBarOnResponse,
-  dialogOnlyError,
-  dialogOnlySuccess,
-  dialogOnResponse,
-  none
-}
+enum ErrorMessageType { snackBarOnlyError, snackBarOnlySuccess, snackBarOnResponse, dialogOnlyError, dialogOnlySuccess, dialogOnResponse, none }

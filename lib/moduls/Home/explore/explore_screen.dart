@@ -3,6 +3,7 @@ import 'package:fans/utility/common_structure.dart';
 import 'package:fans/utility/constants.dart';
 import 'package:fans/utility/font_style_utility.dart';
 import 'package:fans/utility/theme_data.dart';
+import 'package:fans/utility/utility_export.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -78,13 +79,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
       kNotificationController.myPageModel.refresh();
       tabController = TabController(
           vsync: this, length: kNotificationController.myPageModel.value.data?.categoryMaster?.length ?? 0, initialIndex: scrollIndex.value);
-      kExploreController.creatorsApiCall({}, () {
-        /*   kExploreController.creatorsModel.value.data?.users?.data?.forEach((element) {
-          _cardTile.add(element?.avatarUrl ?? '');
-        });*/
-
-        kExploreController.creatorsNewApiCall({}, () {});
-      });
+       kExploreController.creatorsApiCall({}, () {}, 'creators');
     });
   }
 
@@ -114,7 +109,15 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                     unselectedLabelColor: isDarkOn.value == true ? colorLightWhite : colorGrey,
                     onTap: (index) {
                       scrollIndex.value = index;
-                      pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                      if (scrollIndex.value == 0) {
+                        kExploreController.creatorsApiCall({}, () {
+                          pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                        }, 'creators');
+                      } else if (scrollIndex.value == 1) {
+                        kExploreController.creatorsApiCall({}, () {
+                          pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                        }, 'category/artist');
+                      }
                     },
                     indicatorColor: colorPrimary,
                     labelColor: colorWhite,
@@ -395,6 +398,11 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                       physics: const ClampingScrollPhysics(),
                       onPageChanged: (index) {
                         scrollIndex.value = index;
+                        if (scrollIndex.value == 0) {
+                          kExploreController.creatorsApiCall({}, () {}, 'creators');
+                        } else if (scrollIndex.value == 1) {
+                          kExploreController.creatorsApiCall({}, () {}, 'category/artist');
+                        }
                         tabController?.animateTo(index, duration: const Duration(milliseconds: 500), curve: Curves.ease);
                       },
                       controller: pageController,
@@ -407,49 +415,58 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
                           child: SingleChildScrollView(
                             physics: const ClampingScrollPhysics(),
                             padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: StreamBuilder<Object>(
-                                stream: kExploreController.creatorsModel.stream,
-                                builder: (context, snapshot) {
-                                  return StaggeredGrid.count(
-                                    crossAxisCount: 4,
-                                    mainAxisSpacing: 8,
-                                    crossAxisSpacing: 8,
-                                    children: [
-                                      ...?kExploreController.creatorsModel.value.data?.users?.data?.map(
-                                        (e) => StaggeredGridTile.count(
-                                          crossAxisCellCount: 2,
-                                          mainAxisCellCount: 2,
-                                          child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(18.0),
-                                              child: Stack(
-                                                fit: StackFit.expand,
-                                                children: [
-                                                  Image.network(e?.avatarUrl ?? ''),
-                                                  Align(
-                                                    alignment: Alignment.bottomRight,
-                                                    child: Container(
-                                                      margin: const EdgeInsets.only(right: 10, bottom: 10),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(100),
-                                                        color: colorDarkBlack.withOpacity(0.5),
-                                                      ),
-                                                      height: 30,
-                                                      width: 30,
-                                                      child: Center(
-                                                        child: Text(
-                                                          '55',
-                                                          style: FontStyleUtility.whiteInter14W500,
+                            child: Obx(() {
+                              return scrollIndex.value == 1 || scrollIndex.value == 0
+                                  ? StaggeredGrid.count(
+                                      crossAxisCount: 4,
+                                      mainAxisSpacing: 8,
+                                      crossAxisSpacing: 8,
+                                      children: [
+                                        ...?kExploreController.creatorsModel.value.data?.users?.data?.map(
+                                          (e) => StaggeredGridTile.count(
+                                            crossAxisCellCount: 2,
+                                            mainAxisCellCount: 2,
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                child: Stack(
+                                                  fit: StackFit.expand,
+                                                  children: [
+                                                    Image.network(e?.avatarUrl ?? ''),
+                                                    Align(
+                                                      alignment: Alignment.bottomRight,
+                                                      child: Container(
+                                                        margin: const EdgeInsets.only(right: 10, bottom: 10),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(100),
+                                                          color: colorDarkBlack.withOpacity(0.5),
+                                                        ),
+                                                        height: 30,
+                                                        width: 30,
+                                                        child: Center(
+                                                          child: Text(
+                                                            '55',
+                                                            style: FontStyleUtility.whiteInter14W500,
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              )),
+                                                  ],
+                                                )),
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  : SizedBox(
+                                      height: getScreenHeight(context) * 0.6,
+                                      child: Center(
+                                        child: Text(
+                                          'Data is not available...',
+                                          style: blackInter14W500.copyWith(
+                                              color: isDarkOn.value == true ? colorWhite : colorGrey, fontWeight: FontWeight.w400),
                                         ),
-                                      )
-                                    ],
-                                  );
-                                }),
+                                      ),
+                                    );
+                            }),
                           ),
                         );
                       },

@@ -183,7 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   },
                 ),
                 20.heightBox,
-                Container(
+                /*Container(
                   width: getScreenWidth(context),
                   margin: const EdgeInsets.symmetric(horizontal: 10.0)
                       .copyWith(bottom: 20.0),
@@ -239,7 +239,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       30.heightBox,
                     ],
                   ),
-                ),
+                ),*/
 
                 // Expanded(
                 //   child: Padding(
