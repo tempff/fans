@@ -43,4 +43,5 @@ class ApiConfig {
   static const String updateCreate = '$baseUrl/update/create';
   static const String categoryArtist = '$baseUrl/category/artist';
   static const String searchCreators = '$baseUrl/search/creators';
+  static const String user = '$baseUrl/user';
 }

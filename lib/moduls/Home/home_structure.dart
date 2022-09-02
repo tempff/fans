@@ -263,7 +263,7 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                   size: 30,
                 ),
                 title: Text(
-                  'Balance: TZS12,432.0',
+                  'Balance: ${kHomeController.getUserModel.value.data?.user?.balance}',
                   style: blackInter16W500,
                 ),
                 onTap: () {},
@@ -274,7 +274,7 @@ class _HomeStructureViewState extends State<HomeStructureView> {
                   size: 30,
                 ),
                 title: Text(
-                  'Wallet: TZS12,432.0',
+                  'Wallet: ${kHomeController.getUserModel.value.data?.user?.wallet}',
                   style: blackInter16W500,
                 ),
                 onTap: () {

@@ -18,10 +18,10 @@ class MyPostsScreen extends StatefulWidget {
 class _MyPostsScreenState extends State<MyPostsScreen> {
   @override
   void initState() {
-    kHomeController.myPostApiCall(
+  /*  kHomeController.myPostApiCall(
       {},
       () => {},
-    );
+    );*/
     super.initState();
   }
 

@@ -4,6 +4,7 @@ import 'package:fans/API/api_call.dart';
 import 'package:fans/API/api_config.dart';
 import 'package:fans/moduls/Home/home/model/add_bookmark_model.dart';
 import 'package:fans/moduls/Home/home/model/bookmark_model.dart';
+import 'package:fans/moduls/Home/home/model/get_user_model.dart';
 import 'package:fans/moduls/Home/home/model/home_model.dart';
 import 'package:fans/moduls/Home/home/model/my_post_model.dart';
 import 'package:fans/moduls/Home/home/model/pin_post_model.dart';
@@ -31,6 +32,9 @@ class HomeController extends GetxController {
   RxList imageFileList = [].obs;
   RxList<LikeDataStore> likeDataStoreList = <LikeDataStore>[].obs;
   RxBool? loadValue = true.obs;
+  bool pageLoading = false;
+
+  ScrollController homeScrollController = ScrollController();
 
   // RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;
 
@@ -135,7 +139,7 @@ class HomeController extends GetxController {
   Rx<HomePageModel> homePageModel = HomePageModel().obs;
   RxList<Datum> homePostData = <Datum>[].obs;
 
-  homePageApiCall(Map<String, dynamic> params, Function callback, loadValue) {
+  homePageApiCall(Map<String, dynamic> params, Function callback, loadValue,{bool refresh = false}) {
     Api().call(
       url: ApiConfig.home,
       success: (dio.Response<dynamic> response) {
@@ -143,9 +147,24 @@ class HomeController extends GetxController {
           loadValue.value = false;
           homePageModel.value = HomePageModel.fromJson(response.data);
 
-          // homePageModel.value.data?.updates?.data?.forEach((element) {
-          //   homePostData.add(element);
-          // });
+          if (homePageModel.value.data != null) {
+            if (refresh)
+            {
+              homePostData.clear();
+              likeDataStoreList.clear();
+            }
+
+            homePageModel.value.data?.updates?.data?.forEach((element) {
+              homePostData.add(element);
+              likeDataStoreList
+                  .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+
+              print('homePostData Length = ${homePostData.length}');
+              print('likeDataStoreList Length ==>> ${likeDataStoreList.length}');
+              // likeDataStoreList
+              //     .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+            });
+          }
           callback();
         } catch (e) {
           e.toString();
@@ -300,6 +319,37 @@ class HomeController extends GetxController {
         },
         isPassHeader: true);
   }
+
+
+  /// Get User Data
+
+  Rx<GetUserModel> getUserModel = GetUserModel().obs;
+
+  getUserApiCall(
+      Map<String, dynamic> params,
+      Function callback,
+      ) {
+    Api().call(
+        url: ApiConfig.user,
+        success: (dio.Response<dynamic> response) {
+          try {
+            getUserModel.value = GetUserModel.fromJson(response.data);
+            callback();
+          } catch (e) {
+            e.toString();
+          }
+        },
+        methodType: MethodType.get,
+        isProgressShow: true,
+        params: params,
+        error: (dio.Response<dynamic> response) {
+          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        },
+        isPassHeader: true);
+  }
+
+
+
 }
 
 class LikeDataStore {

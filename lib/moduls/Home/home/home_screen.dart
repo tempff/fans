@@ -46,12 +46,11 @@ List<dynamic> dataList = [];
 RxList<String> videoThumbnail = <String>[].obs;
 String? videoThumbnailTemp;
 RxString lockValue = 'yes'.obs;
+int _page = 1;
 
 late ScrollController _controller;
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _page = 0;
-
   final int _limit = 3;
 
   bool _isFirstLoadRunning = false;
@@ -68,18 +67,23 @@ class _HomeScreenState extends State<HomeScreen> {
       kHomeController.myPostModel.refresh();
     });*/
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      dataList.clear();
+
+    WidgetsBinding.
+    instance.addPostFrameCallback((timeStamp) {
+      Map<String, dynamic> params = {'page': _page};
+      // dataList.clear();
       // kHomeController.likeDataStoreList.clear();
-      kHomeController.homePageApiCall({}, () async {
-        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
+      kHomeController.homePageApiCall(params, () {
+        kHomeController.getUserApiCall({}, () {});
+
+        /*   kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
           dataList.add(element);
         });
 
         kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
           kHomeController.likeDataStoreList
               .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
-        });
+        });*/
 
         // _controller = ScrollController()..addListener(_loadMore);
       }, true.obs);
@@ -97,80 +101,6 @@ class _HomeScreenState extends State<HomeScreen> {
       looping: true,
     );
     videoPlayerController?.setLooping(true);*/ // videoPlayerController?.play();
-  }
-
-  void _firstLoad() {
-    setState(() {
-      _isFirstLoadRunning = true;
-    });
-
-    Map<String, dynamic> params = {'page': _page};
-
-    kHomeController.homePageApiCall(params, () async {
-      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-        dataList.add(element);
-      });
-
-      kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-        kHomeController.likeDataStoreList
-            .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
-      });
-
-      // _controller = ScrollController()..addListener(_loadMore);
-    }, true.obs);
-
-    setState(() {
-      _isFirstLoadRunning = false;
-    });
-  }
-
-  void _loadMore() {
-    if (_hasNextPage == true && _isFirstLoadRunning == false && _isLoadMoreRunning == false && _controller.position.extentAfter < 300) {
-      setState(() {
-        _isLoadMoreRunning = true; // Display a progress indicator at the bottom
-      });
-
-      _page += 1; // Increase _page by 1
-
-      Map<String, dynamic> params = {'page': _page};
-
-      kHomeController.homePageApiCall(params, () async {
-        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-          dataList.add(element);
-        });
-
-        kHomeController.homePageModel.value.data?.updates?.data?.forEach((element) {
-          kHomeController.likeDataStoreList
-              .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
-        });
-      }, true.obs);
-
-      // try {
-      //   final res = await http.get(Uri.parse("$_baseUrl?_page=$_page&_limit=$_limit"));
-      //
-      //   final List fetchedPosts = json.decode(res.body);
-      //   if (fetchedPosts.isNotEmpty) {
-      //     setState(() {
-      //       _posts.addAll(fetchedPosts);
-      //     });
-      //   } else {
-      //     setState(() {
-      //       _hasNextPage = false;
-      //     });
-      //   }
-      // } catch (err) {
-      //   if (kDebugMode) {
-      //     print('Something went wrong!');
-      //   }
-      // }
-
-      setState(() {
-        Timer(
-          const Duration(seconds: 1),
-          () => _isLoadMoreRunning = false,
-        );
-      });
-    }
   }
 
   @override
@@ -395,16 +325,32 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
     onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 1000));
       _refreshController.refreshCompleted();
-      kHomeController.homePageApiCall({}, () async {}, false.obs);
+      _page = 1;
+      Map<String, dynamic> params = {'page': _page};
+      kHomeController.homePageApiCall(params, () async {}, false.obs, refresh: true);
     },
     onLoading: () async {
-      await Future.delayed(const Duration(milliseconds: 1000));
-      // if failed,use loadFailed(),if no data return,use LoadNodata()
-      dataList.add((dataList.length + 1).toString());
+      if (kHomeController.pageLoading == false) {
+        kHomeController.pageLoading == true;
+        if ((kHomeController.homePageModel.value.data?.updates?.currentPage)! <
+            int.parse(kHomeController.homePageModel.value.data?.updates?.lastPage.toString() ?? '1')) {
+          _page += 1;
+          Map<String, dynamic> params = {'page': _page};
+          kHomeController.homePageApiCall(params, () {
+            kHomeController.pageLoading = false;
+            _refreshController.loadComplete();
+            print("Data loaded successfully...");
+          }, false.obs);
+        } else {
+          // _refreshController.loadComplete();
+          _refreshController.loadNoData();
+          Fluttertoast.showToast(msg: 'Page pura thay gya bhai....have bv na hoy');
+        }
+      }
 
       if (mounted) setState;
       print('::::::::::>>>>>>>');
-      _refreshController.loadComplete();
+      // _refreshController.loadComplete();
     },
     child: RawScrollbar(
       thickness: 5.0,
@@ -825,24 +771,24 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
           StreamBuilder<Object>(
               stream: kHomeController.homePageModel.stream,
               builder: (context, snapshot) {
-                return kHomeController.homePageModel.value.data?.updates?.data?.length != null
+                return kHomeController.homePostData.length != null
                     ? ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: value == 'All Post'
                             ? (kHomeController.myPostModel.value.posts?.length ?? 0)
-                            : kHomeController.homePageModel.value.data?.updates?.data?.length ?? 0,
+                            : kHomeController.homePostData.length ?? 0,
                         itemBuilder: (context, index) {
                           return commonPost(
                             context,
                             postIndex: index,
-                            name: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.name,
-                            date: kHomeController.homePageModel.value.data?.updates?.data?[index].date,
-                            price: kHomeController.homePageModel.value.data?.updates?.data?[index].price,
-                            username: kHomeController.homePageModel.value.data?.updates?.data?[index].user?.username,
-                            description: kHomeController.homePageModel.value.data?.updates?.data?[index].description,
-                            likeCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].likeCount ?? 0,
-                            commentsCounts: kHomeController.homePageModel.value.data?.updates?.data?[index].commentCount.toString(),
+                            name: kHomeController.homePostData[index].user?.name,
+                            date: kHomeController.homePostData[index].date,
+                            price: kHomeController.homePostData[index].price,
+                            username: kHomeController.homePostData[index].user?.username,
+                            description: kHomeController.homePostData[index].description,
+                            likeCounts: kHomeController.homePostData[index].likeCount ?? 0,
+                            commentsCounts: kHomeController.homePostData[index].commentCount.toString(),
                           );
                         })
                     : SizedBox(
@@ -1042,14 +988,14 @@ Widget commonPost(BuildContext context,
 
       /// Video Image File
 
-      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
-              kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'video'
+      kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
+              kHomeController.homePostData[postIndex].media?[0].type == 'video'
           ? AspectRatio(
               aspectRatio: 16 / 9,
               child: Chewie(
                 controller: ChewieController(
                   videoPlayerController:
-                      getController(kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaHlsUrl ?? ''),
+                      getController(kHomeController.homePostData[postIndex].media?[0].mediaHlsUrl ?? ''),
                   aspectRatio: 16 / 9,
                   autoPlay: false,
                   autoInitialize: true,
@@ -1061,29 +1007,29 @@ Widget commonPost(BuildContext context,
                   showControls: true,
 
                   // placeholder: Image.network(
-                  //   kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].videoPosterUrl ?? '',
+                  //   kHomeController.homePostData[postIndex].media?[0].videoPosterUrl ?? '',
                   //   fit: BoxFit.cover,
                   // ),
                   looping: true,
                 ),
               ),
             )
-          : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
-                  kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'image'
+          : kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
+                  kHomeController.homePostData[postIndex].media?[0].type == 'image'
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: CachedNetworkImage(
                     fit: BoxFit.fill,
-                    imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].mediaUrl ?? '',
+                    imageUrl: kHomeController.homePostData[postIndex].media?[0].mediaUrl ?? '',
                     placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                     errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                   ),
                 )
-              : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
-                      kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'audio'
+              : kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
+                      kHomeController.homePostData[postIndex].media?[0].type == 'audio'
                   ? Container()
-                  : kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?.isNotEmpty == true &&
-                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].media?[0].type == 'file'
+                  : kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
+                          kHomeController.homePostData[postIndex].media?[0].type == 'file'
                       ? const Icon(
                           Icons.folder_zip,
                           size: 80,
@@ -1333,12 +1279,12 @@ postChangesData(BuildContext context, int postIndex, String? name, String? price
             ClipOval(
               child: SizedBox.fromSize(
                 size: const Size.fromRadius(35), // Image radius
-                child: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl?.isNotEmpty == true
+                child: kHomeController.homePostData[postIndex].user?.avatarUrl?.isNotEmpty == true
                     ? CachedNetworkImage(
                         height: 40.0,
                         width: 40.0,
                         fit: BoxFit.fill,
-                        imageUrl: kHomeController.homePageModel.value.data?.updates?.data?[postIndex].user?.avatarUrl ?? '',
+                        imageUrl: kHomeController.homePostData[postIndex].user?.avatarUrl ?? '',
                         placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                         errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
                       )
@@ -1617,16 +1563,17 @@ commentSection(int postIndex) {
                           onFieldSubmit: (value) {
                             FocusManager.instance.primaryFocus?.unfocus();
                             Map<String, dynamic> params = {
-                              'update_id': kHomeController.homePageModel.value.data?.updates?.data?[postIndex].id.toString(),
+                              'update_id': kHomeController.homePostData[postIndex].id.toString(),
                               'comment': postCommentController[postIndex].value.text
                             };
                             kHomeController.postCommentApiCall(params, () {
-                              kHomeController.homePageApiCall({}, () {}, false);
+                              Map<String, dynamic> params = {'page': _page};
+                              kHomeController.homePageApiCall(params, () {}, false);
                             });
                           });
                 })
             : const SizedBox(),
-        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment != null && commentValue.value == true
+        kHomeController.homePostData[postIndex].latestComment != null && commentValue.value == true
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1634,14 +1581,14 @@ commentSection(int postIndex) {
                     children: [
                       5.widthBox,
                       Text(
-                        kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment?.user?.username ?? '',
+                        kHomeController.homePostData[postIndex].latestComment?.user?.username ?? '',
                         overflow: TextOverflow.ellipsis,
                         style: greyInter18W500.copyWith(color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
                       ),
                       5.widthBox,
                       Expanded(
                         child: Text(
-                          kHomeController.homePageModel.value.data?.updates?.data?[postIndex].latestComment?.reply ?? '',
+                          kHomeController.homePostData[postIndex].latestComment?.reply ?? '',
                           overflow: TextOverflow.ellipsis,
                           style: greyInter18W500.copyWith(
                               color: isDarkOn.value == true ? colorLightWhite : colorGrey, fontWeight: FontWeight.w400, fontSize: 16),
