@@ -46,7 +46,8 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            myPostModel.value = MyPostModel.fromJson(json.decode(response.data));
+            myPostModel.value =
+                MyPostModel.fromJson(json.decode(response.data));
             print('><><><><>${myPostModel.value}');
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -94,7 +95,8 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            addBookMarkModel.value = AddBookmarkModel.fromJson(json.decode(response.data));
+            addBookMarkModel.value =
+                AddBookmarkModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -118,7 +120,8 @@ class HomeController extends GetxController {
     Api().call(
         success: (dio.Response<dynamic> response) {
           try {
-            pinPostModel.value = PinPostModel.fromJson(json.decode(response.data));
+            pinPostModel.value =
+                PinPostModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             Fluttertoast.showToast(msg: e.toString());
@@ -139,7 +142,8 @@ class HomeController extends GetxController {
   Rx<HomePageModel> homePageModel = HomePageModel().obs;
   RxList<Datum> homePostData = <Datum>[].obs;
 
-  homePageApiCall(Map<String, dynamic> params, Function callback, loadValue,{bool refresh = false}) {
+  homePageApiCall(Map<String, dynamic> params, Function callback, loadValue,
+      {bool refresh = false}) {
     Api().call(
       url: ApiConfig.home,
       success: (dio.Response<dynamic> response) {
@@ -148,19 +152,22 @@ class HomeController extends GetxController {
           homePageModel.value = HomePageModel.fromJson(response.data);
 
           if (homePageModel.value.data != null) {
-            if (refresh)
-            {
+            if (refresh) {
               homePostData.clear();
               likeDataStoreList.clear();
             }
 
             homePageModel.value.data?.updates?.data?.forEach((element) {
               homePostData.add(element);
-              likeDataStoreList
-                  .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
+              likeDataStoreList.add(LikeDataStore(
+                  id: element.id,
+                  isLiked: element.isLiked,
+                  likeCount: element.likeCount,
+                  isBookmark: element.isBookmarked));
 
               print('homePostData Length = ${homePostData.length}');
-              print('likeDataStoreList Length ==>> ${likeDataStoreList.length}');
+              print(
+                  'likeDataStoreList Length ==>> ${likeDataStoreList.length}');
               // likeDataStoreList
               //     .add(LikeDataStore(id: element.id, isLiked: element.isLiked, likeCount: element.likeCount, isBookmark: element.isBookmarked));
             });
@@ -173,7 +180,9 @@ class HomeController extends GetxController {
       isPassHeader: true,
       methodType: MethodType.get,
       error: (dio.Response<dynamic> response) {
-        Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        Fluttertoast.showToast(
+            msg: json.decode(response.statusMessage ?? ''),
+            toastLength: Toast.LENGTH_LONG);
       },
       isProgressShow: loadValue.value == true ? true : false,
       params: params,
@@ -192,7 +201,8 @@ class HomeController extends GetxController {
       url: ApiConfig.postLike,
       success: (dio.Response<dynamic> response) {
         try {
-          postLikeModel.value = PostLikeModel.fromJson(json.decode(response.data));
+          postLikeModel.value =
+              PostLikeModel.fromJson(json.decode(response.data));
           callback();
         } catch (e) {
           e.toString();
@@ -201,7 +211,9 @@ class HomeController extends GetxController {
       isPassHeader: true,
       methodType: MethodType.post,
       error: (dio.Response<dynamic> response) {
-        Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+        Fluttertoast.showToast(
+            msg: json.decode(response.statusMessage ?? ''),
+            toastLength: Toast.LENGTH_LONG);
       },
       isProgressShow: false,
       params: params,
@@ -220,7 +232,8 @@ class HomeController extends GetxController {
         url: ApiConfig.postComment,
         success: (dio.Response<dynamic> response) {
           try {
-            postCommentModel.value = PostCommentModel.fromJson(json.decode(response.data));
+            postCommentModel.value =
+                PostCommentModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             e.toString();
@@ -230,7 +243,9 @@ class HomeController extends GetxController {
         isProgressShow: true,
         params: params,
         error: (dio.Response<dynamic> response) {
-          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+          Fluttertoast.showToast(
+              msg: json.decode(response.statusMessage ?? ''),
+              toastLength: Toast.LENGTH_LONG);
         },
         isPassHeader: true);
   }
@@ -247,7 +262,8 @@ class HomeController extends GetxController {
         url: ApiConfig.uploadMedia,
         success: (dio.Response<dynamic> response) {
           try {
-            uploadMediaModel.value = UploadMediaModel.fromJson(json.decode(response.data));
+            uploadMediaModel.value =
+                UploadMediaModel.fromJson(json.decode(response.data));
             callback();
           } catch (e) {
             e.toString();
@@ -257,7 +273,9 @@ class HomeController extends GetxController {
         isProgressShow: true,
         formValues: formData,
         error: (dio.Response<dynamic> response) {
-          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+          Fluttertoast.showToast(
+              msg: json.decode(response.statusMessage ?? ''),
+              toastLength: Toast.LENGTH_LONG);
         },
         isPassHeader: true);
   }
@@ -274,7 +292,8 @@ class HomeController extends GetxController {
         url: ApiConfig.updateCreate,
         success: (dio.Response<dynamic> response) {
           try {
-            uploadCreateModel.value = UploadCreateModel.fromJson(json.decode(response.data));
+            uploadCreateModel.value =
+                UploadCreateModel.fromJson(json.decode(response.data));
             /*  uploadMediaModel.value.success == false{
 
             }*/
@@ -287,7 +306,10 @@ class HomeController extends GetxController {
         isProgressShow: true,
         params: params,
         error: (dio.Response<dynamic> response) {
-          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+          print(response);
+          Fluttertoast.showToast(
+              msg: json.decode(response.statusMessage ?? ''),
+              toastLength: Toast.LENGTH_LONG);
         },
         isPassHeader: true);
   }
@@ -315,20 +337,21 @@ class HomeController extends GetxController {
         isProgressShow: false,
         params: params,
         error: (dio.Response<dynamic> response) {
-          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+          Fluttertoast.showToast(
+              msg: json.decode(response.statusMessage ?? ''),
+              toastLength: Toast.LENGTH_LONG);
         },
         isPassHeader: true);
   }
-
 
   /// Get User Data
 
   Rx<GetUserModel> getUserModel = GetUserModel().obs;
 
   getUserApiCall(
-      Map<String, dynamic> params,
-      Function callback,
-      ) {
+    Map<String, dynamic> params,
+    Function callback,
+  ) {
     Api().call(
         url: ApiConfig.user,
         success: (dio.Response<dynamic> response) {
@@ -343,13 +366,12 @@ class HomeController extends GetxController {
         isProgressShow: true,
         params: params,
         error: (dio.Response<dynamic> response) {
-          Fluttertoast.showToast(msg: json.decode(response.statusMessage ?? ''), toastLength: Toast.LENGTH_LONG);
+          Fluttertoast.showToast(
+              msg: json.decode(response.statusMessage ?? ''),
+              toastLength: Toast.LENGTH_LONG);
         },
         isPassHeader: true);
   }
-
-
-
 }
 
 class LikeDataStore {

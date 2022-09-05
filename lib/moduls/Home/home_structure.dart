@@ -1,3 +1,4 @@
+import 'package:fans/moduls/Home/example.dart';
 import 'package:fans/moduls/Home/home/my_posts_screen.dart';
 import 'package:fans/moduls/Home/home/pagination_demo.dart';
 import 'package:fans/moduls/Home/home/search_screen.dart';
@@ -33,9 +34,11 @@ class HomeStructureView extends StatefulWidget {
 RxInt tabSelectedIndex = 0.obs;
 
 class _HomeStructureViewState extends State<HomeStructureView> {
-  static const List<Widget> _widgetOptions = <Widget>[
+  static List<Widget> _widgetOptions = <Widget>[
     /*PaginationDemo()*/
     HomeScreen(),
+
+    // BasicPlayerPage(),
     ExploreScreen(),
     ChatScreen(),
     NotificationScreen(),

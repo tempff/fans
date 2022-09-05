@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:better_player/better_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:fans/moduls/Home/home/goto_post_screen.dart';
@@ -11,15 +11,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:http_parser/http_parser.dart';
 
 import 'package:lottie/lottie.dart';
+import 'package:mime/mime.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../utility/theme_data.dart';
 import '../../../utility/utility_export.dart';
-import 'controller/home_controller.dart';
 import 'package:dio/dio.dart' as dio;
 
 class HomeScreen extends StatefulWidget {
@@ -30,7 +31,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-VideoPlayerController? videoPlayerController;
+// VideoPlayerController? videoPlayerController;
 Future<void>? videoPlayerFuture;
 ChewieController? chewieController;
 File? zipFileData;
@@ -46,6 +47,7 @@ List<dynamic> dataList = [];
 RxList<String> videoThumbnail = <String>[].obs;
 String? videoThumbnailTemp;
 RxString lockValue = 'yes'.obs;
+BetterPlayerController? betterPlayerController;
 int _page = 1;
 
 late ScrollController _controller;
@@ -67,9 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       kHomeController.myPostModel.refresh();
     });*/
 
-
-    WidgetsBinding.
-    instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Map<String, dynamic> params = {'page': _page};
       // dataList.clear();
       // kHomeController.likeDataStoreList.clear();
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     chewieController?.dispose();
-    videoPlayerController?.dispose();
+    betterPlayerController?.dispose();
     super.dispose();
   }
 
@@ -136,7 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-void actionPopUpItemSelected(String value, String? name, BuildContext context, int? id, String? description, String? image) {
+void actionPopUpItemSelected(String value, String? name, BuildContext context,
+    int? id, String? description, String? image) {
   // kHomeController.scaffoldkey.currentState?.hideCurrentSnackBar();
   String message;
   if (value == 'GoToPost') {
@@ -161,7 +162,9 @@ void pinYourProfile(int? id) {
     'id': id,
   };
   kHomeController.pinPostApiCall(params, () {
-    Fluttertoast.showToast(msg: kHomeController.pinPostModel.value.status ?? '', toastLength: Toast.LENGTH_LONG);
+    Fluttertoast.showToast(
+        msg: kHomeController.pinPostModel.value.status ?? '',
+        toastLength: Toast.LENGTH_LONG);
   });
 }
 
@@ -245,7 +248,8 @@ Future<void> editPost(
                       background: MaterialStateProperty.all(deepPurpleColor),
                       text: 'Save',
                       height: 45.0,
-                      textStyle: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite)),
+                      textStyle: FontStyleUtility.blackInter16W500
+                          .copyWith(color: colorWhite)),
                 ],
               ),
             ],
@@ -287,7 +291,8 @@ Future deletePost(BuildContext context) {
               SizedBox(
                 width: 160,
                 child: materialButton(
-                    background: MaterialStateProperty.all(deepPurpleColor.withOpacity(0.5)),
+                    background: MaterialStateProperty.all(
+                        deepPurpleColor.withOpacity(0.5)),
                     textStyle: const TextStyle(color: colorWhite),
                     text: 'No cancel !',
                     onTap: () {
@@ -314,7 +319,8 @@ Future deletePost(BuildContext context) {
   );
 }
 
-Widget homeViewData(bool? visible, BuildContext context, String? value, void setState, bool mounted) {
+Widget homeViewData(bool? visible, BuildContext context, String? value,
+    void setState, bool mounted) {
   RxBool isExpansionTileOpen = false.obs;
 
   return SmartRefresher(
@@ -327,13 +333,17 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
       _refreshController.refreshCompleted();
       _page = 1;
       Map<String, dynamic> params = {'page': _page};
-      kHomeController.homePageApiCall(params, () async {}, false.obs, refresh: true);
+      kHomeController.homePageApiCall(params, () async {}, false.obs,
+          refresh: true);
     },
     onLoading: () async {
       if (kHomeController.pageLoading == false) {
         kHomeController.pageLoading == true;
         if ((kHomeController.homePageModel.value.data?.updates?.currentPage)! <
-            int.parse(kHomeController.homePageModel.value.data?.updates?.lastPage.toString() ?? '1')) {
+            int.parse(kHomeController
+                    .homePageModel.value.data?.updates?.lastPage
+                    .toString() ??
+                '1')) {
           _page += 1;
           Map<String, dynamic> params = {'page': _page};
           kHomeController.homePageApiCall(params, () {
@@ -344,7 +354,7 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
         } else {
           // _refreshController.loadComplete();
           _refreshController.loadNoData();
-          Fluttertoast.showToast(msg: 'Page pura thay gya bhai....have bv na hoy');
+          // Fluttertoast.showToast(msg: 'Page pura thay gya bhai....have bv na hoy');
         }
       }
 
@@ -482,7 +492,8 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                         ? Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 5.0).copyWith(bottom: 10.0),
+                              margin: const EdgeInsets.symmetric(vertical: 5.0)
+                                  .copyWith(bottom: 10.0),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -504,7 +515,8 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                             zipBool.value = false;
                                             zipFileData = null;
                                           },
-                                          icon: const Icon(Icons.highlight_remove_sharp)),
+                                          icon: const Icon(
+                                              Icons.highlight_remove_sharp)),
                                     ),
                                   )
                                 ],
@@ -523,49 +535,84 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                               return Align(
                                 alignment: Alignment.centerLeft,
                                 child: ListView.builder(
-                                    itemCount: (kHomeController.imageFileList.length) + 1,
+                                    itemCount:
+                                        (kHomeController.imageFileList.length) +
+                                            1,
                                     physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
-                                      return index != kHomeController.imageFileList.length
+                                      return index !=
+                                              kHomeController
+                                                  .imageFileList.length
                                           ? Stack(
                                               children: [
                                                 Container(
-                                                    margin: const EdgeInsets.only(right: 12, top: 5),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            right: 12, top: 5),
                                                     child: Center(
-                                                      child: kHomeController.imageFileList[index].path.endsWith(".mp3") ||
-                                                              kHomeController.imageFileList[index].path.endsWith(".mpeg")
+                                                      child: kHomeController.imageFileList[index].path
+                                                                  .endsWith(
+                                                                      ".mp3") ||
+                                                              kHomeController
+                                                                  .imageFileList[
+                                                                      index]
+                                                                  .path
+                                                                  .endsWith(
+                                                                      ".mpeg")
                                                           ? Container(
                                                               height: 130,
                                                               width: 130,
-                                                              color: lightPurpleColor,
+                                                              color:
+                                                                  lightPurpleColor,
                                                               child: Column(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
                                                                 children: [
                                                                   const Expanded(
                                                                     flex: 3,
                                                                     child: Icon(
-                                                                      Icons.music_note_sharp,
-                                                                      size: 50.0,
-                                                                      color: colorWhite,
+                                                                      Icons
+                                                                          .music_note_sharp,
+                                                                      size:
+                                                                          50.0,
+                                                                      color:
+                                                                          colorWhite,
                                                                     ),
                                                                   ),
                                                                   Expanded(
                                                                       flex: 1,
-                                                                      child: Text(
+                                                                      child:
+                                                                          Text(
                                                                         '${kHomeController.imageFileList[index].path.split('/').last}',
-                                                                        overflow: TextOverflow.ellipsis,
-                                                                        style: FontStyleUtility.whiteInter16W500,
-                                                                      ).paddingSymmetric(horizontal: 5.0))
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style: FontStyleUtility
+                                                                            .whiteInter16W500,
+                                                                      ).paddingSymmetric(
+                                                                              horizontal: 5.0))
                                                                 ],
                                                               ),
                                                             )
                                                           : kHomeController.imageFileList[index].path.endsWith(".mp4") == true ||
-                                                                  kHomeController.imageFileList[index].path.endsWith(".avi") ||
-                                                                  kHomeController.imageFileList[index].path.endsWith(".3gp") ||
-                                                                  kHomeController.imageFileList[index].path.endsWith(".mkv") ||
-                                                                  kHomeController.imageFileList[index].path.endsWith(".flv")
+                                                                  kHomeController.imageFileList[index].path
+                                                                      .endsWith(
+                                                                          ".avi") ||
+                                                                  kHomeController.imageFileList[index].path
+                                                                      .endsWith(
+                                                                          ".3gp") ||
+                                                                  kHomeController
+                                                                      .imageFileList[
+                                                                          index]
+                                                                      .path
+                                                                      .endsWith(
+                                                                          ".mkv") ||
+                                                                  kHomeController
+                                                                      .imageFileList[index]
+                                                                      .path
+                                                                      .endsWith(".flv")
                                                               ? videoThumbnail.length >= index
                                                                   ? StreamBuilder<Object>(
                                                                       stream: videoThumbnail.stream,
@@ -591,16 +638,27 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                                                       })
                                                                   : const SizedBox()
                                                               : Image.file(
-                                                                  File(kHomeController.imageFileList[index].path),
-                                                                  errorBuilder: (context, error, stackTrace) => const Padding(
-                                                                    padding: EdgeInsets.all(15),
+                                                                  File(kHomeController
+                                                                      .imageFileList[
+                                                                          index]
+                                                                      .path),
+                                                                  errorBuilder: (context,
+                                                                          error,
+                                                                          stackTrace) =>
+                                                                      const Padding(
+                                                                    padding:
+                                                                        EdgeInsets.all(
+                                                                            15),
                                                                     child: Icon(
-                                                                      Icons.play_arrow,
-                                                                      color: colorWhite,
+                                                                      Icons
+                                                                          .play_arrow,
+                                                                      color:
+                                                                          colorWhite,
                                                                       size: 30,
                                                                     ),
                                                                   ),
-                                                                  fit: BoxFit.cover,
+                                                                  fit: BoxFit
+                                                                      .cover,
                                                                   width: 130,
                                                                 ),
                                                     )),
@@ -608,11 +666,17 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                                   top: 5,
                                                   right: 5,
                                                   child: IconButton(
-                                                    visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+                                                    visualDensity:
+                                                        const VisualDensity(
+                                                            vertical: VisualDensity
+                                                                .minimumDensity),
                                                     padding: EdgeInsets.zero,
                                                     onPressed: () {
-                                                      kHomeController.imageFileList.removeAt(index);
-                                                      videoThumbnail.removeAt(index);
+                                                      kHomeController
+                                                          .imageFileList
+                                                          .removeAt(index);
+                                                      videoThumbnail
+                                                          .removeAt(index);
                                                     },
                                                     icon: const Icon(
                                                       Icons.remove_circle,
@@ -624,7 +688,11 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                             )
                                           : InkWell(
                                               onTap: () async {
-                                                FilePickerResult? result = await FilePicker.platform.pickFiles(allowMultiple: true);
+                                                FilePickerResult? result =
+                                                    await FilePicker.platform
+                                                        .pickFiles(
+                                                            allowMultiple:
+                                                                true);
 
                                                 // if (result != null) {
                                                 //   kHomeController.selectedImages?.value = result.paths.map((path) => XFile(path ?? '')).toList();
@@ -633,16 +701,40 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                                 //   // User canceled the picker
 
                                                 if (result != null) {
-                                                  for (var element in result.files) {
-                                                    await videoImage(element.path ?? '');
-                                                    kHomeController.imageFileList
-                                                        .addIf(kHomeController.imageFileList.contains(element) == false, element);
+                                                  for (var element
+                                                      in result.files) {
+                                                    await videoImage(
+                                                        element.path ?? '');
+                                                    kHomeController
+                                                        .imageFileList
+                                                        .addIf(
+                                                            kHomeController
+                                                                    .imageFileList
+                                                                    .contains(
+                                                                        element) ==
+                                                                false,
+                                                            element);
                                                     if (element.path != null) {
-                                                      dio.FormData formData = dio.FormData.fromMap({
-                                                        "photo": await dio.MultipartFile.fromFile(element.path!),
+                                                      final mime =
+                                                          lookupMimeType(
+                                                              element.path!);
+                                                      dio.FormData formData =
+                                                          dio.FormData.fromMap({
+                                                        "photo": await dio
+                                                                .MultipartFile
+                                                            .fromFile(
+                                                                element.path!,
+                                                                filename:
+                                                                    element
+                                                                        .name,
+                                                                contentType: MediaType
+                                                                    .parse(mime
+                                                                        .toString())),
                                                       });
 
-                                                      await kHomeController.uploadMediaApiCall(formData, () {});
+                                                      await kHomeController
+                                                          .uploadMediaApiCall(
+                                                              formData, () {});
                                                     }
                                                   }
                                                 }
@@ -656,14 +748,27 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                               },
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(20.0),
-                                                    border:
-                                                        Border.all(color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
-                                                margin: const EdgeInsets.only(right: 12),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
+                                                    border: Border.all(
+                                                        color: isDarkOn.value ==
+                                                                true
+                                                            ? colorLightWhite
+                                                            : colorBlack
+                                                                .withOpacity(
+                                                                    0.5))),
+                                                margin: const EdgeInsets.only(
+                                                    right: 12),
                                                 width: 130,
                                                 child: Center(
                                                     child: Icon(Icons.add,
-                                                        color: isDarkOn.value == true ? colorLightWhite : colorBlack.withOpacity(0.5))),
+                                                        color: isDarkOn.value ==
+                                                                true
+                                                            ? colorLightWhite
+                                                            : colorBlack
+                                                                .withOpacity(
+                                                                    0.5))),
                                               ),
                                             );
                                     }),
@@ -676,21 +781,28 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                 () => Row(
                   children: [
                     IconButton(
-                      visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+                      visualDensity: const VisualDensity(
+                          vertical: VisualDensity.minimumDensity),
                       padding: EdgeInsets.zero,
                       onPressed: () {
-                        kHomeController.imageShowing.value = !kHomeController.imageShowing.value;
+                        kHomeController.imageShowing.value =
+                            !kHomeController.imageShowing.value;
                       },
                       icon: Icon(
                         Icons.image_outlined,
-                        color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                        color: isDarkOn.value == true
+                            ? colorWhite
+                            : deepPurpleColor,
                         size: 25,
                       ),
                     ),
                     20.widthBox,
                     IconButton(
                       onPressed: () async {
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['zip']);
+                        FilePickerResult? result = await FilePicker.platform
+                            .pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['zip']);
                         if (result != null) {
                           zipFileData = File(result.files.single.path ?? '');
                           zipFileData != null ? zipBool.value = true : false;
@@ -701,18 +813,26 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                       },
                       icon: Icon(
                         Icons.folder_zip_outlined,
-                        color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                        color: isDarkOn.value == true
+                            ? colorWhite
+                            : deepPurpleColor,
                         size: 25,
                       ),
                     ),
                     20.widthBox,
                     IconButton(
                       onPressed: () {
-                        lockValue.value == 'yes' ? lockValue.value = 'no' : lockValue.value = 'yes';
+                        lockValue.value == 'yes'
+                            ? lockValue.value = 'no'
+                            : lockValue.value = 'yes';
                       },
                       icon: Icon(
-                        lockValue.value == 'yes' ? Icons.lock_outline : Icons.lock_open,
-                        color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                        lockValue.value == 'yes'
+                            ? Icons.lock_outline
+                            : Icons.lock_open,
+                        color: isDarkOn.value == true
+                            ? colorWhite
+                            : deepPurpleColor,
                         size: 25,
                       ),
                     ),
@@ -721,9 +841,11 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: materialButton(
-                            background: MaterialStateProperty.all(lightPurpleColor),
+                            background:
+                                MaterialStateProperty.all(lightPurpleColor),
                             text: 'Publish',
                             onTap: () async {
+                              print(postTextController.value.text.toString());
                               await analytics.logEvent(
                                 name: "select_content",
                                 parameters: {
@@ -732,19 +854,38 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                                 },
                               );
 
+                              // videoParamsList.add(VideoParams(
+                              //     key: 'file',
+                              //     value: kHomeController.uploadMediaModel.value
+                              //             .data?.files?[0]?.name ??
+                              //         ''));
+                              String fileString = '';
+                              for (final e in kHomeController
+                                  .uploadMediaModel.value.data!.files as List) {
+                                fileString += "{\"file\": \"${e.name}\"},";
+                              }
+                              if (fileString != "") {
+                                fileString = fileString.substring(
+                                    0, fileString.length - 1);
+                              }
+
                               Map<String, dynamic> params = {
-                                'description': postTextController.text.toString(),
+                                "description":
+                                    postTextController.value.text.toString(),
                                 'price': 1000,
-                                'fileuploader-list-photo': [
-                                  {"file": kHomeController.uploadMediaModel.value.data?.files?[0]?.name}
-                                ],
-                                'locked': lockValue.value.text
+                                'fileuploader-list-photo': "[$fileString]",
+                                'locked': lockValue.value
                               };
-                              kHomeController.uploadCreateApiCall(params, () {});
+
+                              kHomeController.uploadCreateApiCall(params,
+                                  (resp) {
+                                print(resp);
+                              });
                             },
                             height: 40.0,
                             width: 120,
-                            textStyle: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite, fontSize: 15)),
+                            textStyle: FontStyleUtility.blackInter16W500
+                                .copyWith(color: colorWhite, fontSize: 15)),
                       ),
                     ),
                   ],
@@ -758,7 +899,8 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                       builder: (context, snapshot) {
                         return Text(
                           '${postText.value.length}/5000',
-                          style: FontStyleUtility.greyInter14W500.copyWith(fontWeight: FontWeight.w400),
+                          style: FontStyleUtility.greyInter14W500
+                              .copyWith(fontWeight: FontWeight.w400),
                         );
                       }))
             ],
@@ -776,19 +918,28 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: value == 'All Post'
-                            ? (kHomeController.myPostModel.value.posts?.length ?? 0)
+                            ? (kHomeController
+                                    .myPostModel.value.posts?.length ??
+                                0)
                             : kHomeController.homePostData.length ?? 0,
                         itemBuilder: (context, index) {
                           return commonPost(
                             context,
                             postIndex: index,
-                            name: kHomeController.homePostData[index].user?.name,
+                            name:
+                                kHomeController.homePostData[index].user?.name,
                             date: kHomeController.homePostData[index].date,
                             price: kHomeController.homePostData[index].price,
-                            username: kHomeController.homePostData[index].user?.username,
-                            description: kHomeController.homePostData[index].description,
-                            likeCounts: kHomeController.homePostData[index].likeCount ?? 0,
-                            commentsCounts: kHomeController.homePostData[index].commentCount.toString(),
+                            username: kHomeController
+                                .homePostData[index].user?.username,
+                            description:
+                                kHomeController.homePostData[index].description,
+                            likeCounts:
+                                kHomeController.homePostData[index].likeCount ??
+                                    0,
+                            commentsCounts: kHomeController
+                                .homePostData[index].commentCount
+                                .toString(),
                           );
                         })
                     : SizedBox(
@@ -798,14 +949,18 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
                           children: [
                             Icon(
                               Icons.image_not_supported,
-                              color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
+                              color: isDarkOn.value == true
+                                  ? colorLightWhite
+                                  : colorGreyOpacity30,
                               size: 65.0,
                             ),
                             Text(
                               'No Post Posted',
                               style: blackInter15W500.copyWith(
                                 fontSize: 20,
-                                color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
+                                color: isDarkOn.value == true
+                                    ? colorLightWhite
+                                    : colorGreyOpacity30,
                               ),
                             )
                           ],
@@ -818,8 +973,21 @@ Widget homeViewData(bool? visible, BuildContext context, String? value, void set
   );
 }
 
+List<VideoParams> videoParamsList = <VideoParams>[];
+
+class VideoParams {
+  String key;
+  String value;
+
+  VideoParams({required this.key, required this.value});
+}
+
 Future videoImage(String path) async {
-  if (path.endsWith(".mp4") || path.endsWith(".avi") || path.endsWith(".3gp") || path.endsWith(".mkv") || path.endsWith(".flv")) {
+  if (path.endsWith(".mp4") ||
+      path.endsWith(".avi") ||
+      path.endsWith(".3gp") ||
+      path.endsWith(".mkv") ||
+      path.endsWith(".flv")) {
     videoThumbnailTemp = await VideoThumbnail.thumbnailFile(
       video: path,
       imageFormat: ImageFormat.JPEG,
@@ -828,7 +996,8 @@ Future videoImage(String path) async {
       quality: 100,
     );
 
-    videoThumbnail.addIf(videoThumbnail.contains(videoThumbnailTemp) == false, videoThumbnailTemp ?? path);
+    videoThumbnail.addIf(videoThumbnail.contains(videoThumbnailTemp) == false,
+        videoThumbnailTemp ?? path);
 
     print('ioioi${videoThumbnail}');
     // return videoThumbnail;
@@ -880,7 +1049,8 @@ Widget exploreCreatorData() {
                               ),
                             ),
                             color: const Color(0xff7c94b6),
-                            borderRadius: const BorderRadius.all(Radius.circular(50.0)),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(50.0)),
                             border: Border.all(
                               color: colorWhite,
                               width: 2.0,
@@ -896,7 +1066,11 @@ Widget exploreCreatorData() {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: const [
-                                Text('Gym Guy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorWhite)),
+                                Text('Gym Guy',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: colorWhite)),
                                 Icon(
                                   Icons.verified_outlined,
                                   color: colorWhite,
@@ -992,7 +1166,7 @@ Widget commonPost(BuildContext context,
               kHomeController.homePostData[postIndex].media?[0].type == 'video'
           ? AspectRatio(
               aspectRatio: 16 / 9,
-              child: Chewie(
+              child: /*Chewie(
                 controller: ChewieController(
                   videoPlayerController:
                       getController(kHomeController.homePostData[postIndex].media?[0].mediaHlsUrl ?? ''),
@@ -1012,30 +1186,53 @@ Widget commonPost(BuildContext context,
                   // ),
                   looping: true,
                 ),
-              ),
+              ),*/
+                  /*    BetterPlayerListVideoPlayer(
+                betterPlayerListVideoPlayerController: c,
+                BetterPlayerDataSource(BetterPlayerDataSourceType.network, kHomeController.homePostData[postIndex].media?[0].mediaHlsUrl ?? ''),
+                key: Key(kHomeController.homePostData[postIndex].media?[0].mediaHlsUrl ?? ''),
+                playFraction: 0.8,
+                autoPlay: true,
+              ),*/
+                  // VideoPlayerController()
+
+                  BetterPlayer.network(
+                      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'),
             )
           : kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
-                  kHomeController.homePostData[postIndex].media?[0].type == 'image'
+                  kHomeController.homePostData[postIndex].media?[0].type ==
+                      'image'
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: CachedNetworkImage(
                     fit: BoxFit.fill,
-                    imageUrl: kHomeController.homePostData[postIndex].media?[0].mediaUrl ?? '',
-                    placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                    errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                    imageUrl: kHomeController
+                            .homePostData[postIndex].media?[0].mediaUrl ??
+                        '',
+                    placeholder: (context, url) =>
+                        Image(image: profilePlaceholder, fit: BoxFit.cover),
+                    errorWidget: (context, url, error) =>
+                        Image(image: profilePlaceholder, fit: BoxFit.cover),
                   ),
                 )
-              : kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
-                      kHomeController.homePostData[postIndex].media?[0].type == 'audio'
+              : kHomeController.homePostData[postIndex].media?.isNotEmpty ==
+                          true &&
+                      kHomeController.homePostData[postIndex].media?[0].type ==
+                          'audio'
                   ? Container()
-                  : kHomeController.homePostData[postIndex].media?.isNotEmpty == true &&
-                          kHomeController.homePostData[postIndex].media?[0].type == 'file'
+                  : kHomeController.homePostData[postIndex].media?.isNotEmpty ==
+                              true &&
+                          kHomeController
+                                  .homePostData[postIndex].media?[0].type ==
+                              'file'
                       ? const Icon(
                           Icons.folder_zip,
                           size: 80,
                           color: deepPurpleColor,
                         )
-                      : ClipRRect(borderRadius: BorderRadius.circular(10), child: const SizedBox()),
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: const SizedBox()),
       5.heightBox,
 
       /// Post Options
@@ -1057,21 +1254,33 @@ Widget commonPost(BuildContext context,
   );
 }
 
-double getVideoHeight(url) {
+/*double getVideoHeight(url) {
   videoPlayerController = VideoPlayerController.network(url);
   return videoPlayerController?.value.size.height ?? 250;
-}
+}*/
 
-VideoPlayerController getController(url) {
+VideoPlayerController() {
   // videoPlayerController = VideoPlayerController.network(url);
-  return videoPlayerController ?? VideoPlayerController.network(url);
+
+  /*BetterPlayerDataSource betterPlayerDataSource =*/ BetterPlayerDataSource(
+      BetterPlayerDataSourceType.network,
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+  betterPlayerController = BetterPlayerController(
+    const BetterPlayerConfiguration(
+        autoPlay: true,
+        aspectRatio: 16 / 9), /*betterPlayerDataSource: betterPlayerDataSource*/
+  );
+
+  // return videoPlayerController ?? VideoPlayerController.network(url);
+
+  // return _betterPlayerDataSource;
 }
 
-double getRatio(url) {
+/*double getRatio(url) {
   videoPlayerController = VideoPlayerController.network(url);
   print('---- ${videoPlayerController?.value.aspectRatio}');
   return videoPlayerController?.value.aspectRatio ?? 0.0;
-}
+}*/
 
 postOptions(
   BuildContext context,
@@ -1099,28 +1308,44 @@ postOptions(
                                               .isLiked ??
                                           false);*/
 
-              Map<String, dynamic> params = {'id': kHomeController.likeDataStoreList[postIndex].id};
+              Map<String, dynamic> params = {
+                'id': kHomeController.likeDataStoreList[postIndex].id
+              };
               kHomeController.postLikeApiCall(params, () {
                 // kHomeController.homePageApiCall({}, () {}, false);
 
-                kHomeController.likeDataStoreList[postIndex].isLiked = kHomeController.postLikeModel.value.data!.liked;
+                kHomeController.likeDataStoreList[postIndex].isLiked =
+                    kHomeController.postLikeModel.value.data!.liked;
 
-                if (kHomeController.likeDataStoreList[postIndex].isLiked ?? true) {
-                  kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) + 1;
-                } else if ((kHomeController.likeDataStoreList[postIndex].likeCount ?? 0) > 0) {
-                  kHomeController.likeDataStoreList[postIndex].likeCount = (kHomeController.likeDataStoreList[postIndex].likeCount ?? 1) - 1;
+                if (kHomeController.likeDataStoreList[postIndex].isLiked ??
+                    true) {
+                  kHomeController.likeDataStoreList[postIndex].likeCount =
+                      (kHomeController.likeDataStoreList[postIndex].likeCount ??
+                              0) +
+                          1;
+                } else if ((kHomeController
+                            .likeDataStoreList[postIndex].likeCount ??
+                        0) >
+                    0) {
+                  kHomeController.likeDataStoreList[postIndex].likeCount =
+                      (kHomeController.likeDataStoreList[postIndex].likeCount ??
+                              1) -
+                          1;
                 }
                 kHomeController.likeDataStoreList.refresh();
               });
             },
             icon: Icon(
-              kHomeController.likeDataStoreList[postIndex].isLiked == true ? CupertinoIcons.heart_fill : CupertinoIcons.suit_heart,
+              kHomeController.likeDataStoreList[postIndex].isLiked == true
+                  ? CupertinoIcons.heart_fill
+                  : CupertinoIcons.suit_heart,
               size: 25,
-              color: kHomeController.likeDataStoreList[postIndex].isLiked == true
-                  ? colorRed
-                  : isDarkOn.value == true
-                      ? colorLightWhite
-                      : colorGrey,
+              color:
+                  kHomeController.likeDataStoreList[postIndex].isLiked == true
+                      ? colorRed
+                      : isDarkOn.value == true
+                          ? colorLightWhite
+                          : colorGrey,
             )),
         Text(
           kHomeController.likeDataStoreList[postIndex].likeCount.toString(),
@@ -1167,7 +1392,9 @@ postOptions(
                   child: GridView(
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2, childAspectRatio: 1.5),
                     children: [
                       commonDialogItems(
                         image: facebook,
@@ -1204,16 +1431,22 @@ postOptions(
             splashColor: deepPurpleColor,
             splashRadius: 20.0,
             onPressed: () {
-              kHomeController.bookmarkButton.value = !kHomeController.bookmarkButton.value;
+              kHomeController.bookmarkButton.value =
+                  !kHomeController.bookmarkButton.value;
               Map<String, dynamic> params = {
-                'id': data == 'bookmark' ? (bookmarkId ?? '') : kHomeController.likeDataStoreList[postIndex].id ?? '',
+                'id': data == 'bookmark'
+                    ? (bookmarkId ?? '')
+                    : kHomeController.likeDataStoreList[postIndex].id ?? '',
               };
               kHomeController.addBookMarkApiCall(params, () {
-                if (kHomeController.addBookMarkModel.value.data?.type == 'added') {
-                  kHomeController.likeDataStoreList[postIndex].isBookmark = true;
+                if (kHomeController.addBookMarkModel.value.data?.type ==
+                    'added') {
+                  kHomeController.likeDataStoreList[postIndex].isBookmark =
+                      true;
                   isBookmarked = true;
                 } else {
-                  kHomeController.likeDataStoreList[postIndex].isBookmark = false;
+                  kHomeController.likeDataStoreList[postIndex].isBookmark =
+                      false;
                   isBookmarked = false;
                 }
                 kHomeController.likeDataStoreList.refresh();
@@ -1227,7 +1460,9 @@ postOptions(
             },
             icon: data == 'bookmark'
                 ? Icon(
-                    isBookmarked == true ? Icons.bookmark : Icons.bookmark_border,
+                    isBookmarked == true
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
                     size: 23,
                     color: isBookmarked == true
                         ? deepPurpleColor
@@ -1236,9 +1471,14 @@ postOptions(
                             : colorGrey,
                   )
                 : Icon(
-                    kHomeController.likeDataStoreList[postIndex].isBookmark == true ? Icons.bookmark : Icons.bookmark_border,
+                    kHomeController.likeDataStoreList[postIndex].isBookmark ==
+                            true
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
                     size: 23,
-                    color: kHomeController.likeDataStoreList[postIndex].isBookmark == true
+                    color: kHomeController
+                                .likeDataStoreList[postIndex].isBookmark ==
+                            true
                         ? deepPurpleColor
                         : isDarkOn.value == true
                             ? colorLightWhite
@@ -1249,7 +1489,8 @@ postOptions(
   });
 }
 
-postChangesData(BuildContext context, int postIndex, String? name, String? price, String? description, DateTime? date) {
+postChangesData(BuildContext context, int postIndex, String? name,
+    String? price, String? description, DateTime? date) {
   return Obx(() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1260,13 +1501,18 @@ postChangesData(BuildContext context, int postIndex, String? name, String? price
                 children: [
                   Icon(
                     CupertinoIcons.pin,
-                    color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30,
+                    color: isDarkOn.value == true
+                        ? colorLightWhite
+                        : colorGreyOpacity30,
                     size: 20,
                   ),
                   5.widthBox,
                   Text(
                     'Pinned Post',
-                    style: greyInter14W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGreyOpacity30),
+                    style: greyInter14W500.copyWith(
+                        color: isDarkOn.value == true
+                            ? colorLightWhite
+                            : colorGreyOpacity30),
                   )
                 ],
               )
@@ -1279,14 +1525,20 @@ postChangesData(BuildContext context, int postIndex, String? name, String? price
             ClipOval(
               child: SizedBox.fromSize(
                 size: const Size.fromRadius(35), // Image radius
-                child: kHomeController.homePostData[postIndex].user?.avatarUrl?.isNotEmpty == true
+                child: kHomeController.homePostData[postIndex].user?.avatarUrl
+                            ?.isNotEmpty ==
+                        true
                     ? CachedNetworkImage(
                         height: 40.0,
                         width: 40.0,
                         fit: BoxFit.fill,
-                        imageUrl: kHomeController.homePostData[postIndex].user?.avatarUrl ?? '',
-                        placeholder: (context, url) => Image(image: profilePlaceholder, fit: BoxFit.cover),
-                        errorWidget: (context, url, error) => Image(image: profilePlaceholder, fit: BoxFit.cover),
+                        imageUrl: kHomeController
+                                .homePostData[postIndex].user?.avatarUrl ??
+                            '',
+                        placeholder: (context, url) =>
+                            Image(image: profilePlaceholder, fit: BoxFit.cover),
+                        errorWidget: (context, url, error) =>
+                            Image(image: profilePlaceholder, fit: BoxFit.cover),
                       )
                     : Center(
                         child: Image.asset(
@@ -1310,7 +1562,11 @@ postChangesData(BuildContext context, int postIndex, String? name, String? price
                       name ?? '',
                       style: FontStyleUtility.blackInter22W500
                           .copyWith(fontSize: 18)
-                          .copyWith(color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontWeight: FontWeight.w900),
+                          .copyWith(
+                              color: isDarkOn.value == true
+                                  ? colorWhite
+                                  : deepPurpleColor,
+                              fontWeight: FontWeight.w900),
                     ),
                     5.widthBox,
                     const Icon(
@@ -1330,17 +1586,26 @@ postChangesData(BuildContext context, int postIndex, String? name, String? price
                   children: [
                     Text(
                       timeUntil(date),
-                      style: greyInter16W500.copyWith(color: isDarkOn.value == true ? colorLightWhite : colorGrey),
+                      style: greyInter16W500.copyWith(
+                          color: isDarkOn.value == true
+                              ? colorLightWhite
+                              : colorGrey),
                     ),
                     10.widthBox,
                     Icon(
-                      kHomeController.myPostModel.value.posts?[postIndex].locked == 'yes' ? Icons.lock_outline : Icons.public_outlined,
-                      color: isDarkOn.value == true ? colorLightWhite : colorGrey,
+                      kHomeController
+                                  .myPostModel.value.posts?[postIndex].locked ==
+                              'yes'
+                          ? Icons.lock_outline
+                          : Icons.public_outlined,
+                      color:
+                          isDarkOn.value == true ? colorLightWhite : colorGrey,
                       size: 20.0,
                     ),
                     5.widthBox,
                     Text(
-                      price ?? '' /*kHomeController.myPostModel.value.posts?[index].price ?? ''*/,
+                      price ??
+                          '' /*kHomeController.myPostModel.value.posts?[index].price ?? ''*/,
                       style: blackInter14W500,
                     )
                   ],
@@ -1416,7 +1681,8 @@ postChangesData(BuildContext context, int postIndex, String? name, String? price
                   'name',
                   context,
                   kHomeController.myPostModel.value.posts?[postIndex].id,
-                  kHomeController.myPostModel.value.posts?[postIndex].description,
+                  kHomeController
+                      .myPostModel.value.posts?[postIndex].description,
                   kHomeController.myPostModel.value.posts?[postIndex].image,
                 ),
               ),
@@ -1468,35 +1734,51 @@ commentSection(int postIndex) {
                                   builder: (context, snapshot) {
                                     return Column(
                                       // mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             Text(
                                               'Admin Account',
                                               style: blackInter15W500.copyWith(
-                                                  color: isDarkOn.value == true ? colorWhite : deepPurpleColor,
+                                                  color: isDarkOn.value == true
+                                                      ? colorWhite
+                                                      : deepPurpleColor,
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w900),
                                             ),
-                                            Icon(Icons.verified, size: 18, color: isDarkOn.value == true ? colorWhite : blueColor)
+                                            Icon(Icons.verified,
+                                                size: 18,
+                                                color: isDarkOn.value == true
+                                                    ? colorWhite
+                                                    : blueColor)
                                           ],
                                         ),
                                         3.heightBox,
                                         Text(
                                           'best post',
-                                          style: blackInter15W500.copyWith(fontWeight: FontWeight.w400),
+                                          style: blackInter15W500.copyWith(
+                                              fontWeight: FontWeight.w400),
                                         ),
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           children: [
                                             Text(
                                               '1 Hour ago',
-                                              style: FontStyleUtility.blackInter22W500.copyWith(
-                                                  color: isDarkOn.value == true ? colorLightWhite : colorGrey,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w400),
+                                              style: FontStyleUtility
+                                                  .blackInter22W500
+                                                  .copyWith(
+                                                      color:
+                                                          isDarkOn.value == true
+                                                              ? colorLightWhite
+                                                              : colorGrey,
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w400),
                                             ),
                                             IconButton(
                                                 onPressed: () {
@@ -1511,38 +1793,68 @@ commentSection(int postIndex) {
                                                           fit: BoxFit.fill,
                                                         ),
                                                       ),
-                                                      textAlign: TextAlign.center,
-                                                      msg: 'Are you sure you want to delete this comment ?',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      msg:
+                                                          'Are you sure you want to delete this comment ?',
                                                       context: context,
                                                       callback: () {
-                                                        kNotificationController.notificationDeleteApiCall({}, () {
-                                                          kNotificationController.notificationApiCall({}, () {});
+                                                        kNotificationController
+                                                            .notificationDeleteApiCall(
+                                                                {}, () {
+                                                          kNotificationController
+                                                              .notificationApiCall(
+                                                                  {}, () {});
                                                         });
                                                       });
                                                 },
-                                                icon: const Icon(Icons.delete_outline, size: 20.0),
+                                                icon: const Icon(
+                                                    Icons.delete_outline,
+                                                    size: 20.0),
                                                 padding: EdgeInsets.zero,
-                                                visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity)),
+                                                visualDensity:
+                                                    const VisualDensity(
+                                                        vertical: VisualDensity
+                                                            .minimumDensity)),
                                             const Spacer(),
                                             StreamBuilder<Object>(
-                                                stream: kHomeController.likeButton.stream,
+                                                stream: kHomeController
+                                                    .likeButton.stream,
                                                 builder: (context, snapshot) {
                                                   return IconButton(
                                                       splashColor: colorRed,
                                                       splashRadius: 20.0,
                                                       padding: EdgeInsets.zero,
-                                                      visualDensity: const VisualDensity(vertical: VisualDensity.minimumDensity),
+                                                      visualDensity:
+                                                          const VisualDensity(
+                                                              vertical:
+                                                                  VisualDensity
+                                                                      .minimumDensity),
                                                       onPressed: () {
-                                                        kHomeController.likeButton.value = !kHomeController.likeButton.value;
+                                                        kHomeController
+                                                                .likeButton
+                                                                .value =
+                                                            !kHomeController
+                                                                .likeButton
+                                                                .value;
                                                       },
                                                       icon: Icon(
-                                                        kHomeController.likeButton.value == true
-                                                            ? CupertinoIcons.heart_fill
-                                                            : CupertinoIcons.suit_heart,
+                                                        kHomeController
+                                                                    .likeButton
+                                                                    .value ==
+                                                                true
+                                                            ? CupertinoIcons
+                                                                .heart_fill
+                                                            : CupertinoIcons
+                                                                .suit_heart,
                                                         size: 18,
-                                                        color: kHomeController.likeButton.value == true
+                                                        color: kHomeController
+                                                                    .likeButton
+                                                                    .value ==
+                                                                true
                                                             ? colorRed
-                                                            : isDarkOn.value == true
+                                                            : isDarkOn.value ==
+                                                                    true
                                                                 ? colorLightWhite
                                                                 : colorGrey,
                                                       ));
@@ -1557,23 +1869,29 @@ commentSection(int postIndex) {
                         ).paddingOnly(bottom: 10)
                       : commonTextField(
                           hintText: 'Write a comment press send..',
-                          textEditingController: postCommentController[postIndex],
+                          textEditingController:
+                              postCommentController[postIndex],
                           inputAction: TextInputAction.send,
                           borderRadiusColor: colorGreyOpacity30,
                           onFieldSubmit: (value) {
                             FocusManager.instance.primaryFocus?.unfocus();
                             Map<String, dynamic> params = {
-                              'update_id': kHomeController.homePostData[postIndex].id.toString(),
-                              'comment': postCommentController[postIndex].value.text
+                              'update_id': kHomeController
+                                  .homePostData[postIndex].id
+                                  .toString(),
+                              'comment':
+                                  postCommentController[postIndex].value.text
                             };
                             kHomeController.postCommentApiCall(params, () {
                               Map<String, dynamic> params = {'page': _page};
-                              kHomeController.homePageApiCall(params, () {}, false);
+                              kHomeController.homePageApiCall(
+                                  params, () {}, false);
                             });
                           });
                 })
             : const SizedBox(),
-        kHomeController.homePostData[postIndex].latestComment != null && commentValue.value == true
+        kHomeController.homePostData[postIndex].latestComment != null &&
+                commentValue.value == true
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1581,17 +1899,29 @@ commentSection(int postIndex) {
                     children: [
                       5.widthBox,
                       Text(
-                        kHomeController.homePostData[postIndex].latestComment?.user?.username ?? '',
+                        kHomeController.homePostData[postIndex].latestComment
+                                ?.user?.username ??
+                            '',
                         overflow: TextOverflow.ellipsis,
-                        style: greyInter18W500.copyWith(color: isDarkOn.value == true ? colorWhite : deepPurpleColor, fontSize: 16),
+                        style: greyInter18W500.copyWith(
+                            color: isDarkOn.value == true
+                                ? colorWhite
+                                : deepPurpleColor,
+                            fontSize: 16),
                       ),
                       5.widthBox,
                       Expanded(
                         child: Text(
-                          kHomeController.homePostData[postIndex].latestComment?.reply ?? '',
+                          kHomeController.homePostData[postIndex].latestComment
+                                  ?.reply ??
+                              '',
                           overflow: TextOverflow.ellipsis,
                           style: greyInter18W500.copyWith(
-                              color: isDarkOn.value == true ? colorLightWhite : colorGrey, fontWeight: FontWeight.w400, fontSize: 16),
+                              color: isDarkOn.value == true
+                                  ? colorLightWhite
+                                  : colorGrey,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16),
                         ),
                       ),
                     ],
@@ -1606,7 +1936,11 @@ commentSection(int postIndex) {
                       'View all comment',
                       overflow: TextOverflow.ellipsis,
                       style: greyInter18W500.copyWith(
-                          color: isDarkOn.value == true ? colorWhite : colorLightWhite, fontSize: 15, fontWeight: FontWeight.w400),
+                          color: isDarkOn.value == true
+                              ? colorWhite
+                              : colorLightWhite,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w400),
                     ).paddingOnly(left: 5.0),
                   ),
                 ],

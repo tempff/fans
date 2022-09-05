@@ -63,8 +63,7 @@ class Api {
       Map<String, dynamic> headerParameters;
 
       headerParameters = {
-        // 'Authorization': 'Bearer ${storage.read('loginToken') ?? ''}',
-        'Authorization': 'Bearer 0tyQAL1lMubRCgElCSrdihQehGOfrPuUyWrGe5aSptEs6tPO6e7iN8aJNBKt',
+        'Authorization': 'Bearer ${storage.read('loginToken') ?? ''}',
         'Accept': 'application/json',
       };
       String mainUrl = url;
